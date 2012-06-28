@@ -5,6 +5,7 @@ from cms.utils import get_language_from_request
 from cms.utils.conf import get_cms_setting
 from cms.utils.django_load import iterload_objects
 from cms.utils.placeholder import get_placeholder_conf
+from cms.utils.i18n import get_fallback_languages, get_default_language
 from django.template import Template, Context
 from django.template.defaultfilters import title
 from django.template.loader import render_to_string
@@ -97,11 +98,20 @@ def render_placeholder(placeholder, context_to_copy, name_fallback="Placeholder"
     context.push()
     request = context['request']
     plugins = [plugin for plugin in get_plugins(request, placeholder)]
-    page = placeholder.page if placeholder else None
+    lang = get_language_from_request(request)
+    page = get_page_from_placeholder_if_exists(placeholder)
     if page:
         template = page.template
     else:
         template = None
+    plugins = [plugin for plugin in get_plugins(request, placeholder, lang)]
+    if (len(plugins)==0 and placeholder and lang != get_default_language() and
+        get_placeholder_conf("language_fallback", placeholder.slot, template, False)):
+        fallbacks = get_fallback_languages(lang)
+        for l in fallbacks:
+            plugins = [plugin for plugin in get_plugins(request, placeholder, l)]
+            if plugins:
+                break
     # Add extra context as defined in settings, but do not overwrite existing context variables,
     # since settings are general and database/template are specific
     # TODO this should actually happen as a plugin context processor, but these currently overwrite
