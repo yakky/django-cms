@@ -36,7 +36,7 @@ class TinyMCEEditor(TinyMCE):
           'js/placeholder_editor_registry.js',
         )])
         media.add_css({
-            "all": [cms_static_url(path) for path in ('css/cms.css',)]
+            "all": [cms_static_url(path) for path in ('css/cms.base.css',)]
         })
         
         return media

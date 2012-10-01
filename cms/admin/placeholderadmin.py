@@ -25,7 +25,7 @@ class PlaceholderAdmin(ModelAdmin):
             'all': [cms_static_url(path) for path in (
                 'css/pages.css',
                 'css/change_form.css',
-                'css/cms.css',
+                'css/cms.base.css',
                 'css/plugin_editor.css',
             )]
         }

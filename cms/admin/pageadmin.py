@@ -175,7 +175,7 @@ class PageAdmin(ModelAdmin):
             'all': [cms_static_url(path) for path in (
                 'css/pages.css',
                 'css/change_form.css',
-                'css/cms.css',
+                'css/cms.base.css',
             )]
         }
         js = ['%sjs/jquery.min.js' % admin_static_url()] + [cms_static_url(path) for path in [
