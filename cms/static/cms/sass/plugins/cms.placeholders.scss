@@ -1,12 +1,14 @@
 @charset "utf-8";
-/**
- * @author:		Angelo Dini
- * @copyright:	http://www.divio.ch under the BSD Licence
- * @extends:	plugins/cms.toolbar.css
+/*!
+ * @copyright:	https://github.com/divio/django-cms
  */
 
-/*##################################################|*/
-/* #PLACEHOLDERS# */
+//##################################################
+// #IMPORT SETTINGS#
+
+
+//##################################################
+// #BASE#
 .cms_placeholder { display:-moz-inline-box; -moz-box-orient:vertical; display:inline-block !important; float:left;
 	vertical-align:middle; *vertical-align:auto; width:100%;
 	clear:both; overflow:hidden; }
