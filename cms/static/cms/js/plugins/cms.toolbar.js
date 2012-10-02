@@ -2,7 +2,7 @@
 /* #CMS.TOOLBAR# */
 CMS.$(document).ready(function ($) {
 	// assign correct jquery to $ namespace
-	$ = CMS.$ || $;
+	$ = CMS.$;
 
 	/*!
 	 * Toolbar
@@ -17,7 +17,7 @@ CMS.$(document).ready(function ($) {
 	 * TODO: login needs special treatment (errors, login on enter)
 	 * TODO: styling of the collapser button needs to be somehow transparent
 	 */
-	CMS.Toolbar = CMS.Class.$extend({
+	CMS.Toolbar =  new CMS.Class({
 
 		implement: [CMS.API.Helpers, CMS.API.Security],
 

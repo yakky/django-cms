@@ -2,7 +2,7 @@
 /* #CMS.PLACEHOLDERS# */
 CMS.$(document).ready(function ($) {
 	// assign correct jquery to $ namespace
-	$ = CMS.$ || $;
+	$ = CMS.$;
 
 	/*!
 	 * Placeholders
@@ -15,7 +15,7 @@ CMS.$(document).ready(function ($) {
 	 * @compatibility: IE >= 6, FF >= 2, Safari >= 4, Chrome > =4, Opera >= 10
 	 */
 
-	CMS.Placeholders = CMS.Class.$extend({
+	CMS.Placeholders = new CMS.Class({
 
 		options: {
 			'debug': false, // not integrated yet
@@ -478,7 +478,7 @@ CMS.$(document).ready(function ($) {
 	 * @version: 1.0.0
 	 * @description: Handles each placeholder separately
 	 */
-	CMS.Placeholder = CMS.Class.$extend({
+	CMS.Placeholder = new CMS.Class({
 
 		initialize: function (container, options) {
 			// save reference to this class
