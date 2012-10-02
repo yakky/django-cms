@@ -39,38 +39,30 @@
 	// #TOOLBAR/navigation#
 	.cms_toolbar-item_navigation {
 		li { float:left; position:relative; zoom:1; }
-		li a, li span { float:left; padding:5px 10px; zoom:1; }
+		li a, li span { float:left; padding:5px 10px; zoom:1; cursor:default; }
 		li span { color:#efefef; @include text-shadow(0 1px 0 #fff); }
 		li ul { display:none; }
 		// activation effect
 		li:hover, li:active, li:focus {
 			ul { position:absolute; left:0; top:30px;
-				display:block; min-width:200px; padding:4px 0;
-				border:1px solid #e1e1e1; background:#fff;
-				@include border-radius(0 0 4px 4px);
-				@include box-shadow(0 2px 2px #e1e1e1); }
+				display:block; min-width:180px; padding:4px 0;
+				@include border-radius(0 0 4px 4px); }
 			ul li { float:none; zoom:1; }
-			ul li a, ul li span { float:none; display:block; zoom:1; padding:2px 25px 2px 15px; white-space:nowrap; }
-			ul li a:hover, ul li a:active, ul li a:focus { color:#fff; }
-			ul .active a { color:#222 !important; font-weight: bold; background: none; }
-			ul .active a:hover { color:#fff !important;
-				@include background-image(linear-gradient(#0eaaec, #0a84e4)); }
+			ul li a, ul li span { float:none; display:block; zoom:1; cursor:pointer; white-space:nowrap;
+				padding:2px 25px 2px 15px; }
+			ul .active a { font-weight: bold; background: none; }
 		}
 
-		.cms_toolbar-item_navigation-break { height:1px; margin: 0 0 4px; padding:0 0 3px; @include hide-text(); }
+		.cms_toolbar-item_navigation-break { height:1px; margin:0 0 4px; padding:0 0 3px; @include hide-text(); }
 
-		// TODO NEEDS HOVER FIXING
 		.cms_toolbar-item_navigation-disabled {
-			a { color:#efefef; @include text-shadow(0 1px 0 #fff); cursor:not-allowed;
-				&:hover, &:active, &:focus { color:#efefef;
+			a { cursor:not-allowed;
+				&:hover, &:active, &:focus {
 					@include box-shadow(none);
 					@include background-image(none); }
 			}
 			ul { display:none !important; }
 		}
-
-
-
 	}
 
 
@@ -91,10 +83,26 @@
 
 	// #TOOLBAR/navigation#
 	.cms_toolbar-item_navigation {
+		// activation effect
+		li:hover, li:active, li:focus {
+			ul { border:1px solid #e1e1e1; background:#fff;
+				@include box-shadow(0 2px 2px #e1e1e1); }
+			ul li a:hover, ul li a:active, ul li a:focus { color:#fff; }
+			ul .active a { color:#222 !important; }
+			ul .active a:hover { color:#fff !important;
+				@include background-image(linear-gradient(#0eaaec, #0a84e4)); }
+		}
+
 		li a:hover, li a:active, li a:focus, .active > a { color:#fff;
 			@include background-image(linear-gradient(#0eaaec, #0a84e4)); }
 
 		.cms_toolbar-item_navigation-break { border-bottom:1px solid #ddd; }
+
+		.cms_toolbar-item_navigation-disabled {
+			a { color:#efefef; @include text-shadow(0 1px 0 #fff);
+				&:hover, &:active, &:focus { color:#efefef; }
+			}
+		}
 	}
 
 // end of light theme
@@ -130,9 +138,6 @@ only screen and (min-device-pixel-ratio:1.5) {
 
 
 #cms_toolbar {
-
-	/* #TOOLBAR/items/navigation# */
-
 	/* #TOOLBAR/items/buttons# */
 	.cms_toolbar-item_buttons {
 		@include box-shadow(#ebebeb 0px 1px 0px inset);
