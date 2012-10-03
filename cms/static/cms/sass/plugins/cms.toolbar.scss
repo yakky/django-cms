@@ -96,6 +96,7 @@
 
 		li:first-child a { @include border-radius(3px 0 0 3px); }
 		li:last-child a { @include border-radius(0 3px 3px 0); }
+		li:only-child a { @include border-radius(3px); }
 	}
 
 	// #TOOLBAR/handle#
@@ -172,7 +173,10 @@
 		}
 		.active a { color:#fff; border:1px solid #434343 !important;
 			@include box-shadow(inset 0 1px 0 #888);
-			@include background-image(linear-gradient(top, #666, #444) !important); }
+			@include background-image(linear-gradient(top, #666, #444) !important);
+			&:hover { background:#666 !important; }
+			&:active, &:focus { background:#444 !important; @include box-shadow(inset 0 1px 0 #000); }
+		}
 
 		li:first-child a { border-left:1px solid #dadada; }
 	}

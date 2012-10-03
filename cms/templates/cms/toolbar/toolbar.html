@@ -75,7 +75,7 @@ CMS.$(document).ready(function () {
 						{% endfor %}
 					</ul>
 				</li>
-				<li class="cms_toolbar-item_navigation-disabled">
+				<li{% if not request.toolbar.edit_mode %} class="cms_toolbar-item_navigation-disabled"{% endif %}>
 					<a href="{% url admin:cms_page_change current_page.pk %}">{% trans "Publish" %}</a>
 					<ul>
 						<li><a href="{% url admin:cms_page_publish_page current_page.pk %}" rel="ajax">{% trans "Publish now" %}</a></li>
