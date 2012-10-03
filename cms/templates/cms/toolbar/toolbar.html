@@ -86,21 +86,23 @@ CMS.$(document).ready(function () {
 		</div>
 
 		<div class="cms_toolbar-right">
-			{% if request.args %}
-				<ul class="cms_toolbar-item cms_toolbar-item_buttons">
-					<li{% if g.edit %} class="active"{% endif %}><a href="?edit=true"><span>Edit</span></a></li>
-					<li{% if g.layout %} class="active"{% endif %}><a href="?layout=true"><span>Layout</span></a></li>
-					<li{% if g.view %} class="active"{% endif %}><a href="?view=true"><span>View</span></a></li>
-				</ul>
-			{% endif %}
-			<ul class="cms_toolbar-item cms_toolbar-item_switches">
-				<li><a href="/?edit=true">Draft</a></li>
-				<li class="cms_toolbar-item_switch {% if request.args %}draft{% else %}live{% endif %}"><a href="{% if request.args %}/{% else %}/?edit=true{% endif %}"><span>switch</span></a></li>
-				<li><a href="/" {% if not request.args %}class="live"{% endif %}>Live</a></li>
+			{% if request.toolbar.edit_mode %}
+			<ul class="cms_toolbar-item cms_toolbar-item_buttons">
+				<li{% if g.edit %} class="active"{% endif %}><a href="?edit=true"><span>Edit</span></a></li>
+				<li{% if g.layout %} class="active"{% endif %}><a href="?layout=true"><span>Layout</span></a></li>
+				<li{% if g.view %} class="active"{% endif %}><a href="?view=true"><span>View</span></a></li>
 			</ul>
+			{% endif %}
+			<div class="cms_toolbar-item cms_toolbar-item_switch{% if not request.toolbar.edit_mode %} cms_toolbar-item_switch-active{% endif %}">
+				<a href="{% if request.toolbar.edit_mode %}?edit_off{% else %}?edit{% endif %}">
+					<span class="cms_toolbar-item_switch-on">{% trans "Live" %}</span>
+					<span class="cms_toolbar-item_switch-off">{% trans "Draft" %}</span>
+				</a>
+				<span class="cms_toolbar-item_switch-knob">{% trans "Change" %}</span>
+			</div>
 		</div>
 	</div>
-	<div class="cms_toolbar-trigger"><a href="#"><span class="arrow-up"></span></a></div>
+	<div class="cms_toolbar-trigger cms_toolbar-trigger-expanded"><a href="#">{% trans "Toggle toolbar" %}</a></div>
 	<!-- end: toolbar -->
 
 	<!-- start: sidebar -->
@@ -115,3 +117,5 @@ CMS.$(document).ready(function () {
 	<div class="cms_placeholders-tooltip"><span class="iconic pen_alt_fill"></span>Double-click to edit</div>
 	<!-- end: placeholder -->
 </div>
+<p>&nbsp;</p>
+edit {{ request.toolbar.edit_mode }}
