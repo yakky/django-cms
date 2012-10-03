@@ -88,12 +88,13 @@ CMS.$(document).ready(function () {
 		<div class="cms_toolbar-right">
 			{% if request.toolbar.edit_mode %}
 			<ul class="cms_toolbar-item cms_toolbar-item_buttons">
-				<li{% if g.edit %} class="active"{% endif %}><a href="?edit=true"><span>Edit</span></a></li>
-				<li{% if g.layout %} class="active"{% endif %}><a href="?layout=true"><span>Layout</span></a></li>
-				<li{% if g.view %} class="active"{% endif %}><a href="?view=true"><span>View</span></a></li>
+				<li{% if request.toolbar.edit_mode %} class="active"{% endif %}><a href="?edit=true">{% trans "Edit" %}</a></li>
+				<li><a href="?layout=true">{% trans "Layout" %}</a></li>
+				<li><a href="?view=true">{% trans "View" %}</a></li>
 			</ul>
 			{% endif %}
 			<div class="cms_toolbar-item cms_toolbar-item_switch{% if not request.toolbar.edit_mode %} cms_toolbar-item_switch-active{% endif %}">
+				<!-- TODO: need to register on and off urls -->
 				<a href="{% if request.toolbar.edit_mode %}?edit_off{% else %}?edit{% endif %}">
 					<span class="cms_toolbar-item_switch-on">{% trans "Live" %}</span>
 					<span class="cms_toolbar-item_switch-off">{% trans "Draft" %}</span>
@@ -118,4 +119,8 @@ CMS.$(document).ready(function () {
 	<!-- end: placeholder -->
 </div>
 <p>&nbsp;</p>
-edit {{ request.toolbar.edit_mode }}
+edit {{ request.toolbar.edit_mode }}<br />
+
+{% for param in request %}
+	param: {{ param }}<br />
+{% endfor %}
