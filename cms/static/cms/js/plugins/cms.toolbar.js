@@ -50,7 +50,7 @@ CMS.$(document).ready(function ($) {
 			this.switcher = this.container.find('.cms_toolbar-item_switch');
 
 			this.sideframe = this.container.find('.cms_sideframe');
-			this.body = $('body');
+			this.body = $('html');
 
 			// setup initial stuff
 			this._setup();
@@ -81,6 +81,12 @@ CMS.$(document).ready(function ($) {
 					e.preventDefault();
 					that._setNavigation($(e.currentTarget));
 				});
+				// handle active passive states
+				var root = $(this).find('> li');
+					root.bind('mouseenter mouseleave', function (e) {
+						root.removeClass('active');
+						if(e.type === 'mouseenter') $(this).addClass('active');
+					});
 			});
 
 			// attach event to the switcher elements
@@ -95,6 +101,9 @@ CMS.$(document).ready(function ($) {
 			this.sideframe.find('.cms_sideframe-resize').bind('mousedown', function (e) {
 				e.preventDefault();
 				that._startSideframeResize();
+			});
+			this.sideframe.bind('dblclick', function () {
+				that._hideSideframe();
 			});
 			// we need to listen do the entire document mouseup event
 			$(document).bind('mouseup.cms', function (e) {
@@ -156,9 +165,11 @@ CMS.$(document).ready(function ($) {
 			var width = this.options.sidebarWidth;
 
 			// cancel animation if sidebar is already shown
-			if(this.sideframe.is(':visible') && parseInt(this.sideframe.css('width')) <= width) {
+			if(this.sideframe.is(':visible')) {
 				// sidebar is already open
 				holder.html(iframe);
+				// reanimate the frame
+				if(parseInt(this.sideframe.css('width')) <= width) this._showSideframe(width);
 			} else {
 				// load iframe after frame animation is done
 				setTimeout(function () {
@@ -170,12 +181,12 @@ CMS.$(document).ready(function ($) {
 		},
 
 		_showSideframe: function (width) {
-			this.sideframe.animate({ 'width': width }, this.options.sidebarDuration);
+			this.sideframe.show().animate({ 'width': width }, this.options.sidebarDuration);
 			this.body.animate({ 'margin-left': width }, this.options.sidebarDuration);
 		},
 
 		_hideSideframe: function () {
-			this.sideframe.animate({ 'width': 0 }, this.options.sidebarDuration);
+			this.sideframe.hide().animate({ 'width': 0 }, this.options.sidebarDuration);
 			this.body.animate({ 'margin-left': 0 }, this.options.sidebarDuration);
 
 			// remove the iframe
@@ -191,7 +202,6 @@ CMS.$(document).ready(function ($) {
 				if(e.clientX <= 3) e.clientX = 3;
 
 				that.sideframe.css('width', e.clientX);
-				that.sideframe.find('.cms_sideframe-frame').css('width', e.clientX);
 				that.body.css('margin-left', e.clientX);
 			});
 		},
