@@ -17,7 +17,256 @@ CMS.$(document).ready(function ($) {
 	 * TODO: login needs special treatment (errors, login on enter)
 	 * TODO: styling of the collapser button needs to be somehow transparent
 	 */
-	CMS.Toolbar =  new CMS.Class({
+	CMS.Toolbar = new CMS.Class({
+
+		implement: [CMS.API.Helpers],
+
+		options: {
+			'debug': false, // not yet required
+			'settings': {
+				'toolbar': 'expanded', // expanded or collapsed
+				'csrf': '' // required for all ajax interactions
+			},
+			'sidebarDuration': 300,
+			'sidebarWidth': 275,
+			'urls': {
+				'settings': '' // url to save settings
+			}
+
+		},
+
+		initialize: function (container, options) {
+			this.container = $(container);
+			this.options = $.extend(true, {}, this.options, options);
+			this.settings = this.options.settings;
+
+			// class variables
+			this.toolbar = this.container.find('.cms_toolbar');
+			this.toolbar.hide();
+			this.toolbarTrigger = this.container.find('.cms_toolbar-trigger');
+
+			this.navigations = this.container.find('.cms_toolbar-item_navigation');
+			this.buttons = this.container.find('.cms_toolbar-item_buttons');
+			this.switcher = this.container.find('.cms_toolbar-item_switch');
+
+			this.sideframe = this.container.find('.cms_sideframe');
+			this.body = $('body');
+
+			// setup initial stuff
+			this._setup();
+
+			// setup events
+			this._events();
+		},
+
+		_setup: function () {
+
+
+			// setup toolbar visibility, we need to reverse the options to set the correct state
+			(this.settings.toolbar === 'expanded') ? this._showToolbar(0, true) : this._hideToolbar(0, true);
+		},
+
+		_events: function () {
+			var that = this;
+
+			// attach event to the trigger handler
+			this.toolbarTrigger.bind('click', function (e) {
+				e.preventDefault();
+				that.toggleToolbar(200);
+			});
+
+			// attach event to the navigation elements
+			this.navigations.each(function () {
+				$(this).find('a').bind('click', function (e) {
+					e.preventDefault();
+					that._setNavigation($(e.currentTarget));
+				});
+			});
+
+			// attach event to the switcher elements
+			this.switcher.each(function () {
+				$(this).bind('click', function (e) {
+					e.preventDefault();
+					that._setSwitcher($(e.currentTarget));
+				});
+			});
+
+			// attach event to the sidebar
+			this.sideframe.find('.cms_sideframe-resize').bind('mousedown', function (e) {
+				e.preventDefault();
+				that._startSideframeResize();
+			});
+			// we need to listen do the entire document mouseup event
+			$(document).bind('mouseup.cms', function (e) {
+				that._stopSideframeResize();
+			});
+		},
+
+		toggleToolbar: function (speed) {
+			(this.settings.toolbar === 'collapsed') ? this._showToolbar(speed) : this._hideToolbar(speed);
+		},
+
+		_showToolbar: function (speed, init) {
+			this.toolbarTrigger.addClass('cms_toolbar-trigger-expanded');
+			this.toolbar.slideDown(speed);
+			this.settings.toolbar = 'expanded';
+			if(!init) this.setSettings();
+		},
+
+		_hideToolbar: function (speed, init) {
+			this.toolbarTrigger.removeClass('cms_toolbar-trigger-expanded');
+			this.toolbar.slideUp(speed);
+			this.settings.toolbar = 'collapsed';
+			if(!init) this.setSettings();
+		},
+
+		// this function is a placeholder and should update the backend with various toolbar states
+		setSettings: function () {
+			// todo do queue system
+			console.log(this.getSettings());
+		},
+
+		getSettings: function () {
+			return this.options;
+		},
+
+		_setNavigation: function (el) {
+			// save local vars
+			var target = el.attr('rel');
+
+			switch(target) {
+				case 'modal':
+					console.log('modal');
+					break;
+				case 'sideframe':
+					this.openSideframe(el.attr('href'));
+					break;
+				case 'ajax':
+					this.openAjax(el.attr('href'));
+					break;
+				default:
+					return false;
+			}
+		},
+
+		openSideframe: function (url) {
+			// prepare sideframe
+			var holder = this.sideframe.find('.cms_sideframe-frame');
+			var iframe = $('<iframe src="'+url+'" class="" frameborder="0" />');
+			var width = this.options.sidebarWidth;
+
+			// cancel animation if sidebar is already shown
+			if(this.sideframe.is(':visible') && parseInt(this.sideframe.css('width')) <= width) {
+				// sidebar is already open
+				holder.html(iframe);
+			} else {
+				// load iframe after frame animation is done
+				setTimeout(function () {
+					holder.html(iframe);
+				}, this.options.sidebarDuration);
+				// display the frame
+				this._showSideframe(width);
+			}
+		},
+
+		_showSideframe: function (width) {
+			this.sideframe.animate({ 'width': width }, this.options.sidebarDuration);
+			this.body.animate({ 'margin-left': width }, this.options.sidebarDuration);
+		},
+
+		_hideSideframe: function () {
+			this.sideframe.animate({ 'width': 0 }, this.options.sidebarDuration);
+			this.body.animate({ 'margin-left': 0 }, this.options.sidebarDuration);
+
+			// remove the iframe
+			this.sideframe.find('iframe').remove();
+		},
+
+		_startSideframeResize: function () {
+			var that = this;
+			// this prevents the iframe from being focusable
+			this.sideframe.find('.cms_sideframe-overlay').css('z-index', 20);
+
+			$(document).bind('mousemove.cms', function (e) {
+				if(e.clientX <= 3) e.clientX = 3;
+
+				that.sideframe.css('width', e.clientX);
+				that.sideframe.find('.cms_sideframe-frame').css('width', e.clientX);
+				that.body.css('margin-left', e.clientX);
+			});
+		},
+
+		_stopSideframeResize: function () {
+			this.sideframe.find('.cms_sideframe-overlay').css('z-index', 1);
+
+			$(document).unbind('mousemove.cms');
+		},
+
+		openAjax: function (url) {
+			var that = this;
+
+			// TODO: the crsf token needs to be added through the backend or read from the options
+			$.ajax({
+				'method': 'post',
+				'url': url,
+				'data': {
+					'csrfmiddlewaretoken': this.settings.csrf
+				},
+				'error': function (jqXHR) {
+					that.showError(jqXHR.response + ' | ' + jqXHR.status + ' ' + jqXHR.statusText);
+				}
+			});
+		},
+
+		_setSwitcher: function (el) {
+			// save local vars
+			var active = el.hasClass('cms_toolbar-item_switch-active');
+			var anchor = el.find('a');
+			var knob = el.find('.cms_toolbar-item_switch-knob');
+			var duration = 300;
+
+			if(active) {
+				knob.animate({
+					'right': anchor.outerWidth(true) - (knob.outerWidth(true) + 2)
+				}, duration);
+				// move anchor behind the knob
+				anchor.css('z-index', 1).animate({
+					'padding-top': 6,
+					'padding-right': 14,
+					'padding-bottom': 4,
+					'padding-left': 28
+				}, duration);
+			} else {
+				knob.animate({
+					'left': anchor.outerWidth(true) - (knob.outerWidth(true) + 2)
+				}, duration);
+				// move anchor behind the knob
+				anchor.css('z-index', 1).animate({
+					'padding-top': 6,
+					'padding-right': 28,
+					'padding-bottom': 4,
+					'padding-left': 14
+				}, duration);
+			}
+
+			// reload
+			setTimeout(function () {
+				// TODO: this should only call reload insted of attaching new url
+				window.location.href = anchor.attr('href');
+			}, duration);
+		},
+
+		showError: function (msg) {
+			console.log(msg);
+		}
+
+	});
+
+
+
+
+
+	CMS.ToolbarOLD =  new CMS.Class({
 
 		implement: [CMS.API.Helpers, CMS.API.Security],
 

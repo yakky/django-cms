@@ -26,11 +26,11 @@
 #cms_toolbar {
 	.cms_toolbar { position:fixed; left:0; top:0; z-index:99999; width:100%; min-width:320px; }
 	.cms_toolbar-left { float:left; padding-left:10px; position:relative; z-index:10; }
-	.cms_toolbar-right { float:right; padding-right:42px; position:relative; z-index:10; }
+	.cms_toolbar-right { float:right; padding-right:32px; position:relative; z-index:10; }
 
 	.cms_toolbar-item { float:left; margin:0; }
 	.cms_toolbar-left .cms_toolbar-item { margin-left:10px; }
-	.cms_toolbar-right .cms_toolbar-item { margin-right:10px; }
+	.cms_toolbar-right .cms_toolbar-item { margin-right:20px; }
 
 	// #TOOLBAR/logo#
 	.cms_toolbar-item_logo { margin:0 !important; }
@@ -66,7 +66,7 @@
 	}
 
 	// #TOOLBAR/switch#
-	.cms_toolbar-item_switch { position:relative; left:0; top:0; margin:4px 0 0; @include border-radius(20px); }
+	.cms_toolbar-item_switch { position:relative; left:0; top:0; margin:4px 0 4px; @include border-radius(20px); }
 	.cms_toolbar-item_switch {
 		a { float:left;	position:relative; z-index:100; font-size:11px; line-height:11px;
 			text-transform:uppercase; letter-spacing:1px; padding:6px 14px 4px 28px; }
@@ -79,7 +79,6 @@
 		.cms_toolbar-item_switch-off { display:inline; position:relative; top:-1px; }
 	}
 
-	.cms_toolbar-item_switch-active {}
 	.cms_toolbar-item_switch-active {
 		a {	padding:6px 28px 4px 14px; }
 		.cms_toolbar-item_switch-knob { left:auto; right:2px; }
@@ -88,7 +87,7 @@
 	}
 
 	// #TOOLBAR/buttons#
-	.cms_toolbar-item_buttons { margin:4px 0 0;@include border-radius(3px); }
+	.cms_toolbar-item_buttons { margin:4px 0 4px; @include border-radius(3px); }
 	.cms_toolbar-item_buttons {
 		li { float:left; zoom:1; }
 		li a { float:left; zoom:1; font-size:11px; line-height:11px; padding:5px 12px; margin:0; }
@@ -102,6 +101,30 @@
 	// #TOOLBAR/handle#
 	.cms_toolbar-trigger { position:fixed; right:0; top:0; z-index:999999; }
 	.cms_toolbar-trigger a { display:block; width:30px; height:29px; @include hide-text(); }
+
+	// #TOOLBAR/sidebar#
+	.cms_sideframe { display:none; position:fixed; left:0; top:0; z-index:1; width:0; height:100%; overflow:visible !important; }
+	.cms_sideframe-frame { position:relative; z-index:10; width:100%; height:100%; overflow:hidden; background:#fff; }
+
+	.cms_sideframe iframe { height:100%; width:100%; border:none; background:#fff; overflow:auto; }
+
+
+
+
+
+
+
+	.cms_sideframe-resize { position:absolute; right:-2px; top:0; z-index:30; width:2px; height:100%;
+		cursor:col-resize; background:#efefef; }
+	.cms_sideframe-overlay { position:absolute; left:0; top:0; z-index:1; width:100%; height:100%;
+		background:transparent; }
+
+	.cms_sideframe-knob { width:6px; height:50px; background:#444;
+		position:absolute; right:-2px; top:50%; margin-top:-15px; @include border-radius(3px); }
+
+
+
+
 
 // end of toolbar
 }
@@ -175,20 +198,20 @@
 			@include box-shadow(inset 0 1px 0 #888);
 			@include background-image(linear-gradient(top, #666, #444) !important);
 			&:hover { background:#666 !important; }
-			&:active, &:focus { background:#444 !important; @include box-shadow(inset 0 1px 0 #000); }
+			&:active, &:focus { background:#444 !important; @include box-shadow(inset 0 1px 0 #444); }
 		}
 
 		li:first-child a { border-left:1px solid #dadada; }
 	}
 
 	// #TOOLBAR/handle#
-	.cms_toolbar-trigger { border-left:1px solid #e3e3e3; }
+	.cms_toolbar-trigger { border-left:1px solid #e3e3e3; border-bottom:1px solid #e1e1e1; }
 	.cms_toolbar-trigger a { color:#444 !important; border-left:1px solid #ececec; border-top:1px solid #ececec;
 		background:#f5f5f5 url('/static/cms/img/toolbar/sprite_toolbar.png') no-repeat -60px -40px;
-		&:hover, &:active, &:focus { background-position:-90px -40px; }
+		&:hover, &:active, &:focus { background-position:-90px -40px; background-color:#ececec; }
 	}
 	.cms_toolbar-trigger-expanded a { background-position:0 -40px;
-		&:hover, &:active, &:focus { background-position:-30px -40px; background-color:#ececec; }
+		&:hover, &:active, &:focus { background-position:-30px -40px; }
 	}
 
 // end of light theme
@@ -218,35 +241,4 @@ only screen and (min-device-pixel-ratio:1.5) {
 		background-size:190px; }
 
 // end of retina
-}
-
-
-
-
-
-
-
-
-#cms_toolbar {
-	/* #TOOLBAR/items/buttons# */
-
-	/* #TOOLBAR/items/icons# */
-	.cms_toolbar-icon_drag { @include hide-text(); width:12px;
-		background-image:url('/static/img/toolbar/icon_drag.png') !important; }
-}
-
-/* #TOOLBAR/sideframe# */
-#cms_toolbar {
-	#cms_sideframe { display:none; position:fixed; left:0; top:0; height:100%; z-index:1; overflow:visible; }
-	#cms_sideframe iframe { height:100%; width:100%; border:none; background:#fff; overflow:auto; }
-
-	.cms_sideframe-frame { position:relative; z-index:10; width:100%; height:100%; background:#fff;
-		width:275px; overflow:hidden; }
-	.cms_sideframe-resize { position:absolute; right:-2px; top:0; z-index:30; width:2px; height:100%;
-		cursor:col-resize; background:#efefef; }
-	.cms_sideframe-frame-overlay { position:absolute; left:0; top:0; z-index:1; width:100%; height:100%;
-		background:transparent; }
-
-	.cms_sideframe-knob { width:6px; height:50px; background:#444;
-		position:absolute; right:-2px; top:50%; margin-top:-15px; @include border-radius(3px); }
 }
