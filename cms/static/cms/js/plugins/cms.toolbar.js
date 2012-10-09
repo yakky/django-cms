@@ -20,6 +20,9 @@ CMS.$(document).ready(function ($) {
 			'sidebarDuration': 300,
 			'sidebarWidth': 275,
 			'dialogueDuration': 300,
+			'modalDuration': 300,
+			'modalWidth': 800,
+			'modalHeight': 400,
 			'urls': {
 				'settings': '' // url to save settings
 			},
@@ -63,7 +66,12 @@ CMS.$(document).ready(function ($) {
 			// todo some prototyping
 			var that = this;
 			$('.cms_placeholder-bar').bind('click', function () {
-				that.openModal('/admin/cms/page/6/edit-plugin/2/');
+				that.openModal('/admin/cms/page/6/edit-plugin/2/', [
+					{ 'title': 'Gallery', url: '/admin/cms/page/6/edit-plugin/2/' },
+					{ 'title': 'Layout', url: '/admin/cms/page/6/edit-plugin/2/' },
+					{ 'title': 'Item', url: '/admin/cms/page/6/edit-plugin/2/' },
+					{ 'title': 'Text', url: '/admin/cms/page/6/edit-plugin/2/' }
+				]);
 			});
 		},
 
@@ -137,6 +145,10 @@ CMS.$(document).ready(function ($) {
 			this.modal.find('.cms_modal-resize').bind('mousedown.cms', function (e) {
 				e.preventDefault();
 				that._startModalResize(e);
+			});
+			this.modal.find('.cms_modal-breadcrumb-items a').live('click', function (e) {
+				e.preventDefault();
+				that._changeModalContent($(this));
 			});
 
 			// stopper events
@@ -298,7 +310,7 @@ CMS.$(document).ready(function ($) {
 			this._showDialogue();
 		},
 
-		openModal: function (url) {
+		openModal: function (url, breadcrumb) {
 			// prepare sideframe
 			var iframe = $('<iframe src="'+url+'" class="" frameborder="0" />');
 			var holder = this.modal.find('.cms_modal-frame');
@@ -318,8 +330,25 @@ CMS.$(document).ready(function ($) {
 				'mergin-left': 0,
 				'margin-right': 0
 			});
+			this.modal.find('.cms_modal-body').css({
+				'width': this.options.modalWidth,
+				'height': this.options.modalHeight
+			});
 
-			this._showModal(300);
+			// we need to render the breadcrumb
+			var crumb = '';
+
+			$.each(breadcrumb, function (index, item) {
+				// check if the item is the last one
+				var last = (index >= breadcrumb.length - 1) ? 'cms_modal-breadcrumb-last' : '';
+				// render breadcrumb
+				crumb += '<a href="' + item.url + '" class="' + last + '"><span>' + item.title + '</span></a>';
+			});
+
+			this.modal.find('.cms_modal-breadcrumb-items').html(crumb);
+
+			// display modal
+			this._showModal(this.options.modalDuration);
 		},
 
 		_showSideframe: function (width) {
@@ -402,16 +431,6 @@ CMS.$(document).ready(function ($) {
 		},
 
 		_hideModal: function (speed) {
-			var that = this;
-
-			// set correct width and height
-			setTimeout(function () {
-				that.modal.find('.cms_modal-body').css({
-					'width': 800,
-					'height': 400
-				});
-			}, speed);
-
 			this.modal.fadeOut(speed);
 			this.modal.find('.cms_modal-frame iframe').remove();
 		},
@@ -431,9 +450,12 @@ CMS.$(document).ready(function ($) {
 			this.modal.find('.cms_modal-shim').show();
 
 			$(document).bind('mousemove.cms', function (e) {
+				var left = position.left - (initial.pageX - e.pageX) - $(window).scrollLeft();
+				var top = position.top - (initial.pageY - e.pageY) - $(window).scrollTop();
+
 				that.modal.css({
-					'left': position.left - (initial.pageX - e.pageX) - $(window).scrollLeft(),
-					'top': position.top - (initial.pageY - e.pageY) - $(window).scrollTop()
+					'left': left,
+					'top': top
 				});
 			});
 		},
@@ -445,6 +467,7 @@ CMS.$(document).ready(function ($) {
 		},
 
 		_startModalResize: function (initial) {
+			var that = this;
 			var container = this.modal.find('.cms_modal-body');
 			var width = container.width();
 			var height = container.height();
@@ -454,9 +477,10 @@ CMS.$(document).ready(function ($) {
 			$(document).bind('mousemove.cms', function (e) {
 				var w = width - (initial.pageX - e.pageX);
 				var h = height - (initial.pageY - e.pageY);
+				var b = that.modal.find('.cms_modal-breadcrumb').outerWidth(true);
 
 				// add some limits
-				if(w <= 225) w = 225;
+				if(w <= b) w = b;
 				if(h <= 100) h = 100;
 
 				container.css({'width': w, 'height': h });
@@ -467,6 +491,20 @@ CMS.$(document).ready(function ($) {
 			this.modal.find('.cms_modal-shim').hide();
 
 			$(document).unbind('mousemove.cms');
+		},
+
+		_changeModalContent: function (el) {
+			if(el.hasClass('cms_modal-breadcrumb-last')) return false;
+
+			var parents = el.parent().find('a');
+				parents.removeClass('cms_modal-breadcrumb-last');
+
+			el.addClass('cms_modal-breadcrumb-last');
+
+			// now refresh the content
+			var iframe = $('<iframe src="'+el.attr('href')+'" class="" frameborder="0" />');
+			var holder = this.modal.find('.cms_modal-frame');
+				holder.html(iframe);
 		},
 
 		showError: function (msg) {
