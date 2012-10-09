@@ -36,6 +36,26 @@
 	.cms_toolbar-item_logo { margin:0 !important; }
 	.cms_toolbar-item_logo a { display:block; width:92px; height:20px; margin:5px 0; @include hide-text(); }
 
+	// #TOOLBAR/form#
+	.cms_form-login { padding:3px 0 0 0; }
+	.cms_form-login {
+		label { float:left; cursor:pointer; padding-left:10px; }
+		input[type="text"], input[type="password"] { font-size:13px; line-height:13px; width:100px;
+			padding:3px 5px; margin:0; border:1px solid #ddd;
+			@include border-radius(3px);
+			@include box-shadow(0px 1px 0px #fff); }
+		input[type="submit"] { color:#fff; font-size:12px; text-transform:uppercase; cursor:pointer;
+			padding:1px 15px 0; border:1px solid #434343;
+			@include border-radius(3px);
+			@include box-shadow(inset 0 1px 0 #888);
+			@include background-image(linear-gradient(top, #666, #444));
+			&:hover { background:#666; }
+			&:active, &:focus { background:#444; @include box-shadow(inset 0 1px 0 #444); }
+		}
+		.cms_error { color:#f00; }
+		.cms_error input { border:1px solid #f00; }
+	}
+
 	// #TOOLBAR/navigation#
 	.cms_toolbar-item_navigation {
 		li { float:left; position:relative; zoom:1; }
@@ -105,28 +125,77 @@
 	// #TOOLBAR/sidebar#
 	.cms_sideframe { display:none; position:fixed; left:0; top:0; z-index:1; width:0; height:100%; overflow:visible !important; }
 	.cms_sideframe-frame { position:relative; z-index:10; width:100%; height:100%; overflow:hidden; background:#fff; }
-
 	.cms_sideframe iframe { height:100%; width:100%; border:none; background:#fff; overflow:auto; }
-
-
-
-
-
-
-
 	.cms_sideframe-resize { position:absolute; right:-2px; top:0; z-index:30; width:2px; height:100%;
 		cursor:col-resize; background:#efefef; }
-	.cms_sideframe-overlay { position:absolute; left:0; top:0; z-index:1; width:100%; height:100%;
+	.cms_sideframe-shim { position:absolute; left:0; top:0; z-index:1; width:100%; height:100%;
 		background:transparent; }
-
 	.cms_sideframe-knob { width:6px; height:50px; background:#444;
 		position:absolute; right:-2px; top:50%; margin-top:-15px; @include border-radius(3px); }
 
+	// #TOOLBAR/dialogue#
+	.cms_dialogue { display:none; position:relative; z-index:9999; top:30px; width:275px; margin:0 auto; }
 
+	.cms_dialogue-title { color:#fff; font-size:12px; text-transform:uppercase; letter-spacing:1px;
+		padding:5px 15px 4px; background:#fcfcfc;
+		@include background-image(linear-gradient(top, #666, #444)); }
 
+	.cms_dialogue-inner { clar:both; overflow:hidden; padding:12px 15px; border:1px solid #e1e1e1; border-top:none;
+		@include box-shadow(0 0 5px #bbb);
+		@include border-radius(0 0 5px 5px); }
+	.cms_dialogue-text { font-size:13px; line-height:18px; padding:0 0 10px; border-bottom:1px solid #e1e1e1;
+		@include text-shadow(0px 1px 0px #fff); }
+	.cms_dialogue-buttons { padding:10px 0 0; border-top:1px solid #fff; }
+	.cms_dialogue-buttons a { float:right; color:#fff; font-size:12px; text-transform:uppercase;
+		padding:1px 15px 0; border:1px solid #434343;
+		@include border-radius(3px);
+		@include box-shadow(inset 0 1px 0 #888);
+		@include background-image(linear-gradient(top, #666, #444));
+		&:hover { background:#666; }
+		&:active, &:focus { background:#444; @include box-shadow(inset 0 1px 0 #444); }
+	}
 
+	.cms_dialogue-confirm { margin:0 15px 0 0; }
 
-// end of toolbar
+	// #TOOLBAR/window#
+	.cms_modal { display:none; position:fixed; left:50%; top:50%; z-index:999999; overflow:hidden;
+		@include border-radius(5px);
+		@include box-shadow(0 0 15px #bbb); background:#fff; }
+	.cms_modal {
+		.cms_modal-title { display:block; color:#444; font-size:13px; font-weight:bold; text-align:center; cursor:move;
+			padding:3px 75px 4px; background:#f9f9f9; @include border-radius(5px 5px 0px 0px); }
+		.cms_modal-body { position:relative; z-index:10; border-top:1px solid #e4e4e4; border-bottom:1px solid #e4e4e4;
+			width:800px; height:400px; }
+		.cms_modal-shim { display:none; position:absolute; left:0; top:0; z-index:20; width:100%; height:100%; }
+		.cms_modal-frame { position:relative; z-index:10; width:100%; height:100%; }
+		.cms_modal-frame iframe { width:100%; height:100%; }
+		.cms_modal-foot { position:relative; padding:8px 0; background:#f9f9f9;
+			@include border-radius(0px 0px 5px 5px); }
+
+		.cms_modal-collapse, .cms_modal-close { display:block; position:absolute; right:3px; top:3px;
+			@include hide-text(); cursor:pointer; width:20px; height:20px;
+			background:url('/static/cms/img/toolbar/sprite_toolbar.png') no-repeat left top; }
+		.cms_modal-collapse { right:22px; background-position:0 -70px; }
+		.cms_modal-collapse:hover, .cms_modal-collapse:active, .cms_modal-collapse:focus { background-position:-20px -70px; }
+		.cms_modal-close { background-position:-40px -70px; }
+		.cms_modal-close:hover, .cms_modal-close:active, .cms_modal-close:focus { background-position:-60px -70px; }
+
+		.cms_modal-collapsed { background-position:-80px -70px; }
+		.cms_modal-collapsed:hover, .cms_modal-collapsed:active, .cms_modal-collapsed:focus { background-position:-100px -70px; }
+
+		.cms_modal-resize { position:absolute; right:0; bottom:0; width:20px; height:20px; cursor:nw-resize;
+			background:url('/static/cms/img/toolbar/sprite_toolbar.png') no-repeat -117px -67px; }
+		.cms_modal-resize:hover { background-position:-137px -67px; }
+	}
+
+	// end of toolbar
+}
+
+.cms_toolbar-auth {
+	.cms_toolbar-left { float:none !important; }
+
+	.cms_toolbar-item_navigation,
+	.cms_toolbar-item_switch { display:none; }
 }
 
 //##################################################

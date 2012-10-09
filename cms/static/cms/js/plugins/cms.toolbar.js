@@ -6,16 +6,6 @@ CMS.$(document).ready(function ($) {
 
 	/*!
 	 * Toolbar
-	 * @public_methods:
-	 *	- CMS.API.Toolbar.toggleToolbar();
-	 *	- CMS.API.Toolbar.registerItem(obj);
-	 *	- CMS.API.Toolbar.registerItems(array);
-	 *	- CMS.API.Toolbar.removeItem(id);
-	 *	- CMS.API.Toolbar.registerType(function);
-	 *  - CMS.API.Toolbar.isToolbarHidden();
-	 * @compatibility: IE >= 6, FF >= 2, Safari >= 4, Chrome > =4, Opera >= 10
-	 * TODO: login needs special treatment (errors, login on enter)
-	 * TODO: styling of the collapser button needs to be somehow transparent
 	 */
 	CMS.Toolbar = new CMS.Class({
 
@@ -29,10 +19,14 @@ CMS.$(document).ready(function ($) {
 			},
 			'sidebarDuration': 300,
 			'sidebarWidth': 275,
+			'dialogueDuration': 300,
 			'urls': {
 				'settings': '' // url to save settings
+			},
+			'lang': {
+				'confirm': 'Yes',
+				'cancel': 'No'
 			}
-
 		},
 
 		initialize: function (container, options) {
@@ -49,8 +43,11 @@ CMS.$(document).ready(function ($) {
 			this.buttons = this.container.find('.cms_toolbar-item_buttons');
 			this.switcher = this.container.find('.cms_toolbar-item_switch');
 
-			this.sideframe = this.container.find('.cms_sideframe');
 			this.body = $('html');
+			this.sideframe = this.container.find('.cms_sideframe');
+			this.dialogue = this.container.find('.cms_dialogue');
+			this.dialogueActive = false;
+			this.modal = this.container.find('.cms_modal');
 
 			// setup initial stuff
 			this._setup();
@@ -60,10 +57,14 @@ CMS.$(document).ready(function ($) {
 		},
 
 		_setup: function () {
-
-
 			// setup toolbar visibility, we need to reverse the options to set the correct state
 			(this.settings.toolbar === 'expanded') ? this._showToolbar(0, true) : this._hideToolbar(0, true);
+
+			// todo some prototyping
+			var that = this;
+			$('.cms_placeholder-bar').bind('click', function () {
+				that.openModal('/admin/cms/page/6/edit-plugin/2/');
+			});
 		},
 
 		_events: function () {
@@ -98,16 +99,51 @@ CMS.$(document).ready(function ($) {
 			});
 
 			// attach event to the sidebar
+			this.sideframe.bind('dblclick', function () {
+				that._hideSideframe();
+			});
 			this.sideframe.find('.cms_sideframe-resize').bind('mousedown', function (e) {
 				e.preventDefault();
 				that._startSideframeResize();
 			});
-			this.sideframe.bind('dblclick', function () {
-				that._hideSideframe();
+
+			// attach events to the dialogue window
+			this.dialogue.find('.cms_dialogue-confirm').bind('click', function (e) {
+				e.preventDefault();
+				that.openAjax(that.dialogue.data('url'));
 			});
-			// we need to listen do the entire document mouseup event
+			this.dialogue.find('.cms_dialogue-cancel').bind('click', function (e) {
+				e.preventDefault();
+				that._hideDialogue();
+			});
+			this.dialogue.find('.cms_dialogue-accept').bind('click', function (e) {
+				e.preventDefault();
+				that._hideDialogue();
+			});
+
+			// attach events to window
+			this.modal.find('.cms_modal-close').bind('click', function (e) {
+				e.preventDefault();
+				that._hideModal(100);
+			});
+			this.modal.find('.cms_modal-collapse').bind('click', function (e) {
+				e.preventDefault();
+				that._minimizeModal();
+			});
+			this.modal.find('.cms_modal-title').bind('mousedown.cms', function (e) {
+				e.preventDefault();
+				that._startModalMove(e);
+			});
+			this.modal.find('.cms_modal-resize').bind('mousedown.cms', function (e) {
+				e.preventDefault();
+				that._startModalResize(e);
+			});
+
+			// stopper events
 			$(document).bind('mouseup.cms', function (e) {
 				that._stopSideframeResize();
+				that._endModalMove(e);
+				that._endModalResize(e);
 			});
 		},
 
@@ -123,6 +159,9 @@ CMS.$(document).ready(function ($) {
 		},
 
 		_hideToolbar: function (speed, init) {
+			// cancel if dialogue is active
+			if(this.dialogueActive) return false;
+
 			this.toolbarTrigger.removeClass('cms_toolbar-trigger-expanded');
 			this.toolbar.slideUp(speed);
 			this.settings.toolbar = 'collapsed';
@@ -144,8 +183,8 @@ CMS.$(document).ready(function ($) {
 			var target = el.attr('rel');
 
 			switch(target) {
-				case 'modal':
-					console.log('modal');
+				case 'dialogue':
+					this.openDialogue(el.attr('data-text'), el.attr('href'));
 					break;
 				case 'sideframe':
 					this.openSideframe(el.attr('href'));
@@ -156,76 +195,6 @@ CMS.$(document).ready(function ($) {
 				default:
 					return false;
 			}
-		},
-
-		openSideframe: function (url) {
-			// prepare sideframe
-			var holder = this.sideframe.find('.cms_sideframe-frame');
-			var iframe = $('<iframe src="'+url+'" class="" frameborder="0" />');
-			var width = this.options.sidebarWidth;
-
-			// cancel animation if sidebar is already shown
-			if(this.sideframe.is(':visible')) {
-				// sidebar is already open
-				holder.html(iframe);
-				// reanimate the frame
-				if(parseInt(this.sideframe.css('width')) <= width) this._showSideframe(width);
-			} else {
-				// load iframe after frame animation is done
-				setTimeout(function () {
-					holder.html(iframe);
-				}, this.options.sidebarDuration);
-				// display the frame
-				this._showSideframe(width);
-			}
-		},
-
-		_showSideframe: function (width) {
-			this.sideframe.show().animate({ 'width': width }, this.options.sidebarDuration);
-			this.body.animate({ 'margin-left': width }, this.options.sidebarDuration);
-		},
-
-		_hideSideframe: function () {
-			this.sideframe.hide().animate({ 'width': 0 }, this.options.sidebarDuration);
-			this.body.animate({ 'margin-left': 0 }, this.options.sidebarDuration);
-
-			// remove the iframe
-			this.sideframe.find('iframe').remove();
-		},
-
-		_startSideframeResize: function () {
-			var that = this;
-			// this prevents the iframe from being focusable
-			this.sideframe.find('.cms_sideframe-overlay').css('z-index', 20);
-
-			$(document).bind('mousemove.cms', function (e) {
-				if(e.clientX <= 3) e.clientX = 3;
-
-				that.sideframe.css('width', e.clientX);
-				that.body.css('margin-left', e.clientX);
-			});
-		},
-
-		_stopSideframeResize: function () {
-			this.sideframe.find('.cms_sideframe-overlay').css('z-index', 1);
-
-			$(document).unbind('mousemove.cms');
-		},
-
-		openAjax: function (url) {
-			var that = this;
-
-			// TODO: the crsf token needs to be added through the backend or read from the options
-			$.ajax({
-				'method': 'post',
-				'url': url,
-				'data': {
-					'csrfmiddlewaretoken': this.settings.csrf
-				},
-				'error': function (jqXHR) {
-					that.showError(jqXHR.response + ' | ' + jqXHR.status + ' ' + jqXHR.statusText);
-				}
-			});
 		},
 
 		_setSwitcher: function (el) {
@@ -266,446 +235,244 @@ CMS.$(document).ready(function ($) {
 			}, duration);
 		},
 
-		showError: function (msg) {
-			console.log(msg);
-		}
+		openSideframe: function (url) {
+			// prepare sideframe
+			var holder = this.sideframe.find('.cms_sideframe-frame');
+			var iframe = $('<iframe src="'+url+'" class="" frameborder="0" />');
+			var width = this.options.sidebarWidth;
 
-	});
-
-
-
-
-
-	CMS.ToolbarOLD =  new CMS.Class({
-
-		implement: [CMS.API.Helpers, CMS.API.Security],
-
-		options: {
-			'debug': false, // not integrated yet
-			'items': []
-		},
-
-		initialize: function (container, options) {
-			// save reference to this class
-			var that = this;
-			// check if only one element is given
-			if($(container).length > 2) { throw new Error('Toolbar Error: one element expected, multiple elements given.'); }
-			// merge passed argument options with internal options
-			this.options = $.extend(this.options, options);
-
-			// set initial variables
-			this.wrapper = $(container);
-			this.toolbar = this.wrapper.find('#cms_toolbar-toolbar');
-			this.toolbar.left = this.toolbar.find('.cms_toolbar-left');
-			this.toolbar.right = this.toolbar.find('.cms_toolbar-right');
-
-			// bind event to toggle button so toolbar can be shown/hidden
-			this.toggle = this.wrapper.find('#cms_toolbar-toggle');
-			this.toggle.bind('click', function (e) {
-				e.preventDefault();
-				that.toggleToolbar();
-			});
-
-			// initial setups
-			this._setup();
-		},
-
-		/**
-		 * All methods with an underscore as prefix should not be called through the API namespace
-		 */
-		_setup: function () {
-			// save reference to this class
-			var that = this;
-
-			// scheck if toolbar should be shown or hidden
-			($.cookie('CMS_toolbar-collapsed') == 'false') ? this.toolbar.data('collapsed', true) : this.toolbar.data('collapsed', false);
-			// follow up script to set the current state
-			this.toggleToolbar();
-
-			// set toolbar to visible
-			this.wrapper.show();
-			// some browsers have problem showing it directly (loading css...)
-			setTimeout(function () { that.wrapper.show(); }, 50);
-
-			// start register items if any given
-			if(this.options.items.length) this.registerItems(this.options.items);
-
-			// apply csrf patch to toolbar from cms.base.js
-			this.csrf();
-
-			// the toolbar needs to resize depending on the window size on ie6
-			if($.browser.msie && $.browser.version <= '6.0') {
-				$(window).bind('resize', function () { that.wrapper.css('width', $(window).width()); });
-				$(window).trigger('resize');
-			}
-		},
-		
-		// Checks whether the toolbar is hidden right now
-		isToolbarHidden: function(){
-			return this.toolbar.data('collapsed');
-		},
-
-		/**
-		 * Binds the collapsed data element to the toolbar
-		 * Calls private methods _showToolbar and _hideToolbar when required
-		 * Saves current state in a cookie
-		 */
-		toggleToolbar: function () {
-			(this.toolbar.data('collapsed')) ? this._showToolbar() : this._hideToolbar();
-
-			return this.toolbar.data('collapsed');
-		},
-
-		// sets collapsed data to false
-		_showToolbar: function () {
-			// add toolbar padding
-			var padding = parseInt($(document.body).css('margin-top'));
-				$(document.body).css('margin-top', (padding+43)); // 43 = height of toolbar
-			// show toolbar
-			this.toolbar.show();
-			// change data information
-			this.toolbar.data('collapsed', false);
-			// add class to trigger
-			this.toggle.addClass('cms_toolbar-collapsed');
-			// save as cookie
-			$.cookie('CMS_toolbar-collapsed', false, { path:'/', expires:7 });
-			// add show event to toolbar
-			this.toolbar.trigger('cms.toolbar.show');
-		},
-
-		// sets collapsed data to true
-		_hideToolbar: function () {
-			// remove toolbar padding
-			var padding = parseInt($(document.body).css('margin-top'));
-				$(document.body).css('margin-top', (padding-this.toolbar.height()-1)); // substract 1 cause of the border
-			// hide toolbar
-			this.toolbar.hide();
-			// change data information
-			this.toolbar.data('collapsed', true);
-			// remove class from trigger
-			this.toggle.removeClass('cms_toolbar-collapsed');
-			// save as cookie
-			$.cookie('CMS_toolbar-collapsed', true, { path:'/', expires:7 });
-			// add hide event to toolbar
-			this.toolbar.trigger('cms.toolbar.hide');
-		},
-
-		/**
-		 * Handles the different item types and redirects them to their private method
-		 * @param: obj (object that represents the item data to be registered)
-		 */
-		registerItem: function (obj) {
-			// error handling
-			if(typeof(obj) !== 'object') return false;
-			if(!obj.order) obj.dir = 0;
-
-			// check for internal types
-			switch(obj.type) {
-				case 'anchor':
-					this._registerAnchor(obj);
-					break;
-				case 'html':
-					this._registerHtml(obj);
-					break;
-				case 'switcher':
-					this._registerSwitcher(obj);
-					break;
-				case 'button':
-					this._registerButton(obj);
-					break;
-				case 'list':
-					this._registerList(obj);
-					break;
-				default:
-					this.registerType(obj);
-			}
-
-			return obj;
-		},
-
-		/**
-		 * This public method allows multiple addition of registerItems within one call
-		 * @param: items (array of objects)
-		 */
-		registerItems: function (items) {
-			// make sure an array is passed
-			if(typeof(items) !== 'object') return false;
-			// save reference to this class
-			var that = this;
-			// loopp through all items and pass them to single function
-			$(items).each(function (index, value) {
-				that.registerItem(value);
-			});
-
-			return items;
-		},
-
-		/**
-		 * Removes the item with a specific id. This is not in use yet
-		 * @param: index
-		 */
-		removeItem: function (index) {
-			if(typeof(index) !== 'number') return false;
-			// function to remove an item
-			$($('.cms_toolbar-item')[index]).remove();
-
-			return index;
-		},
-
-		// requires: type, order, dir, title, url
-		// optional: cls
-		_registerAnchor: function (obj) {
-			// take a copy of the template, append it, remove it, copy html. required because of how jquery works.
-			var template = this._processTemplate('#cms_toolbar-item_anchor', obj);
-			// fixes href issue on ie7
-			template.find('a').bind('click', function (e) {
-				e.preventDefault();
-				// redirect to correct url
-				window.location.href = obj.url;
-			});
-			// append item
-			this._injectItem(template, obj.dir, obj.order);
-		},
-
-		// required: type, order, dir, html || htmlElement
-		// optional: cls, redirect
-		_registerHtml: function (obj) {
-			// here we dont need processTemplate cause we create the template
-			var template = (obj.html) ? $(obj.html) : $(obj.htmlElement);
-			// add order, show item
-			template.data('order', obj.order).css('display', 'block');
-			// add class if neccessary
-			if(obj.cls) template.addClass(obj.cls);
-			// special case for form html
-			template.find('.cms_toolbar-btn').bind('click', function (e) {
-				e.preventDefault();
-				(obj.redirect) ? document.location = obj.redirect : $(this).parentsUntil('form').parent().submit();
-			});
-			
-			// append item
-			this._injectItem(template, obj.dir, obj.order);
-		},
-
-		// required: type, order, dir, removeParameter, addParameter
-		// optional: cls, state
-		_registerSwitcher: function (obj) {
-			// save reference to this class
-			var that = this;
-			// take a copy of the template, append it, remove it, copy html. required because of how jquery works.
-			var template = this._processTemplate('#cms_toolbar-item_switcher', obj);
-			// should btn be shown?
-			var btn = template.find('.cms_toolbar-item_switcher-link span');
-
-			// initial setup
-			if(obj.state) {
-				btn.data('state', true).css('backgroundPosition', '0px -198px');
+			// cancel animation if sidebar is already shown
+			if(this.sideframe.is(':visible')) {
+				// sidebar is already open
+				holder.html(iframe);
+				// reanimate the frame
+				if(parseInt(this.sideframe.css('width')) <= width) this._showSideframe(width);
 			} else {
-				btn.data('state', false).css('backgroundPosition', '-40px -198px');
+				// load iframe after frame animation is done
+				setTimeout(function () {
+					holder.html(iframe);
+				}, this.options.sidebarDuration);
+				// display the frame
+				this._showSideframe(width);
 			}
+		},
 
-			// add events
-			template.find('.cms_toolbar-item_switcher-link').bind('click', function (e) {
-				e.preventDefault();
+		openAjax: function (url) {
+			var that = this;
 
-				// animate toggle effect and trigger handler
-				if(btn.data('state')) {
-					btn.stop().animate({'backgroundPosition': '-40px -198px'}, function () {
-						// disable link
-						document.location = that.setUrl(document.location, {
-							'addParam': obj.removeParameter,
-							'removeParam': obj.addParameter
-						});
-					});
-				} else {
-					btn.stop().animate({'backgroundPosition': '0px -198px'}, function () {
-						// enable link
-						document.location = that.setUrl(document.location, {
-							'addParam': obj.addParameter,
-							'removeParam': obj.removeParameter
-						});
-					});
+			// TODO: the crsf token needs to be added through the backend or read from the options
+			$.ajax({
+				'method': 'post',
+				'url': url,
+				'data': {
+					'csrfmiddlewaretoken': this.settings.csrf
+				},
+				'success': function () {
+					window.location.reload();
+				},
+				'error': function (jqXHR) {
+					that.showError(jqXHR.response + ' | ' + jqXHR.status + ' ' + jqXHR.statusText);
 				}
 			});
-			// append item
-			this._injectItem(template, obj.dir, obj.order);
 		},
 
-		// required: type, order, dir, redirect
-		// optional: cls, icon, action, hidden
-		_registerButton: function (obj) {
-			// take a copy of the template, append it, remove it, copy html. required because of how jquery works.
-			var template = this._processTemplate('#cms_toolbar-item_button', obj);
-			// append item
-			this._injectItem(template, obj.dir, obj.order);
+		openDialogue: function (msg, url) {
+			var field = this.dialogue.find('.cms_dialogue-text');
+				field.html(msg);
+
+			var confirm = this.dialogue.find('.cms_dialogue-confirm, .cms_dialogue-cancel');
+			var alert = this.dialogue.find('.cms_dialogue-accept');
+
+			// activate confirm dialogue
+			if(url) {
+				this.dialogue.data('url', url);
+				confirm.show();
+				alert.hide();
+				// activate alert dialogue
+			} else {
+				confirm.hide();
+				alert.show();
+			}
+
+			// show the dialogue
+			this._showDialogue();
 		},
 
-		// required: type, order, dir, items (title, url, method (get/post), cls, icon)
-		// optional: cls, icon
-		_registerList: function (obj) {
-			// take a copy of the template, append it, remove it, copy html. required because of how jquery works.
-			var template = this._processTemplate('#cms_toolbar-item_list', obj);
+		openModal: function (url) {
+			// prepare sideframe
+			var iframe = $('<iframe src="'+url+'" class="" frameborder="0" />');
+			var holder = this.modal.find('.cms_modal-frame');
+				holder.html(iframe);
 
-			// item injection logic
-			var list = template.find('.cms_toolbar-item_list').html();
-				// ff2 list check
-				if(!list) return false;
-			var tmp = '';
-			// lets loop through the items
-			$(obj.items).each(function (index, value) {
-				// add icon if available
-				var icon_styles = value.icon ? ' class="cms_toolbar_icon cms_toolbar_icon-enabled" style="background-image:url('+value.icon+');"' : '';
-				// add ie 7 and below fix to urls
-				if($.browser.msie && $.browser.version <= 7) value.url = value.url.replace('/', '');
-				// replace attributes
-				tmp += list.replace('[list_title]', value.title)
-						   .replace('[list_url]', value.url)
-						   .replace('[list_method]', value.method)
-						   .replace('[list_class]', value.cls)
-						   .replace('<span>', '<span'+icon_styles+'>');
-			});
-			// add items
-			template.find('.cms_toolbar-item_list').html($(tmp));
+			// set correct title
+			var title = this.modal.find('.cms_modal-title');
+				title.text('Text plugin');
 
-			// add events
-			var container = template.find('.cms_toolbar-item_list');
-			var btn = template.find('.cms_toolbar-btn');
-				btn.data('collapsed', true)
-				   .bind('click', function (e) {
-					e.preventDefault();
-					($(this).data('collapsed')) ? show_list() : hide_list();
+			// insure modal is not maximized
+			if(this.modal.find('.cms_modal-collapsed').length) this._minimizeModal();
+
+			// reset styles
+			this.modal.css({
+				'left': '50%',
+				'top': '50%',
+				'mergin-left': 0,
+				'margin-right': 0
 			});
 
-			// add form action if rel equals get or post
-			var anchors = container.find('a');
-			if(anchors.attr('rel') === 'POST') {
-				// loop through the items and attach post events
-				anchors.each(function (index, item) {
-					if($(item).attr('rel') === 'POST') {
-						$(item).unbind('click').bind('click', function (e) {
-							e.preventDefault();
-							// attach form action
-							$.ajax({
-								'type': $(e.currentTarget).attr('rel'),
-								'url': $(e.currentTarget).attr('href'),
-								'data': $(e.currentTarget).attr('href').split('?')[1],
-								'success': function () {
-									CMS.API.Helpers.reloadBrowser();
-								},
-								'error': function () {
-									throw new Error('CMS.Toolbar was unable to perform this ajax request. Try again or contact the developers.');
-								}
-							});
-							// after clicking hide list
-							hide_list();
-						});
-					}
-				});
-			}
-
-			function show_list() {
-				// add event to body to hide the list needs a timout for late trigger
-				setTimeout(function () {
-					$(document).bind('click', hide_list);
-				}, 100);
-
-				// show element and save data
-				container.show();
-				btn.addClass('cms_toolbar-btn-active').data('collapsed', false);
-			}
-			function hide_list() {
-				// remove the body event
-				$(document).unbind('click');
-
-				// show element and save data
-				container.hide();
-				btn.removeClass('cms_toolbar-btn-active').data('collapsed', true);
-			}
-
-			// append item
-			this._injectItem(template, obj.dir, obj.order);
+			this._showModal(300);
 		},
 
-		/**
-		 * Basic API to add more types rather than the predefined (anchor, html, switcher, button, list)
-		 * @param: handler (function)
-		 */
-		registerType: function (handler) {
-			// invoke function
-			if(typeof(handler) === 'function') handler();
-
-			return handler;
+		_showSideframe: function (width) {
+			this.sideframe.animate({ 'width': width }, this.options.sidebarDuration);
+			this.body.animate({ 'margin-left': width }, this.options.sidebarDuration);
 		},
 
-		// parses passed templates from items
-		_processTemplate: function (id, obj) {
-			// lets find the template and clone it
-			var template = this.wrapper.find(id).clone();
-				template = $('<div>').append(template).clone().remove().html();
-			// replace placeholders
-			if(obj.title) template = template.replace('[title]', obj.title);
-			if(obj.url) template = template.replace('[url]', obj.url);
-			if(!obj.icon && obj.type === 'button') template = template.replace('&nbsp;', '').replace('&nbsp;', '');
-			// template = template.replace('[token]', this.options.csrf_token);
-			template = (obj.action) ? template.replace('[action]', obj.action) : template.replace('[action]', '');
-			template = (obj.hidden) ? template.replace('[hidden]', obj.hidden) : template.replace('[hidden]', '');
-			// back to jquery object
-			template = $(template);
-			if(obj.cls) template.addClass(obj.cls);
-			if (obj.icon) {
-				template.find('.cms_toolbar-btn_right .toolbar_icon-prefix')
-						.addClass('cms_toolbar_icon-enabled')
-						.css('background-image', 'url('+obj.icon+')');
-			}
-			// add events
-			template.find('.cms_toolbar-btn').bind('click', function (e) {
-				e.preventDefault();
-				(obj.redirect) ? document.location = obj.redirect : $(this).parentsUntil('form').parent().submit();
+		_hideSideframe: function () {
+			this.sideframe.animate({ 'width': 0 }, this.options.sidebarDuration, function () { $(this).hide(); });
+			this.body.animate({ 'margin-left': 0 }, this.options.sidebarDuration);
+			// remove the iframe
+			this.sideframe.find('iframe').remove();
+		},
+
+		_startSideframeResize: function () {
+			var that = this;
+			// this prevents the iframe from being focusable
+			this.sideframe.find('.cms_sideframe-shim').css('z-index', 20);
+
+			$(document).bind('mousemove.cms', function (e) {
+				if(e.clientX <= 3) e.clientX = 3;
+
+				that.sideframe.css('width', e.clientX);
+				that.body.css('margin-left', e.clientX);
 			});
-			// save order remove id and show element
-			template.data('order', obj.order)
-					.attr('id', '') /* remove initial id */
-					.css('display', 'block');
-
-			return template;
 		},
 
-		// appends item in correct order and position
-		_injectItem: function (el, dir, order) {
-			// save some vars
-			var left = this.toolbar.left;
-			var right = this.toolbar.right;
+		_stopSideframeResize: function () {
+			this.sideframe.find('.cms_sideframe-shim').css('z-index', 1);
 
-			if(dir === 'left') {
-				var leftContent = left.find('> *');
-					if(!leftContent.length) { left.append(el); return false; }
+			$(document).unbind('mousemove.cms');
+		},
 
-				// first insert it at start position
-				el.insertBefore($(leftContent[0]));
+		_showDialogue: function () {
+			var height = this.dialogue.outerHeight(true);
+			this.dialogue.css('top', -height).show().animate({
+				'top': 30
+			}, this.options.dialogueDuration);
 
-				// and what happens if there is already an element?
-				leftContent.each(function (index, item) {
-					// sava data from element
-					var current = $(item).data('order');
-					// inject data when current is lower, repeat till element fits position
-					if(order >= current || order == current) el.insertAfter($(item));
+			this.dialogueActive = true;
+		},
+
+		_hideDialogue: function () {
+			var height = this.dialogue.outerHeight(true);
+			this.dialogue.show().animate({
+				'top': -height
+			}, this.options.dialogueDuration);
+
+			this.dialogueActive = false;
+		},
+
+		_showModal: function (speed) {
+			// we need to position the modal in the center
+			var that = this;
+			var width = this.modal.width();
+			var height = this.modal.height();
+
+			// animates and sets the modal
+			this.modal.css({
+				'width': 0,
+				'height': 0,
+				'margin-left': 0,
+				'margin-top': 0
+			}).stop(true, true).animate({
+				'width': width,
+				'height': height,
+				'margin-left': -(width / 2),
+				'margin-top': -(height / 2)
+			}, speed, function () {
+				$(this).removeAttr('style');
+
+				that.modal.css({
+					'margin-left': -(width / 2),
+					'margin-top': -(height / 2)
 				});
-			}
 
-			if(dir === 'right') {
-				var rightContent = right.find('> *');
-					if(!rightContent.length) { right.append(el); return false; }
+				// fade in modal window
+				that.modal.show();
+			});
+		},
 
-				// first insert it at start position
-				el.insertBefore($(rightContent[0]));
+		_hideModal: function (speed) {
+			var that = this;
 
-				rightContent.each(function (index, item) {
-					// save data from element
-					var current = $(item).data('order');
-					// inject data when current is lower, repeat till element fits position
-					if(order >= current || order == current) el.insertAfter($(item));
+			// set correct width and height
+			setTimeout(function () {
+				that.modal.find('.cms_modal-body').css({
+					'width': 800,
+					'height': 400
 				});
-			}
+			}, speed);
+
+			this.modal.fadeOut(speed);
+			this.modal.find('.cms_modal-frame iframe').remove();
+		},
+
+		_minimizeModal: function () {
+			var trigger = this.modal.find('.cms_modal-collapse');
+				trigger.toggleClass('cms_modal-collapsed');
+
+			var contents = this.modal.find('.cms_modal-body, .cms_modal-foot');
+				contents.toggle();
+		},
+
+		_startModalMove: function (initial) {
+			var that = this;
+			var position = that.modal.position();
+
+			this.modal.find('.cms_modal-shim').show();
+
+			$(document).bind('mousemove.cms', function (e) {
+				that.modal.css({
+					'left': position.left - (initial.pageX - e.pageX) - $(window).scrollLeft(),
+					'top': position.top - (initial.pageY - e.pageY) - $(window).scrollTop()
+				});
+			});
+		},
+
+		_endModalMove: function () {
+			this.modal.find('.cms_modal-shim').hide();
+
+			$(document).unbind('mousemove.cms');
+		},
+
+		_startModalResize: function (initial) {
+			var container = this.modal.find('.cms_modal-body');
+			var width = container.width();
+			var height = container.height();
+
+			this.modal.find('.cms_modal-shim').show();
+
+			$(document).bind('mousemove.cms', function (e) {
+				var w = width - (initial.pageX - e.pageX);
+				var h = height - (initial.pageY - e.pageY);
+
+				// add some limits
+				if(w <= 225) w = 225;
+				if(h <= 100) h = 100;
+
+				container.css({'width': w, 'height': h });
+			});
+		},
+
+		_endModalResize: function () {
+			this.modal.find('.cms_modal-shim').hide();
+
+			$(document).unbind('mousemove.cms');
+		},
+
+		showError: function (msg) {
+			this.openDialogue(msg);
 		}
 
 	});
+
 });
