@@ -311,6 +311,9 @@ CMS.$(document).ready(function ($) {
 		},
 
 		openModal: function (url, breadcrumb) {
+			// TODO DOUBLE DBLCLICK OPEN
+			// TODO DBL CLICK OPEN
+
 			// prepare sideframe
 			var iframe = $('<iframe src="'+url+'" class="" frameborder="0" />');
 			var holder = this.modal.find('.cms_modal-frame');
