@@ -122,6 +122,9 @@
 	.cms_toolbar-trigger { position:fixed; right:0; top:0; z-index:999999; }
 	.cms_toolbar-trigger a { display:block; width:30px; height:29px; @include hide-text(); }
 
+	// #TOOLBAR/helpers#
+	.cms_modal-loader { background:#fff url('/static/cms/img/loader.gif') no-repeat center center !important; }
+
 	// #TOOLBAR/sidebar#
 	.cms_sideframe { display:none; position:fixed; left:0; top:0; z-index:1; width:0; height:100%; overflow:visible !important; }
 	.cms_sideframe-frame { position:relative; z-index:10; width:100%; height:100%; overflow:hidden; background:#fff; }

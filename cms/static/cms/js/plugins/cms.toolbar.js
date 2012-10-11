@@ -1,11 +1,12 @@
 /*##################################################|*/
 /* #CMS.TOOLBAR# */
-CMS.$(document).ready(function ($) {
-	// assign correct jquery to $ namespace
-	$ = CMS.$;
-
+(function($) {
+// CMS.$ will be passed for $
+CMS.$(document).ready(function () {
 	/*!
 	 * Toolbar
+	 * @version: 2.0.0
+	 * @description: Adds toolbar, sidebar, dialogue and modal
 	 */
 	CMS.Toolbar = new CMS.Class({
 
@@ -248,24 +249,37 @@ CMS.$(document).ready(function ($) {
 		},
 
 		openSideframe: function (url) {
-			// prepare sideframe
+			// prepare iframe
+			var that = this;
 			var holder = this.sideframe.find('.cms_sideframe-frame');
 			var iframe = $('<iframe src="'+url+'" class="" frameborder="0" />');
+				iframe.hide();
 			var width = this.options.sidebarWidth;
+
+			// attach load event to iframe
+			iframe.bind('load', function () {
+				iframe.show();
+			});
 
 			// cancel animation if sidebar is already shown
 			if(this.sideframe.is(':visible')) {
 				// sidebar is already open
-				holder.html(iframe);
+				insertHolder(iframe);
 				// reanimate the frame
 				if(parseInt(this.sideframe.css('width')) <= width) this._showSideframe(width);
 			} else {
 				// load iframe after frame animation is done
 				setTimeout(function () {
-					holder.html(iframe);
+					insertHolder(iframe);
 				}, this.options.sidebarDuration);
 				// display the frame
 				this._showSideframe(width);
+			}
+
+			function insertHolder(iframe) {
+				// show iframe after animation
+				that.sideframe.find('.cms_sideframe-frame').addClass('cms_modal-loader');
+				holder.html(iframe);
 			}
 		},
 
@@ -314,10 +328,22 @@ CMS.$(document).ready(function ($) {
 			// TODO DOUBLE DBLCLICK OPEN
 			// TODO DBL CLICK OPEN
 
-			// prepare sideframe
+			// prepare iframe
+			var that = this;
 			var iframe = $('<iframe src="'+url+'" class="" frameborder="0" />');
+				iframe.hide();
 			var holder = this.modal.find('.cms_modal-frame');
+
+			// attach load event for iframe to prevent flicker effects
+			iframe.bind('load', function () {
+				iframe.show();
+			});
+
+			// show iframe after animation
+			setTimeout(function () {
+				that.modal.find('.cms_modal-body').addClass('cms_modal-loader');
 				holder.html(iframe);
+			}, this.options.modalDuration);
 
 			// set correct title
 			var title = this.modal.find('.cms_modal-title');
@@ -337,6 +363,7 @@ CMS.$(document).ready(function ($) {
 				'width': this.options.modalWidth,
 				'height': this.options.modalHeight
 			});
+			this.modal.find('.cms_modal-body').removeClass('cms_modal-loader');
 
 			// we need to render the breadcrumb
 			var crumb = '';
@@ -362,6 +389,7 @@ CMS.$(document).ready(function ($) {
 		_hideSideframe: function () {
 			this.sideframe.animate({ 'width': 0 }, this.options.sidebarDuration, function () { $(this).hide(); });
 			this.body.animate({ 'margin-left': 0 }, this.options.sidebarDuration);
+			this.sideframe.find('.cms_sideframe-frame').removeClass('cms_modal-loader');
 			// remove the iframe
 			this.sideframe.find('iframe').remove();
 		},
@@ -436,6 +464,7 @@ CMS.$(document).ready(function ($) {
 		_hideModal: function (speed) {
 			this.modal.fadeOut(speed);
 			this.modal.find('.cms_modal-frame iframe').remove();
+			this.modal.find('.cms_modal-body').removeClass('cms_modal-loader');
 		},
 
 		_minimizeModal: function () {
@@ -517,3 +546,4 @@ CMS.$(document).ready(function ($) {
 	});
 
 });
+})(CMS.$);
