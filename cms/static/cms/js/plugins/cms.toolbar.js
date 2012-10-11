@@ -63,17 +63,6 @@ CMS.$(document).ready(function () {
 		_setup: function () {
 			// setup toolbar visibility, we need to reverse the options to set the correct state
 			(this.settings.toolbar === 'expanded') ? this._showToolbar(0, true) : this._hideToolbar(0, true);
-
-			// todo some prototyping
-			var that = this;
-			$('.cms_placeholder-bar').bind('click', function () {
-				that.openModal('/admin/cms/page/6/edit-plugin/2/', [
-					{ 'title': 'Gallery', url: '/admin/cms/page/6/edit-plugin/2/' },
-					{ 'title': 'Layout', url: '/admin/cms/page/6/edit-plugin/2/' },
-					{ 'title': 'Item', url: '/admin/cms/page/6/edit-plugin/2/' },
-					{ 'title': 'Text', url: '/admin/cms/page/6/edit-plugin/2/' }
-				]);
-			});
 		},
 
 		_events: function () {
