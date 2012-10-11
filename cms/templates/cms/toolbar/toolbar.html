@@ -19,21 +19,17 @@ CMS.$(document).ready(function () {
 	// initialize toolbar and pass required options
 	new CMS.Toolbar('#cms_toolbar', {
 		'debug': true,
+		'edit_mode': {{ request.toolbar.edit_mode|bool }},
 		'settings': {
 			'toolbar': 'expanded',
 			'csrf': '{{ csrf_token }}'
-		}
-	});
-
-	// initialize placeholders, pass options and allow public access
-	/*CMS.API.Placeholders = new CMS.Placeholders('#cms_toolbar', {
-		'edit_mode': {{ request.toolbar.edit_mode|bool }},
+		},
 		'lang': {
 			'move_warning': {% javascript_string %}{% trans "The selected element can not be moved to the desired location." %}{% end_javascript_string %},
 			'delete_request': {% javascript_string %}{% trans "Are you sure you want to delete this plugin?" %}{% end_javascript_string %},
 			'cancel': {% javascript_string %}{% trans "Cancel" %}{% end_javascript_string %}
 		}
-	});*/
+	});
 });
 </script>
 {% endaddtoblock %}
@@ -158,7 +154,7 @@ CMS.$(document).ready(function () {
 		</div>
 		<div class="cms_modal-body">
 			<div class="cms_modal-shim"></div>
-			<div class="cms_modal-frame">test</div>
+			<div class="cms_modal-frame"></div>
 		</div>
 		<div class="cms_modal-foot">
 			<div class="cms_modal-breadcrumb">
