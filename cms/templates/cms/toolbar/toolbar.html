@@ -17,12 +17,12 @@
 <script type="text/javascript">
 CMS.$(document).ready(function () {
 	// initialize toolbar and pass required options
-	new CMS.Toolbar('#cms_toolbar', {
+	CMS.API.Toolbar = new CMS.Toolbar('#cms_toolbar', {
+		'csrf': '{{ csrf_token }}',
 		'debug': true,
 		'edit_mode': {{ request.toolbar.edit_mode|bool }},
 		'settings': {
-			'toolbar': 'expanded',
-			'csrf': '{{ csrf_token }}'
+			'toolbar': 'expanded'
 		},
 		'lang': {
 			'move_warning': {% javascript_string %}{% trans "The selected element can not be moved to the desired location." %}{% end_javascript_string %},
@@ -35,8 +35,8 @@ CMS.$(document).ready(function () {
 {% endaddtoblock %}
 {% addtoblock "js" %}
 <script type="text/javascript">
-	window.jQuery = _jQuery || jQuery;
-	window.$ = _$ || jQuery;
+	window.jQuery = _jQuery;
+	window.$ = _$;
 </script>
 {% endaddtoblock %}
 <div id="cms_toolbar" class="cms_reset cms_light{% if not user.is_authenticated %} cms_toolbar-auth{% endif %}">

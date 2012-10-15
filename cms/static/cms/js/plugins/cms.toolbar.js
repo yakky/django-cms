@@ -13,10 +13,10 @@ CMS.$(document).ready(function () {
 		implement: [CMS.API.Helpers],
 
 		options: {
+			'csrf': '',
 			'debug': false, // not yet required
 			'settings': {
-				'toolbar': 'expanded', // expanded or collapsed
-				'csrf': '' // required for all ajax interactions
+				'toolbar': 'expanded' // expanded or collapsed
 			},
 			'sidebarDuration': 300,
 			'sidebarWidth': 275,
@@ -280,7 +280,7 @@ CMS.$(document).ready(function () {
 				'method': 'post',
 				'url': url,
 				'data': {
-					'csrfmiddlewaretoken': this.settings.csrf
+					'csrfmiddlewaretoken': this.options.csrf
 				},
 				'success': function () {
 					window.location.reload();

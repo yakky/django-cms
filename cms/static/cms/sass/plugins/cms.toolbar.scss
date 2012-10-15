@@ -22,7 +22,7 @@
 
 //##################################################
 // #TOOLBAR#
-#cms_toolbar { position:absolute; left:0; top:0; z-index:99999; width:100%; }
+#cms_toolbar { position:absolute; left:0; top:0; z-index:9999999; width:100%; }
 #cms_toolbar {
 	.cms_toolbar { position:fixed; left:0; top:0; z-index:99999; width:100%; min-width:320px; }
 	.cms_toolbar-left { float:left; padding-left:10px; position:relative; z-index:10; }
@@ -330,7 +330,7 @@
 only screen and (-o-min-device-pixel-ratio:3/2),
 only screen and (min--moz-device-pixel-ratio:1.5),
 only screen and (min-device-pixel-ratio:1.5) {
-	// #TOOLBAR/logo#
+
 	#cms_toolbar {
 		.cms_toolbar-item_logo a,
 		.cms_toolbar-trigger a,
@@ -341,5 +341,6 @@ only screen and (min-device-pixel-ratio:1.5) {
 			background-image:url('/static/cms/img/toolbar/sprite_toolbar@2x.png');
 			background-size:190px; }
 	}
+
 // end of retina
 }

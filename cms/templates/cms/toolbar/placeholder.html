@@ -4,13 +4,17 @@
 CMS.$(document).ready(function () {
 	new CMS.Placeholder('#cms_placeholder-bar-{{ placeholder.pk }}', {
 		'type': 'bar',
-		'page_id': '{{ page.id }}',
-		'page_language': '{{ language }}',
+		'page_id': {{ page.id }},
 		'placeholder_id': '{{ placeholder.pk }}',
-		'slot': {{ placeholder.slot }},
+		//'plugin_type': '',
+		//'plugin_id': 0,
+		'plugin_language': '{{ language }}',
+		//'plugin_parent': null,
+		//'plugin_order': null,
+		//'plugin_breadcrumb': [],
 		'urls': {
 			'add_plugin': '{{ placeholder.get_add_url }}',
-			'change_list': '{{ placeholder.get_changelist_url }}'
+			'edit_plugin': '{{ placeholder.get_changelist_url }}'
 		}
 	});
 });
@@ -19,17 +23,14 @@ CMS.$(document).ready(function () {
 <div id="cms_placeholder-bar-{{ placeholder.pk }}" class="cms_reset cms_placeholder-bar">
 	<div class="cms_placeholder-title">{{ placeholder_label }}</div>
 	<div class="cms_placeholder-btn">
-		<a href="#">{% trans "Add" %}</a>
+		<a href="#"><span>{% trans "Add Plugin" %}</span></a>
 		<ul class="cms_placeholder-subnav">
 			{% regroup installed_plugins by module as module_list %}
 			{% for module in module_list %}
-			<li class="cms_placeholder-subnav-title"><span>{% if module.grouper %}{{ module.grouper|capfirst }}{% else %}{% trans "Available plugins" %}{% endif %}</span>
-				<ul>
-					{% for p in module.list %}
-					<li{% if forloop.first %} class="cms_placeholder-first"{% endif %}{% if forloop.last %} class="cms_placeholder-last"{% endif %}><a href="#" rel="{{ p.value }}">{{ p.name }}</a></li>
-					{% endfor %}
-				</ul>
-			</li>
+			<li class="cms_placeholder-subnav-title"><span>{% if module.grouper %}{{ module.grouper|capfirst }}{% else %}{% trans "Available plugins" %}{% endif %}</span></li>
+			{% for p in module.list %}
+			<li><a href="#{{ p.value }}">{{ p.name }}</a></li>
+			{% endfor %}
 			{% endfor %}
 		</ul>
 	</div>
