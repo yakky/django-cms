@@ -9,8 +9,15 @@
 
 //##################################################
 // #PLACEHOLDER#
-.cms_placeholder {}
+.cms_placeholder { display:inline; position:relative; }
 .cms_placeholder {
+	.cms_placeholder-add { display:none; position:absolute; left:0; top:0; cursor:pointer;
+		font-size:11px; line-height:11px; color:#fff; text-align:center;
+		padding:1px 6px; margin-left:-25px;
+		border:1px solid #0a84e4;
+		@include border-radius(10px);
+		@include background-image(linear-gradient(#0eaaec, #0a84e4)); }
+
 
 	// end of placeholder
 }

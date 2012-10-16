@@ -89,7 +89,25 @@ CMS.$(document).ready(function () {
 
 			// add tooltip event to every placeholder
 			this.container.bind('mouseenter.cms.placeholder mouseleave.cms.placeholder', function (e) {
+
 				(e.type === 'mouseenter') ? that.tooltip.show() : that.tooltip.hide();
+
+
+				// TODO lets do some more prototyping
+				//that.container.css('background', 'red');
+
+				console.log(that.container.width());
+
+				that.container.css('display', 'block').css('padding', 1);
+
+				var btn = that.container.find('.cms_placeholder-add');
+					btn.css('left', that.container.outerWidth(true) / 2);
+					btn.css('top', that.container.outerHeight(true) + 10);
+
+				(e.type === 'mouseenter') ? btn.show() : btn.hide();
+
+
+				that.container.css('display', 'inline').css('padding', 0);
 			});
 
 			// prevent edit events
