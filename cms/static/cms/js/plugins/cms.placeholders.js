@@ -17,7 +17,6 @@ CMS.$(document).ready(function () {
 	- we might also need the plugin type
 	 */
 
-
 	CMS.Placeholder = new CMS.Class({
 
 		options: {
@@ -42,11 +41,14 @@ CMS.$(document).ready(function () {
 			this.container = $(container);
 			this.options = $.extend(true, {}, this.options, options);
 
+			this.toolbar = $('#cms_toolbar');
+			this.tooltip = this.toolbar.find('.cms_placeholders-tooltip');
+
 			// attach event handling to placeholder bar
 			if(this.options.type === 'bar') this._setBar();
 
 			// attach events to the placeholders itself
-			if(this.options.type === 'plugin') this._setPlugins();
+			if(this.options.type === 'plugin') this._setPlugin();
 
 			// attach events to the placeholders itself
 			if(this.options.type === 'layer') this._setLayer();
@@ -73,8 +75,40 @@ CMS.$(document).ready(function () {
 			});
 		},
 
-		_setPlugins: function () {
+		_setPlugin: function () {
+			var that = this;
+			var event = 'mousemove.cms.placeholder';
 
+			// save placeholder elements, we need to unbind the event if its already available
+			$(document.body).unbind(event).bind(event, function (e) {
+				that.tooltip.css({
+					'left': e.pageX + 20,
+					'top': e.pageY - 12
+				});
+			});
+
+			// add tooltip event to every placeholder
+			this.container.bind('mouseenter.cms.placeholder mouseleave.cms.placeholder', function (e) {
+				(e.type === 'mouseenter') ? that.tooltip.show() : that.tooltip.hide();
+			});
+
+			// prevent edit events
+			// this._preventEvents();
+
+			// add plugin edit event
+			this.container.bind('dblclick', function (e) {
+				e.preventDefault();
+				e.stopPropagation();
+
+				// TODO this url should be passed as option
+				var url = that.options.urls.edit_plugin + that.options.page_id + '/edit-plugin/' + that.options.plugin_id;
+
+				// TODO breadcrumb should be saved through that.options.plugin_breadcrumb
+				that.editPlugin(url, [{
+					'title': that.options.plugin_type,
+					'url': url
+				}]);
+			});
 		},
 
 		_setLayer: function () {
@@ -130,23 +164,42 @@ CMS.$(document).ready(function () {
 		editPlugin: function (url, breadcrumb) {
 			// trigger modal window
 			CMS.API.Toolbar.openModal(url, breadcrumb);
+		},
+
+		_preventEvents: function () {
+			var clicks = 0;
+			var delay = 500;
+			var timer = function () {};
+			var prevent = true;
+
+			// unbind click event if already initialized
+			$('a, button, input[type="submit"], input[type="button"]').unbind('click').bind('click', function (e) {
+				// TODO: cancel links from toolbar
+
+				if(prevent) {
+					e.preventDefault();
+
+					// clear timeout after click and increment
+					clearTimeout(timer);
+
+					timer = setTimeout(function () {
+						// if there is only one click use standard event
+						if(clicks === 1) {
+							prevent = false;
+
+							$(e.currentTarget)[0].click();
+						}
+						// reset
+						clicks = 0;
+					}, delay);
+
+					clicks++;
+				}
+
+			});
 		}
 
 	});
-
-	/*
-
-	 // todo some prototyping
-	 var that = this;
-	 $('.cms_placeholder-bar').bind('click', function () {
-	 that.openModal('/admin/cms/page/6/edit-plugin/2/', [
-	 { 'title': 'Gallery', url: '/admin/cms/page/6/edit-plugin/2/' },
-	 { 'title': 'Layout', url: '/admin/cms/page/6/edit-plugin/2/' },
-	 { 'title': 'Item', url: '/admin/cms/page/6/edit-plugin/2/' },
-	 { 'title': 'Text', url: '/admin/cms/page/6/edit-plugin/2/' }
-	 ]);
-	 });
-	* */
 
 });
 })(CMS.$);

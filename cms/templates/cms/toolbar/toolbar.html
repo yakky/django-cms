@@ -18,9 +18,9 @@
 CMS.$(document).ready(function () {
 	// initialize toolbar and pass required options
 	CMS.API.Toolbar = new CMS.Toolbar('#cms_toolbar', {
+		'mode': '{% if request.toolbar.edit_mode %}edit{% else %}view{% endif %}',
 		'csrf': '{{ csrf_token }}',
 		'debug': true,
-		'edit_mode': {{ request.toolbar.edit_mode|bool }},
 		'settings': {
 			'toolbar': 'expanded'
 		},

@@ -13,6 +13,7 @@ CMS.$(document).ready(function () {
 		implement: [CMS.API.Helpers],
 
 		options: {
+			'mode': '', // view, edit or layout
 			'csrf': '',
 			'debug': false, // not yet required
 			'settings': {
@@ -58,6 +59,12 @@ CMS.$(document).ready(function () {
 
 			// setup events
 			this._events();
+
+			// handle the different modes
+			// those are triggered only once where placeholders are initialized individually
+			//if(this.options.mode === 'edit') this._handleEdit();
+			//if(this.options.mode === 'layout') this._handleLayout();
+			//if(this.options.mode === 'view') this._handleView();
 		},
 
 		_setup: function () {
@@ -322,6 +329,9 @@ CMS.$(document).ready(function () {
 			var iframe = $('<iframe src="'+url+'" class="" frameborder="0" />');
 				iframe.hide();
 			var holder = this.modal.find('.cms_modal-frame');
+
+			// insure previous iframe is hidden
+			holder.find('iframe').hide();
 
 			// attach load event for iframe to prevent flicker effects
 			iframe.bind('load', function () {
