@@ -17,6 +17,181 @@ CMS.$(document).ready(function () {
 	- we might also need the plugin type
 	 */
 
+	// TODO we might move all the cms placeholder initializers to CMS.Placeholders
+	CMS.Placeholders = new CMS.Class({
+
+		options: {
+			'mode': 'edit' // edit, layout or view
+		},
+
+		initialize: function (container, options) {
+			this.containers = $(container);
+			this.options = $.extend(true, {}, this.options, options);
+
+			this.toolbar = $('#cms_toolbar');
+			this.tooltip = this.toolbar.find('.cms_placeholders-tooltip');
+			this.menu = this.toolbar.find('.cms_placeholders-menu');
+			this.bars = $('.cms_placeholder-bar');
+			this.layouts = $('.cms_placeholder-layout');
+			this.timer = function () {};
+
+			this._events();
+			this._preventEvents();
+
+			// handle initial modes
+			if(this.options.mode === 'edit') {
+				this.bars.hide();
+				this.layouts.hide();
+			}
+		},
+
+		_events: function () {
+			var that = this;
+
+			// bind events to each placeholder
+			this.containers.each(function () {
+				that._setupPlaceholder($(this));
+			});
+
+			// save placeholder elements, we need to unbind the event if its already available
+			$(document.body).bind('mousemove.cms.placeholder', function (e) {
+				that.tooltip.css({
+					'left': e.pageX + 20,
+					'top': e.pageY - 12
+				});
+			});
+
+			// add event to menu
+			this.menu.bind('mouseenter.cms.placeholder mouseleave.cms.placeholder', function (e) {
+				(e.type === 'mouseenter') ? that._showMenu() : that._hideMenu();
+			});
+
+			// TODO prototyping only
+			this.menu.bind('click', function (e) {
+				that._enableLayoutMode();
+			});
+
+			this.toolbar.find('.cms_toolbar-item_buttons li a').eq(0).bind('click', function (e) {
+				e.preventDefault();
+				that._enableEditMode();
+			});
+			this.toolbar.find('.cms_toolbar-item_buttons li a').eq(1).bind('click', function (e) {
+				e.preventDefault();
+				that._enableLayoutMode();
+			});
+
+		},
+
+		// TODO prototyping
+		_enableEditMode: function () {
+			this.bars.hide();
+			this.layouts.hide();
+			this.containers.fadeIn(300);
+
+			// set active item
+			this.toolbar.find('.cms_toolbar-item_buttons li').removeClass('active').eq(0).addClass('active');
+		},
+
+		_enableLayoutMode: function () {
+			this.bars.fadeIn(300);
+			this.layouts.fadeIn(300);
+			this.containers.hide();
+			this.menu.hide();
+
+			// set active item
+			this.toolbar.find('.cms_toolbar-item_buttons li').removeClass('active').eq(1).addClass('active');
+		},
+
+
+
+
+
+
+
+
+		_setupPlaceholder: function (placeholder) {
+			var that = this;
+
+			// attach mouseenter/mouseleave event
+			placeholder.bind('mouseenter.cms.placeholder mouseleave.cms.placeholder', function (e) {
+				// add tooltip event to every placeholder
+				(e.type === 'mouseenter') ? that.tooltip.show() : that.tooltip.hide();
+				(e.type === 'mouseenter') ? that._showMenu() : that._hideMenu();
+			});
+
+			placeholder.bind('mousemove.cms.placeholder', function () {
+				that.menu.css({
+					'left': $(this).position().left,
+					'top': $(this).position().top
+				});
+			});
+		},
+
+		_showMenu: function () {
+			clearTimeout(this.timer);
+			this.menu.fadeIn(100);
+		},
+
+		_hideMenu: function () {
+			var that = this;
+
+			this.timer = setTimeout(function () {
+				that.menu.fadeOut(100);
+			}, 500);
+		},
+
+		_preventEvents: function () {
+			var clicks = 0;
+			var delay = 500;
+			var timer = function () {};
+			var prevent = true;
+
+			// unbind click event if already initialized
+			this.containers.find('a, button, input[type="submit"], input[type="button"]').bind('click', function (e) {
+				if(prevent) {
+					e.preventDefault();
+
+					// clear timeout after click and increment
+					clearTimeout(timer);
+
+					timer = setTimeout(function () {
+						// if there is only one click use standard event
+						if(clicks === 1) {
+							prevent = false;
+
+							$(e.currentTarget)[0].click();
+						}
+						// reset
+						clicks = 0;
+					}, delay);
+
+					clicks++;
+				}
+
+			});
+		},
+
+		_toggleMenu: function () {
+			var mousemove = 'mousemove.cms.placeholder';
+			var mouseenter = 'mouseenter.cms.placeholder';
+			var mouseleave = ' mouseleave.cms.placeholder';
+
+			// add tooltip event to every placeholder
+			this.container.unbind(mouseenter + mouseleave).bind(mouseenter + mouseleave, function (e) {
+				that.menu.css({
+					'left': that.container.position().left,
+					'top': that.container.position().top
+				});
+
+				(e.type === 'mouseenter') ? that.tooltip.show() : that.tooltip.hide();
+				(e.type === 'mouseenter') ? show(that.menu) : hide(that.menu);
+			});
+
+
+		}
+
+	});
+
 	CMS.Placeholder = new CMS.Class({
 
 		options: {
@@ -40,9 +215,6 @@ CMS.$(document).ready(function () {
 		initialize: function (container, options) {
 			this.container = $(container);
 			this.options = $.extend(true, {}, this.options, options);
-
-			this.toolbar = $('#cms_toolbar');
-			this.tooltip = this.toolbar.find('.cms_placeholders-tooltip');
 
 			// attach event handling to placeholder bar
 			if(this.options.type === 'bar') this._setBar();
@@ -77,41 +249,6 @@ CMS.$(document).ready(function () {
 
 		_setPlugin: function () {
 			var that = this;
-			var event = 'mousemove.cms.placeholder';
-
-			// save placeholder elements, we need to unbind the event if its already available
-			$(document.body).unbind(event).bind(event, function (e) {
-				that.tooltip.css({
-					'left': e.pageX + 20,
-					'top': e.pageY - 12
-				});
-			});
-
-			// add tooltip event to every placeholder
-			this.container.bind('mouseenter.cms.placeholder mouseleave.cms.placeholder', function (e) {
-
-				(e.type === 'mouseenter') ? that.tooltip.show() : that.tooltip.hide();
-
-
-				// TODO lets do some more prototyping
-				//that.container.css('background', 'red');
-
-				console.log(that.container.width());
-
-				that.container.css('display', 'block').css('padding', 1);
-
-				var btn = that.container.find('.cms_placeholder-add');
-					btn.css('left', that.container.outerWidth(true) / 2);
-					btn.css('top', that.container.outerHeight(true) + 10);
-
-				(e.type === 'mouseenter') ? btn.show() : btn.hide();
-
-
-				that.container.css('display', 'inline').css('padding', 0);
-			});
-
-			// prevent edit events
-			// this._preventEvents();
 
 			// add plugin edit event
 			this.container.bind('dblclick', function (e) {
@@ -182,39 +319,6 @@ CMS.$(document).ready(function () {
 		editPlugin: function (url, breadcrumb) {
 			// trigger modal window
 			CMS.API.Toolbar.openModal(url, breadcrumb);
-		},
-
-		_preventEvents: function () {
-			var clicks = 0;
-			var delay = 500;
-			var timer = function () {};
-			var prevent = true;
-
-			// unbind click event if already initialized
-			$('a, button, input[type="submit"], input[type="button"]').unbind('click').bind('click', function (e) {
-				// TODO: cancel links from toolbar
-
-				if(prevent) {
-					e.preventDefault();
-
-					// clear timeout after click and increment
-					clearTimeout(timer);
-
-					timer = setTimeout(function () {
-						// if there is only one click use standard event
-						if(clicks === 1) {
-							prevent = false;
-
-							$(e.currentTarget)[0].click();
-						}
-						// reset
-						clicks = 0;
-					}, delay);
-
-					clicks++;
-				}
-
-			});
 		}
 
 	});

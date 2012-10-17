@@ -18,17 +18,21 @@
 CMS.$(document).ready(function () {
 	// initialize toolbar and pass required options
 	CMS.API.Toolbar = new CMS.Toolbar('#cms_toolbar', {
-		'mode': '{% if request.toolbar.edit_mode %}edit{% else %}view{% endif %}',
 		'csrf': '{{ csrf_token }}',
 		'debug': true,
 		'settings': {
-			'toolbar': 'collapsed'
+			'toolbar': 'expanded'
 		},
 		'lang': {
 			'move_warning': {% javascript_string %}{% trans "The selected element can not be moved to the desired location." %}{% end_javascript_string %},
 			'delete_request': {% javascript_string %}{% trans "Are you sure you want to delete this plugin?" %}{% end_javascript_string %},
 			'cancel': {% javascript_string %}{% trans "Cancel" %}{% end_javascript_string %}
 		}
+	});
+
+	// global accessor for placeholders
+	CMS.API.Placeholders = new CMS.Placeholders('.cms_placeholder', {
+		'mode': '{% if request.toolbar.edit_mode %}edit{% else %}view{% endif %}',
 	});
 });
 </script>
@@ -167,6 +171,7 @@ CMS.$(document).ready(function () {
 	<!-- end: modal -->
 
 	<!-- start: placeholder -->
-	<div class="cms_placeholders-tooltip"><span class="iconic pen_alt_fill"></span>Double-click to edit</div>
+	<div class="cms_placeholders-tooltip">Double-click to edit</div>
+	<div class="cms_placeholders-menu">Layout</div>
 	<!-- end: placeholder -->
 </div>

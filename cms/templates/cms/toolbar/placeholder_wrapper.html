@@ -18,9 +18,6 @@ CMS.$(document).ready(function () {
 });
 </script>
 {% endaddtoblock %}
-<div id="cms_placeholder-{{ instance.pk }}" class="cms_placeholder">
-	<div class="cms_reset cms_placeholder-add">Add</div>
+<div id="cms_placeholder-{{ instance.pk }}" class="cms_placeholder">{{ rendered_content }}</div>
 
-
-	{{ rendered_content }}
-</div>
+<div id="cms_placeholder-layout-{{ instance.pk }}" class="cms_placeholder-layout">{{ instance.plugin_type }}</div>
