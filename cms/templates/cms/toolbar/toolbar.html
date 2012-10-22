@@ -33,7 +33,7 @@ CMS.$(document).ready(function () {
 
 	// global accessor for placeholders
 	CMS.API.Placeholders = new CMS.Placeholders('.cms_placeholder', {
-		'mode': '{% if not request.toolbar.edit_mode %}edit{% else %}drag{% endif %}'
+		'mode': '{% if request.toolbar.edit_mode %}edit{% else %}drag{% endif %}'
 	});
 });
 </script>
