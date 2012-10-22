@@ -109,20 +109,20 @@ CMS.$(document).ready(function () {
 
 		_setupPlaceholder: function (placeholder) {
 			var that = this;
-console.log(placeholder);
+
 			// attach mouseenter/mouseleave event
-			/*placeholder.bind('mouseenter.cms.placeholder mouseleave.cms.placeholder', function (e) {
+			placeholder.bind('mouseenter.cms.placeholder mouseleave.cms.placeholder', function (e) {
 				// add tooltip event to every placeholder
 				(e.type === 'mouseenter') ? that.tooltip.show() : that.tooltip.hide();
 				(e.type === 'mouseenter') ? that._showMenu() : that._hideMenu();
 			});
 
-			placeholder.bind('click', function () {
+			placeholder.bind('mousemove.cms.placeholder', function () {
 				that.menu.css({
 					'left': $(this).position().left,
 					'top': $(this).position().top
 				});
-			});*/
+			});
 		},
 
 		_showMenu: function () {
@@ -299,7 +299,7 @@ console.log(placeholder);
 			});
 
 			// attach options as data values
-			this.container.data(this.options);
+			//this.container.data(this.options);
 
 			var draggable = $('#cms_dragholder-' + this.options.plugin_id);
 			var menu = draggable.find('.cms_dragmenu-dropdown');
