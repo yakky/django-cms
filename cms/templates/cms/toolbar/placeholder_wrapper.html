@@ -19,5 +19,12 @@ CMS.$(document).ready(function () {
 </script>
 {% endaddtoblock %}
 <div id="cms_placeholder-{{ instance.pk }}" class="cms_placeholder">{{ rendered_content }}</div>
-
-<div id="cms_placeholder-layout-{{ instance.pk }}" class="cms_placeholder-layout">{{ instance.plugin_type }}</div>
+<div id="cms_dragholder-{{ instance.pk }}" class="cms_reset cms_dragholder cms_dragholder-draggable">
+	<div class="cms_dragmenu"></div>
+	<div class="cms_dragmenu-dropdown">
+		<a href="#">Copy</a>
+		<a href="{{ instance.placeholder.get_remove_url }}{{ instance.placeholder.id }}/edit-plugin/{{ instance.pk }}">Delete</a>
+	</div>
+	<div class="cms_dragitem"><strong>{{ instance.plugin_type }}</strong> {{ instance.placeholder.slot }}</div>
+	<!-- load plugins in plugins -->
+</div>

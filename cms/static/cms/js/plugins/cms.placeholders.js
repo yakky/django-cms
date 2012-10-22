@@ -21,7 +21,7 @@ CMS.$(document).ready(function () {
 	CMS.Placeholders = new CMS.Class({
 
 		options: {
-			'mode': 'edit' // edit, layout or view
+			'mode': 'edit' // edit, drag or view
 		},
 
 		initialize: function (container, options) {
@@ -31,18 +31,22 @@ CMS.$(document).ready(function () {
 			this.toolbar = $('#cms_toolbar');
 			this.tooltip = this.toolbar.find('.cms_placeholders-tooltip');
 			this.menu = this.toolbar.find('.cms_placeholders-menu');
+
 			this.bars = $('.cms_placeholder-bar');
-			this.layouts = $('.cms_placeholder-layout');
+			this.dragholders = $('.cms_dragholder');
+			this.dragitems = $('.cms_dragholder-draggable');
+			this.dropareas = $('.cms_dragholder-droppable');
+			this.sortareas = $('.cms_sortables');
+
 			this.timer = function () {};
 
 			this._events();
 			this._preventEvents();
+			this._dragging();
 
 			// handle initial modes
-			if(this.options.mode === 'edit') {
-				this.bars.hide();
-				this.layouts.hide();
-			}
+			if(this.options.mode === 'edit') this._enableEditMode();
+			if(this.options.mode === 'drag') this._enableDragMode();
 		},
 
 		_events: function () {
@@ -66,48 +70,42 @@ CMS.$(document).ready(function () {
 				(e.type === 'mouseenter') ? that._showMenu() : that._hideMenu();
 			});
 
-			// TODO prototyping only
+			// TODO only prototyping
 			this.menu.bind('click', function (e) {
-				that._enableLayoutMode();
+				that._enableDragMode(300);
 			});
-
+			// TODO only prototyping
 			this.toolbar.find('.cms_toolbar-item_buttons li a').eq(0).bind('click', function (e) {
 				e.preventDefault();
-				that._enableEditMode();
+				that._enableEditMode(300);
 			});
+			// TODO only prototyping
 			this.toolbar.find('.cms_toolbar-item_buttons li a').eq(1).bind('click', function (e) {
 				e.preventDefault();
-				that._enableLayoutMode();
+				that._enableDragMode(300);
 			});
-
 		},
 
-		// TODO prototyping
-		_enableEditMode: function () {
+		// TODO only prototyping
+		_enableEditMode: function (speed) {
 			this.bars.hide();
-			this.layouts.hide();
-			this.containers.fadeIn(300);
+			this.dragholders.hide();
+			this.containers.fadeIn(speed);
 
 			// set active item
 			this.toolbar.find('.cms_toolbar-item_buttons li').removeClass('active').eq(0).addClass('active');
 		},
 
-		_enableLayoutMode: function () {
-			this.bars.fadeIn(300);
-			this.layouts.fadeIn(300);
+		// TODO only prototyping
+		_enableDragMode: function (speed) {
+			this.bars.fadeIn(speed);
+			this.dragholders.fadeIn(speed);
 			this.containers.hide();
 			this.menu.hide();
 
 			// set active item
 			this.toolbar.find('.cms_toolbar-item_buttons li').removeClass('active').eq(1).addClass('active');
 		},
-
-
-
-
-
-
-
 
 		_setupPlaceholder: function (placeholder) {
 			var that = this;
@@ -140,6 +138,61 @@ CMS.$(document).ready(function () {
 			}, 500);
 		},
 
+		_dragging: function () {
+			var that = this;
+
+			// sortable allows to rearrange items, it also enables draggable which is kinda weird
+			// TODO we need to connect to a list directly
+			// TODO successfull sorting should also update the position
+			this.sortareas.sortable({
+				'items': '> .cms_dragholder-draggable',
+				'cursor': 'move',
+				'connectWith': this.sortareas,
+				'tolerance': 'pointer',
+				// creates a cline thats over everything else
+				'helper': 'clone',
+				'appendTo': 'body',
+				'placeholder': 'cms_reset cms_dragholder cms_dragholder-empty cms_dragholder-droppable ui-droppable',
+				'zIndex': 999999,
+				'update': function (event, ui) {
+					ui.item.attr('style', '');
+
+					// TODO we need to handle double sortings
+					clearTimeout(that.timer);
+					that.timer = setTimeout(function () {
+						that.update(ui.item.attr('id').replace('cms_dragholder-', ''), ui.item);
+					}, 10);
+				}
+			});
+
+			// define which areas are droppable
+			this.dropareas.droppable({
+				'greedy': true,
+				// todo, this is important to check if elements are allowed to be dropped here
+				'accept': '.cms_dragholder-draggable',
+				'tolerance': 'pointer',
+				'activeClass': 'cms_dragholder-allowed',
+				'hoverClass': 'cms_dragholder-hover-allowed',
+				'drop': function(event, ui) {
+					// TODO we want to update the position through ajax and if success set the new position through a specific method:
+					// element id, element new position, blah blah
+					var target = this;
+
+					// TODO 1 is needed to place element to its new destination
+					ui.draggable.hide(1, function () {
+						$(this).insertAfter(target).show();
+					});
+				}
+			});
+		},
+
+		update: function (id, dragitem) {
+			var plugin = $('#cms_placeholder-' + id);
+				plugin.insertBefore(dragitem);
+
+			// attach new position for plugin
+		},
+
 		_preventEvents: function () {
 			var clicks = 0;
 			var delay = 500;
@@ -169,25 +222,6 @@ CMS.$(document).ready(function () {
 				}
 
 			});
-		},
-
-		_toggleMenu: function () {
-			var mousemove = 'mousemove.cms.placeholder';
-			var mouseenter = 'mouseenter.cms.placeholder';
-			var mouseleave = ' mouseleave.cms.placeholder';
-
-			// add tooltip event to every placeholder
-			this.container.unbind(mouseenter + mouseleave).bind(mouseenter + mouseleave, function (e) {
-				that.menu.css({
-					'left': that.container.position().left,
-					'top': that.container.position().top
-				});
-
-				(e.type === 'mouseenter') ? that.tooltip.show() : that.tooltip.hide();
-				(e.type === 'mouseenter') ? show(that.menu) : hide(that.menu);
-			});
-
-
 		}
 
 	});
@@ -195,7 +229,7 @@ CMS.$(document).ready(function () {
 	CMS.Placeholder = new CMS.Class({
 
 		options: {
-			'type': '', // bar, holder or layer
+			'type': '', // bar or plugin
 			'page_id': null, // TODO SHOULD BE REMOVED
 			'placeholder_id': null,
 			'plugin_type': '',
@@ -204,6 +238,7 @@ CMS.$(document).ready(function () {
 			'plugin_parent': null,
 			'plugin_order': null,
 			'plugin_breadcrumb': [],
+			'plugin_restriction': [],
 			'urls': {
 				'add_plugin': '',
 				'edit_plugin': '',
@@ -221,22 +256,21 @@ CMS.$(document).ready(function () {
 
 			// attach events to the placeholders itself
 			if(this.options.type === 'plugin') this._setPlugin();
-
-			// attach events to the placeholders itself
-			if(this.options.type === 'layer') this._setLayer();
 		},
 
 		_setBar: function () {
 			var that = this;
 
 			// attach event to the button
-			this.container.find('.cms_placeholder-btn').bind('mouseenter mouseleave', function (e) {
+			this.container.find('.cms_placeholder-btn').bind('click mouseenter mouseleave', function (e) {
+				e.preventDefault();
+
 				if(e.type === 'mouseenter') {
 					$(this).find('> a').addClass('active');
-					$(this).parent().css('z-index', 999999);
-				} else {
-					$(this).find('> a').removeClass('active');
 					$(this).parent().css('z-index', 99999);
+				} else if(e.type === 'mouseleave') {
+					$(this).find('> a').removeClass('active');
+					$(this).parent().css('z-index', 9999);
 				}
 			});
 
@@ -264,10 +298,15 @@ CMS.$(document).ready(function () {
 					'url': url
 				}]);
 			});
-		},
 
-		_setLayer: function () {
+			// attach options as data values
+			this.container.data(this.options);
 
+			var draggable = $('#cms_dragholder-' + this.options.plugin_id);
+				draggable.find('.cms_dragmenu').bind('click', function () {
+					draggable.find('.cms_dragmenu-dropdown').show();
+					draggable.css('z-index', 999);
+				});
 		},
 
 		addPlugin: function (el) {
