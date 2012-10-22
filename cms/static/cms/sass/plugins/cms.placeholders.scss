@@ -94,12 +94,14 @@
 	.cms_dragmenu { float:right; width:20px; height:20px; cursor:pointer;
 		background:url('/static/cms/img/toolbar/sprite_toolbar.png') no-repeat 3px -181px; }
 	.cms_dragmenu:hover { background-position:-17px -181px; }
-	.cms_dragmenu-dropdown { display:none; position:absolute; right:-1px; top:26px; z-index:999;
-		border:1px solid #dadada; background:#f5f5f5; }
+	.cms_dragmenu-dropdown { display:none; zoom:1; position:absolute; right:-1px; top:26px; z-index:999; min-width:75px;
+		border:1px solid #dfdfdf; background:#fff;
+		@include border-radius(0 0 3px 3px);
+		@include box-shadow(0 2px 2px #e1e1e1); }
 	.cms_dragmenu-dropdown a { display:block; font-size:12px; line-height:11px; text-align:right;
-		padding:5px 10px 5px 10px; border-top:1px solid #dadada; }
+		padding:6px 8px 5px 5px; border-top:1px solid #e1e1e1; }
 	.cms_dragmenu-dropdown a:first-child { border-top:none; }
-	.cms_dragmenu-dropdown a:hover { background:#fff; color:#4ea8ee; }
+	.cms_dragmenu-dropdown a:hover { color:#0eaaec; background:#f9f9f9; }
 }
 
 .cms_dragholder-empty { border:1px dotted #c9c9c9; background:transparent; }

@@ -65,7 +65,7 @@ CMS.$(document).ready(function () {
 				});
 			});
 
-			// add event to menu
+			// add event to placeholder bar menu
 			this.menu.bind('mouseenter.cms.placeholder mouseleave.cms.placeholder', function (e) {
 				(e.type === 'mouseenter') ? that._showMenu() : that._hideMenu();
 			});
@@ -109,20 +109,20 @@ CMS.$(document).ready(function () {
 
 		_setupPlaceholder: function (placeholder) {
 			var that = this;
-
+console.log(placeholder);
 			// attach mouseenter/mouseleave event
-			placeholder.bind('mouseenter.cms.placeholder mouseleave.cms.placeholder', function (e) {
+			/*placeholder.bind('mouseenter.cms.placeholder mouseleave.cms.placeholder', function (e) {
 				// add tooltip event to every placeholder
 				(e.type === 'mouseenter') ? that.tooltip.show() : that.tooltip.hide();
 				(e.type === 'mouseenter') ? that._showMenu() : that._hideMenu();
 			});
 
-			placeholder.bind('mousemove.cms.placeholder', function () {
+			placeholder.bind('click', function () {
 				that.menu.css({
 					'left': $(this).position().left,
 					'top': $(this).position().top
 				});
-			});
+			});*/
 		},
 
 		_showMenu: function () {
@@ -220,7 +220,6 @@ CMS.$(document).ready(function () {
 
 					clicks++;
 				}
-
 			});
 		}
 
@@ -303,10 +302,23 @@ CMS.$(document).ready(function () {
 			this.container.data(this.options);
 
 			var draggable = $('#cms_dragholder-' + this.options.plugin_id);
-				draggable.find('.cms_dragmenu').bind('click', function () {
-					draggable.find('.cms_dragmenu-dropdown').show();
+			var menu = draggable.find('.cms_dragmenu-dropdown');
+			// attach events
+			draggable.find('.cms_dragmenu').bind('click', function () {
+				if(menu.is(':visible')) {
+					menu.hide();
+					draggable.css('z-index', 99);
+				} else {
+					menu.show();
 					draggable.css('z-index', 999);
-				});
+				}
+			});
+			// atach default item behaviour
+			// _setNavigation
+			menu.find('a').bind('click', function (e) {
+				e.preventDefault();
+				CMS.API.Toolbar.delegate($(this));
+			});
 		},
 
 		addPlugin: function (el) {

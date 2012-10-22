@@ -78,7 +78,7 @@ CMS.$(document).ready(function () {
 			this.navigations.each(function () {
 				$(this).find('a').bind('click', function (e) {
 					e.preventDefault();
-					that._setNavigation($(e.currentTarget));
+					that.delegate($(e.currentTarget));
 				});
 				// handle active passive states
 				var root = $(this).find('> li');
@@ -180,7 +180,7 @@ CMS.$(document).ready(function () {
 			return this.options;
 		},
 
-		_setNavigation: function (el) {
+		delegate: function (el) {
 			// save local vars
 			var target = el.attr('rel');
 
@@ -195,7 +195,7 @@ CMS.$(document).ready(function () {
 					this.openAjax(el.attr('href'));
 					break;
 				default:
-					return false;
+					this.openModal(el.attr('href'), []);
 			}
 		},
 
