@@ -170,12 +170,14 @@ def configure(**extra):
             'col_left': {
                 'plugins': ('FilePlugin', 'FlashPlugin', 'LinkPlugin', 'PicturePlugin',
                             'TextPlugin', 'SnippetPlugin', 'GoogleMapPlugin', 'StackPlugin'),
+
                 'name': gettext("left column")
             },
 
             'col_right': {
                 'plugins': ('FilePlugin', 'FlashPlugin', 'LinkPlugin', 'PicturePlugin',
                             'TextPlugin', 'SnippetPlugin', 'GoogleMapPlugin', 'StackPlugin'),
+
                 'name': gettext("right column")
             },
             'extra_context': {
