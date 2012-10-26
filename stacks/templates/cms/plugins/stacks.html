@@ -1,2 +1,4 @@
-{% load placeholder_tags %}
-{% render_placeholder instance.content "640px" %}
+{% load cms_tags %}
+{% for plugin in plugins %}
+	{% render_plugin plugin %}
+{% endfor %}
