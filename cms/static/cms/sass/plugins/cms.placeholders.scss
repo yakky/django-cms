@@ -103,6 +103,7 @@
 	.cms_dragmenu-dropdown a:first-child { border-top:none; }
 	.cms_dragmenu-dropdown a:hover { color:#0eaaec; background:#f9f9f9; }
 }
+.cms_dragholder-selected { border:1px solid #333; }
 
 .cms_dragholder-empty { border:1px dotted #c9c9c9; background:transparent; }
 .cms_dragholder-draggable { cursor:move; z-index:100; }
@@ -138,8 +139,9 @@ only screen and (-o-min-device-pixel-ratio:3/2),
 only screen and (min--moz-device-pixel-ratio:1.5),
 only screen and (min-device-pixel-ratio:1.5) {
 
-	.cms_placeholder {
-
+	.cms_dragholder .cms_dragmenu {
+		background-image:url('/static/cms/img/toolbar/sprite_toolbar@2x.png');
+		background-size:190px;
 	}
 
 // end of retina

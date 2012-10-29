@@ -72,7 +72,17 @@ CMS.$(document).ready(function () {
 
 			// TODO only prototyping
 			this.menu.bind('click', function (e) {
-				that._enableDragMode(300);
+				if($(this).hasClass('cms_placeholders-menu-layout')) {
+					that._enableEditMode(300);
+				} else {
+					that._enableDragMode(300);
+				}
+
+				// reset dragholders
+				that.dragholders.removeClass('cms_dragholder-selected');
+				// attach active class to current element
+				var id = $(this).data('id');
+				$('#cms_dragholder-' + id).addClass('cms_dragholder-selected');
 			});
 			// TODO only prototyping
 			this.toolbar.find('.cms_toolbar-item_buttons li a').eq(0).bind('click', function (e) {
@@ -91,6 +101,8 @@ CMS.$(document).ready(function () {
 			this.bars.hide();
 			this.dragholders.hide();
 			this.containers.fadeIn(speed);
+			this.menu.hide();
+			this.menu.removeClass('cms_placeholders-menu-layout');
 
 			// set active item
 			this.toolbar.find('.cms_toolbar-item_buttons li').removeClass('active').eq(0).addClass('active');
@@ -102,6 +114,7 @@ CMS.$(document).ready(function () {
 			this.dragholders.fadeIn(speed);
 			this.containers.hide();
 			this.menu.hide();
+			this.menu.removeClass('cms_placeholders-menu-layout');
 
 			// set active item
 			this.toolbar.find('.cms_toolbar-item_buttons li').removeClass('active').eq(1).addClass('active');
@@ -109,33 +122,59 @@ CMS.$(document).ready(function () {
 
 		_setupPlaceholder: function (placeholder) {
 			var that = this;
+			// setup corresponding drag element
+			var id = this._getId(placeholder);
+			var dragholder = $('#cms_dragholder-' + id);
 
 			// attach mouseenter/mouseleave event
 			placeholder.bind('mouseenter.cms.placeholder mouseleave.cms.placeholder', function (e) {
 				// add tooltip event to every placeholder
 				(e.type === 'mouseenter') ? that.tooltip.show() : that.tooltip.hide();
-				(e.type === 'mouseenter') ? that._showMenu() : that._hideMenu();
+				(e.type === 'mouseenter') ? that._showMenu(that._getId($(this))) : that._hideMenu();
 			});
 
-			placeholder.bind('mousemove.cms.placeholder', function () {
+			placeholder.add(dragholder).bind('mousemove.cms.placeholder', function () {
 				that.menu.css({
 					'left': $(this).position().left,
 					'top': $(this).position().top
 				});
 			});
+
+			dragholder.bind('mouseenter.cms.placeholder mouseleave.cms.placeholder', function (e) {
+				// add tooltip event to every placeholder
+				(e.type === 'mouseenter') ? that._showMenu(that._getId($(this)), true) : that._hideMenu(true);
+				// bind current element id to
+			});
 		},
 
-		_showMenu: function () {
+		_showMenu: function (id, dragging) {
 			clearTimeout(this.timer);
 			this.menu.fadeIn(100);
+			if(dragging) this.menu.addClass('cms_placeholders-menu-layout');
+			// attach element to menu
+			this.menu.data('id', id);
 		},
 
-		_hideMenu: function () {
+		_hideMenu: function (dragging) {
 			var that = this;
 
 			this.timer = setTimeout(function () {
-				that.menu.fadeOut(100);
+				that.menu.fadeOut(100, function () {
+					if(dragging) that.menu.removeClass('cms_placeholders-menu-layout');
+				});
 			}, 500);
+		},
+
+		_getId: function (el) {
+			var id = null;
+
+			if(el.hasClass('cms_placeholder')) {
+				id = el.attr('id').replace('cms_placeholder-', '');
+			} else {
+				id = el.attr('id').replace('cms_dragholder-', '');
+			}
+
+			return id;
 		},
 
 		_dragging: function () {
