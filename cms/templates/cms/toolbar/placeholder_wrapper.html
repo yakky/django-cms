@@ -18,8 +18,8 @@ CMS.$(document).ready(function () {
 });
 </script>
 {% endaddtoblock %}
-<div id="cms_placeholder-{{ instance.pk }}" class="cms_placeholder">{{ rendered_content }}</div>
-<div id="cms_dragholder-{{ instance.pk }}" class="cms_reset cms_dragholder cms_dragholder-draggable">
+<div id="cms_placeholder-{{ instance.pk }}" class="cms_placeholder cms_light">{{ rendered_content }}</div>
+<div id="cms_dragholder-{{ instance.pk }}" class="cms_reset cms_light cms_dragholder cms_dragholder-draggable">
 	<div class="cms_dragmenu"></div>
 	<div class="cms_dragmenu-dropdown">
 		<a rel="dialogue" data-text="Are you sure you want to copy this plugin?" href="#">Copy</a>

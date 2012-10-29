@@ -191,7 +191,7 @@ CMS.$(document).ready(function () {
 				// creates a cline thats over everything else
 				'helper': 'clone',
 				'appendTo': 'body',
-				'placeholder': 'cms_reset cms_dragholder cms_dragholder-empty cms_dragholder-droppable ui-droppable',
+				'placeholder': 'cms_reset cms_light cms_dragholder cms_dragholder-empty cms_dragholder-droppable ui-droppable',
 				'zIndex': 999999,
 				'stop': function (event, ui) {
 
