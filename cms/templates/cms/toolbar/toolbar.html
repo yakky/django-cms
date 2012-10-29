@@ -104,9 +104,9 @@ CMS.$(document).ready(function () {
 		<div class="cms_toolbar-right">
 			{% if request.toolbar.edit_mode %}
 			<ul class="cms_toolbar-item cms_toolbar-item_buttons">
-				<li{% if request.toolbar.edit_mode %} class="active"{% endif %}><a href="?edit=true">{% trans "Edit" %}</a></li>
+				<li{% if request.toolbar.edit_mode %} class="active"{% endif %}><a href="?edit">{% trans "Edit" %}</a></li>
 				<li><a href="?layout=true">{% trans "Layout" %}</a></li>
-				<li{% if not request.toolbar.edit_mode %} class="active"{% endif %}><a href="?view=true">{% trans "View" %}</a></li>
+				<li{% if not request.toolbar.edit_mode %} class="active"{% endif %}><a href="?edit-off">{% trans "View" %}</a></li>
 			</ul>
 			{% endif %}
 			<div class="cms_toolbar-item cms_toolbar-item_switch{% if not request.toolbar.edit_mode %} cms_toolbar-item_switch-active{% endif %}">

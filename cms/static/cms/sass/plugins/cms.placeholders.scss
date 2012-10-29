@@ -103,7 +103,10 @@
 	.cms_dragmenu-dropdown a:first-child { border-top:none; }
 	.cms_dragmenu-dropdown a:hover { color:#0eaaec; background:#f9f9f9; }
 }
-.cms_dragholder-selected { border:1px solid #333; }
+.cms_dragholder-selected { border:1px solid #0a84e4; background:#0a84e4 !important;
+	@include background-image(linear-gradient(#0eaaec, #0a84e4) !important); }
+.cms_dragholder-selected .cms_dragitem,
+.cms_dragholder-selected .cms_dragitem strong { color:#fff !important; }
 
 .cms_dragholder-empty { border:1px dotted #c9c9c9; background:transparent; }
 .cms_dragholder-draggable { cursor:move; z-index:100; }

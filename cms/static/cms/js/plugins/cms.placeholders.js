@@ -193,41 +193,56 @@ CMS.$(document).ready(function () {
 				'appendTo': 'body',
 				'placeholder': 'cms_reset cms_dragholder cms_dragholder-empty cms_dragholder-droppable ui-droppable',
 				'zIndex': 999999,
-				'update': function (event, ui) {
+				'stop': function (event, ui) {
+
+
+
+					// TODO this needs refactoring, first should be ALL placeholders than all dragitems within a list
+					// TODO otherwise this wont work
+					var origin = ui.item;
+					var id = origin.attr('id').replace('cms_dragholder-', '');
+					var shadow = $('#cms_placeholder-' + id);
+
+
+					shadow.insertBefore(origin);
+
+					// TODO we need some ajax checking before actually replacing
+					// TODO we might also need some loading indication
+
+
+					/*
+
 					ui.item.attr('style', '');
 
 					// TODO we need to handle double sortings
 					clearTimeout(that.timer);
 					that.timer = setTimeout(function () {
 						that.update(ui.item.attr('id').replace('cms_dragholder-', ''), ui.item);
-					}, 10);
+					}, 100);
+
+					*/
+
 				}
 			});
 
 			// define which areas are droppable
+
 			this.dropareas.droppable({
 				'greedy': true,
 				// todo, this is important to check if elements are allowed to be dropped here
 				'accept': '.cms_dragholder-draggable',
 				'tolerance': 'pointer',
 				'activeClass': 'cms_dragholder-allowed',
-				'hoverClass': 'cms_dragholder-hover-allowed',
-				'drop': function(event, ui) {
-					// TODO we want to update the position through ajax and if success set the new position through a specific method:
-					// element id, element new position, blah blah
-					var target = this;
-
-					// TODO 1 is needed to place element to its new destination
-					ui.draggable.hide(1, function () {
-						$(this).insertAfter(target).show();
-					});
-				}
+				'hoverClass': 'cms_dragholder-hover-allowed'
 			});
 		},
 
 		update: function (id, dragitem) {
+
 			var plugin = $('#cms_placeholder-' + id);
 				plugin.insertBefore(dragitem);
+
+			console.log(dragitem);
 
 			// attach new position for plugin
 		},
@@ -342,16 +357,34 @@ CMS.$(document).ready(function () {
 
 			var draggable = $('#cms_dragholder-' + this.options.plugin_id);
 			var menu = draggable.find('.cms_dragmenu-dropdown');
+			var speed = 200;
 			// attach events
 			draggable.find('.cms_dragmenu').bind('click', function () {
 				if(menu.is(':visible')) {
-					menu.hide();
-					draggable.css('z-index', 99);
+					hide();
 				} else {
-					menu.show();
-					draggable.css('z-index', 999);
+					show();
+				}
+			}).bind('mouseleave', function (e) {
+				that.timer = setTimeout(hide, speed);
+			});
+			draggable.find('.cms_dragmenu-dropdown').bind('mouseleave.cms.draggable mouseenter.cms.draggable', function (e) {
+				clearTimeout(that.timer);
+				if(e.type === 'mouseleave') {
+					that.timer = setTimeout(hide, speed);
 				}
 			});
+
+			function hide() {
+				menu.hide();
+				draggable.css('z-index', 99);
+			}
+
+			function show() {
+				menu.show();
+				draggable.css('z-index', 999);
+			}
+
 			// atach default item behaviour
 			// _setNavigation
 			menu.find('a').bind('click', function (e) {
