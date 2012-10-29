@@ -53,7 +53,7 @@
 	.cms_dragmenu { float:right; width:20px; height:20px; cursor:pointer; }
 	.cms_dragmenu-dropdown { display:none; zoom:1; position:absolute; right:-1px; top:26px; z-index:999; min-width:75px;
 		@include border-radius(0 0 3px 3px); }
-	.cms_dragmenu-dropdown a { display:block; font-size:12px; line-height:11px; text-align:right; }
+	.cms_dragmenu-dropdown a { display:block; font-size:12px; line-height:11px; text-align:right; padding:6px 8px 5px 5px; }
 	.cms_dragmenu-dropdown a:first-child { border-top:none; }
 }
 .cms_dragholder-draggable { cursor:move; z-index:100; }
@@ -118,7 +118,6 @@
 .cms_light.cms_dragholder-hover-allowed, .cms_light.cms_dragholder-placeholder { background:#efc !important; }
 .cms_light.cms_dragholder-hover-disallowed { background:#fdd !important; }
 
-
 //##################################################
 // #DARK THEME#
 .cms_dark {
@@ -133,7 +132,8 @@ only screen and (-o-min-device-pixel-ratio:3/2),
 only screen and (min--moz-device-pixel-ratio:1.5),
 only screen and (min-device-pixel-ratio:1.5) {
 
-	.cms_dragholder .cms_dragmenu {
+	.cms_dragholder .cms_dragmenu,
+	.cms_placeholder-bar .cms_placeholder-btn > a span {
 		background-image:url('/static/cms/img/toolbar/sprite_toolbar@2x.png');
 		background-size:190px;
 	}
