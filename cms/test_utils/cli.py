@@ -92,6 +92,7 @@ def configure(**extra):
             'cms.test_utils.project.pluginapp.plugins.extra_context',
             'cms.test_utils.project.fakemlng',
             'cms.test_utils.project.fileapp',
+            'djangocms_column',
             'south',
             'reversion',
             'sekizai',
@@ -162,7 +163,7 @@ def configure(**extra):
         CMS_PLACEHOLDER_CONF={
             'col_sidebar': {
                 'plugins': ('FilePlugin', 'FlashPlugin', 'LinkPlugin', 'PicturePlugin',
-                            'TextPlugin', 'SnippetPlugin'),
+                            'TextPlugin', 'SnippetPlugin', 'MultiColumnPlugin'),
                 'name': gettext("sidebar column")
             },
 

@@ -149,6 +149,7 @@ def render_placeholder_toolbar(placeholder, context, content, name_fallback=None
     else:
         slot = None
     installed_plugins = plugin_pool.get_all_plugins(slot, page)
+    print installed_plugins
     name = get_placeholder_conf("name", slot, template, title(slot))
     name = _(name)
     context.push()
