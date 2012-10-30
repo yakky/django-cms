@@ -33,10 +33,10 @@ CMS.$(document).ready(function () {
 			this.menu = this.toolbar.find('.cms_placeholders-menu');
 
 			this.bars = $('.cms_placeholder-bar');
+			this.sortareas = $('.cms_sortables');
 			this.dragholders = $('.cms_dragholder');
 			this.dragitems = $('.cms_dragholder-draggable');
 			this.dropareas = $('.cms_dragholder-droppable');
-			this.sortareas = $('.cms_sortables');
 
 			this.timer = function () {};
 
@@ -123,14 +123,14 @@ CMS.$(document).ready(function () {
 		_setupPlaceholder: function (placeholder) {
 			var that = this;
 			// setup corresponding drag element
-			var id = this._getId(placeholder);
+			var id = this.getId(placeholder);
 			var dragholder = $('#cms_dragholder-' + id);
 
 			// attach mouseenter/mouseleave event
 			placeholder.bind('mouseenter.cms.placeholder mouseleave.cms.placeholder', function (e) {
 				// add tooltip event to every placeholder
 				(e.type === 'mouseenter') ? that.tooltip.show() : that.tooltip.hide();
-				(e.type === 'mouseenter') ? that._showMenu(that._getId($(this))) : that._hideMenu();
+				(e.type === 'mouseenter') ? that._showMenu(that.getId($(this))) : that._hideMenu();
 			});
 
 			placeholder.add(dragholder).bind('mousemove.cms.placeholder', function () {
@@ -142,7 +142,7 @@ CMS.$(document).ready(function () {
 
 			dragholder.bind('mouseenter.cms.placeholder mouseleave.cms.placeholder', function (e) {
 				// add tooltip event to every placeholder
-				(e.type === 'mouseenter') ? that._showMenu(that._getId($(this)), true) : that._hideMenu(true);
+				(e.type === 'mouseenter') ? that._showMenu(that.getId($(this)), true) : that._hideMenu(true);
 				// bind current element id to
 			});
 		},
@@ -165,7 +165,7 @@ CMS.$(document).ready(function () {
 			}, 500);
 		},
 
-		_getId: function (el) {
+		getId: function (el) {
 			var id = null;
 
 			if(el.hasClass('cms_placeholder')) {
@@ -178,13 +178,11 @@ CMS.$(document).ready(function () {
 		},
 
 		_dragging: function () {
-			var that = this;
-
 			// sortable allows to rearrange items, it also enables draggable which is kinda weird
 			// TODO we need to connect to a list directly
 			// TODO successfull sorting should also update the position
 			this.sortareas.sortable({
-				'items': '> .cms_dragholder-draggable',
+				'items': this.dragitems,
 				'cursor': 'move',
 				'connectWith': this.sortareas,
 				'tolerance': 'pointer',
@@ -194,36 +192,30 @@ CMS.$(document).ready(function () {
 				'placeholder': 'cms_reset cms_light cms_dragholder cms_dragholder-empty cms_dragholder-droppable ui-droppable',
 				'zIndex': 999999,
 				'stop': function (event, ui) {
-
-
-
 					// TODO this needs refactoring, first should be ALL placeholders than all dragitems within a list
 					// TODO otherwise this wont work
-					var origin = ui.item;
-					var id = origin.attr('id').replace('cms_dragholder-', '');
-					var shadow = $('#cms_placeholder-' + id);
+					//var dragitem = ui.item;
 
-
-					shadow.insertBefore(origin);
+					//plugin.insertBefore(dragitem);
 
 					// TODO we need some ajax checking before actually replacing
 					// TODO we might also need some loading indication
 
-
 					/*
-
 					ui.item.attr('style', '');
-
 					// TODO we need to handle double sortings
 					clearTimeout(that.timer);
 					that.timer = setTimeout(function () {
 						that.update(ui.item.attr('id').replace('cms_dragholder-', ''), ui.item);
 					}, 100);
-
 					*/
 
+					// we pass the id to the updater which checks within the backend the correct place
+					var id = ui.item.attr('id').replace('cms_dragholder-', '');
+					var plugin = $('#cms_placeholder-' + id);
+						plugin.trigger('cms.placeholder.update');
 				}
-			});
+			}).disableSelection();
 
 			// define which areas are droppable
 
@@ -235,16 +227,6 @@ CMS.$(document).ready(function () {
 				'activeClass': 'cms_dragholder-allowed',
 				'hoverClass': 'cms_dragholder-hover-allowed'
 			});
-		},
-
-		update: function (id, dragitem) {
-
-			var plugin = $('#cms_placeholder-' + id);
-				plugin.insertBefore(dragitem);
-
-			console.log(dragitem);
-
-			// attach new position for plugin
 		},
 
 		_preventEvents: function () {
@@ -296,13 +278,15 @@ CMS.$(document).ready(function () {
 				'add_plugin': '',
 				'edit_plugin': '',
 				'move_plugin': '',
-				'remove_plugin': ''
+				'remove_plugin': '' // TODO this might be depricated cause url is directly on the plugin itself?
 			}
 		},
 
 		initialize: function (container, options) {
 			this.container = $(container);
 			this.options = $.extend(true, {}, this.options, options);
+
+			this.body = $(document);
 
 			// attach event handling to placeholder bar
 			if(this.options.type === 'bar') this._setBar();
@@ -330,7 +314,7 @@ CMS.$(document).ready(function () {
 			// attach events to the anchors
 			this.container.find('.cms_placeholder-subnav a').bind('click', function (e) {
 				e.preventDefault();
-				that.addPlugin($(this));
+				that.addPlugin($(this).attr('href').replace('#', ''));
 			});
 		},
 
@@ -391,15 +375,20 @@ CMS.$(document).ready(function () {
 				e.preventDefault();
 				CMS.API.Toolbar.delegate($(this));
 			});
+
+			// update plugin position
+			this.container.bind('cms.placeholder.update', function () {
+				that.updatePlugin();
+			});
 		},
 
-		addPlugin: function (el) {
+		addPlugin: function (type) {
 			// TODO needs refactoring
 			// I pass the plugin type and
 
 			var that = this;
 			var data = {
-				'plugin_type': el.attr('href').replace('#', ''),
+				'plugin_type': type,
 				'language': this.options.plugin_language,
 				// TODO this should be page_id, not required for new system
 				'placeholder_id': this.options.page_id,
@@ -442,6 +431,41 @@ CMS.$(document).ready(function () {
 		editPlugin: function (url, breadcrumb) {
 			// trigger modal window
 			CMS.API.Toolbar.openModal(url, breadcrumb);
+		},
+
+		updatePlugin: function () {
+			var id = CMS.API.Placeholders.getId(this.container);
+
+			var plugin = $('#cms_placeholder-' + id);
+			var dragitem = $('#cms_dragholder-' + id);
+
+			// insert new position
+			plugin.insertBefore(dragitem);
+
+			var data = {
+				'language': this.options.plugin_language,
+				// TODO this should be page_id, not required for new system
+				'placeholder_id': this.options.page_id,
+				// TODO this should be placeholder_id
+				'placeholder': this.options.placeholder_id,
+				'csrfmiddlewaretoken': CMS.API.Toolbar.options.csrf
+			};
+
+			$.ajax({
+				'type': 'POST',
+				'url': this.options.urls.move_plugin,
+				'data': data,
+				'success': function (response) {
+					console.log(response);
+				},
+				'error': function (jqXHR) {
+					var msg = 'An error occured during the update.';
+					// trigger error
+					CMS.API.Toolbar.showError(msg + jqXHR.status + ' ' + jqXHR.statusText);
+
+					// TODO refresh browser?
+				}
+			})
 		}
 
 	});
