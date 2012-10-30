@@ -6,7 +6,7 @@ from datetime import datetime, date
 from django.conf import settings
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db import models
-from django.db.models.base import (model_unpickle, simple_class_factory)
+from django.db.models.base import model_unpickle
 from django.db.models.query_utils import DeferredAttribute
 from django.utils.translation import ugettext_lazy as _
 
@@ -87,6 +87,7 @@ class CMSPlugin(MPTTModel):
     lft = models.PositiveIntegerField(db_index=True, editable=False)
     rght = models.PositiveIntegerField(db_index=True, editable=False)
     tree_id = models.PositiveIntegerField(db_index=True, editable=False)
+    child_plugins = None
 
     class Meta:
         app_label = 'cms'
@@ -125,7 +126,7 @@ class CMSPlugin(MPTTModel):
                         obj = self.__class__.__dict__[field.attname]
                         model = obj.model_ref()
         else:
-            factory = simple_class_factory
+            factory = lambda x, y: x
         return (model_unpickle, (model, defers, factory), data)
 
     def __unicode__(self):
@@ -167,7 +168,8 @@ class CMSPlugin(MPTTModel):
             if not isinstance(placeholder, Placeholder):
                 placeholder = instance.placeholder
             placeholder_slot = placeholder.slot
-            context = PluginContext(context, instance, placeholder)
+            current_app = context.current_app if context else None
+            context = PluginContext(context, instance, placeholder, current_app=current_app)
             context = plugin.render(context, instance, placeholder_slot)
             if plugin.render_plugin:
                 template = hasattr(instance, 'render_template') and instance.render_template or plugin.render_template
@@ -175,7 +177,7 @@ class CMSPlugin(MPTTModel):
                     raise ValidationError("plugin has no render_template: %s" % plugin.__class__)
             else:
                 template = None
-            return render_plugin(context, instance, placeholder, template, processors)
+            return render_plugin(context, instance, placeholder, template, processors, context.current_app)
         return ""
 
     def get_media_path(self, filename):

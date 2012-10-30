@@ -3,6 +3,7 @@ from cms.apphook_pool import apphook_pool
 from cms.forms.widgets import UserSelectAdminWidget
 from cms.models import (Page, PagePermission, PageUser, ACCESS_PAGE, 
     PageUserGroup)
+from cms.utils.i18n import get_language_tuple, get_language_list
 from cms.utils.mail import mail_page_user_change
 from cms.utils.page import is_valid_page_slug
 from cms.utils.page_resolver import get_page_from_path, is_valid_url
@@ -60,7 +61,7 @@ class PageAddForm(forms.ModelForm):
         help_text=_('The default title'))
     slug = forms.CharField(label=_("Slug"), widget=forms.TextInput(),
         help_text=_('The part of the title that is used in the URL'))
-    language = forms.ChoiceField(label=_("Language"), choices=settings.CMS_LANGUAGES,
+    language = forms.ChoiceField(label=_("Language"), choices=get_language_tuple(),
         help_text=_('The current language of the content fields.'))
     
     class Meta:
@@ -74,13 +75,7 @@ class PageAddForm(forms.ModelForm):
         if not self.fields['site'].initial:
             self.fields['site'].initial = Site.objects.get_current().pk
         site_id = self.fields['site'].initial
-        languages = []
-        language_mappings = dict(settings.LANGUAGES)
-        if site_id in settings.CMS_SITE_LANGUAGES:
-            for lang in settings.CMS_SITE_LANGUAGES[site_id]:
-                languages.append((lang, language_mappings.get(lang, lang)))
-        else:
-            languages = settings.CMS_LANGUAGES
+        languages = get_language_tuple(site_id)
         self.fields['language'].choices = languages
         if not self.fields['language'].initial:
             self.fields['language'].initial = get_language()
@@ -92,10 +87,7 @@ class PageAddForm(forms.ModelForm):
         
     def clean(self):
         cleaned_data = self.cleaned_data
-        if 'slug' in cleaned_data.keys():
-            slug = cleaned_data['slug']
-        else:
-            slug = ""
+        slug = cleaned_data.get('slug', '')
         
         page = self.instance
         lang = cleaned_data.get('language', None)
@@ -121,17 +113,18 @@ class PageAddForm(forms.ModelForm):
             #AdminFormsTests.test_clean_overwrite_url validates the form with when no page instance available
             #Looks like just a theoretical corner case
             title = page.get_title_obj(lang)
-            if title:
+            if title and slug:
                 oldslug = title.slug
-                title.slug = self.cleaned_data['slug']
+                title.slug = slug
                 title.save()
                 try:
                     is_valid_url(title.path,page)
                 except ValidationError,e:
                     title.slug = oldslug
                     title.save()
-                    del cleaned_data['published']
-                    self._errors['published'] = ErrorList(e.messages)
+                    if 'slug' in cleaned_data:
+                        del cleaned_data['slug']
+                    self._errors['slug'] = ErrorList(e.messages)
         return cleaned_data
     
     def clean_slug(self):
@@ -142,7 +135,7 @@ class PageAddForm(forms.ModelForm):
     
     def clean_language(self):
         language = self.cleaned_data['language']
-        if not language in dict(settings.CMS_LANGUAGES).keys():
+        if not language in get_language_list():
             raise ValidationError("Given language does not match language settings.")
         return language
         

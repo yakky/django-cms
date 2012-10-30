@@ -36,7 +36,7 @@ class InheritPagePlaceholderPlugin(CMSPluginBase):
             page = instance.from_page
         else:
             page = instance.page
-        if not instance.page.publisher_is_draft and page.publisher_is_draft:
+        if settings.CMS_MODERATOR and not instance.page.publisher_is_draft and page.publisher_is_draft:
             page = page.publisher_public
             
         plugins = get_cmsplugin_queryset(request).filter(
@@ -51,6 +51,8 @@ class InheritPagePlaceholderPlugin(CMSPluginBase):
             tmpctx = copy.copy(context)
             tmpctx.update(template_vars)
             inst, name = plg.get_plugin_instance()
+            if inst is None:
+                continue
             outstr = inst.render_plugin(tmpctx, placeholder)
             plugin_output.append(outstr)
         template_vars['parent_output'] = plugin_output
