@@ -2,7 +2,7 @@
 /* #CMS.TOOLBAR# */
 (function($) {
 // CMS.$ will be passed for $
-CMS.$(document).ready(function () {
+$(document).ready(function () {
 	/*!
 	 * Toolbar
 	 * @version: 2.0.0
@@ -16,7 +16,8 @@ CMS.$(document).ready(function () {
 			'csrf': '',
 			'debug': false, // not yet required
 			'settings': {
-				'toolbar': 'expanded' // expanded or collapsed
+				'toolbar': 'expanded', // expanded or collapsed
+				'mode': 'edit' // live, draft, edit or layout
 			},
 			'sidebarDuration': 300,
 			'sidebarWidth': 275,
@@ -53,6 +54,12 @@ CMS.$(document).ready(function () {
 			this.dialogueActive = false;
 			this.modal = this.container.find('.cms_modal');
 
+			this.tooltip = this.container.find('.cms_placeholders-tooltip');
+			this.menu = this.container.find('.cms_placeholders-menu');
+			this.bars = $('.cms_placeholder-bar');
+			this.plugins = $('.cms_placeholder');
+			this.dragholders = $('.cms_dragholder');
+
 			// setup initial stuff
 			this._setup();
 
@@ -63,6 +70,8 @@ CMS.$(document).ready(function () {
 		_setup: function () {
 			// setup toolbar visibility, we need to reverse the options to set the correct state
 			(this.settings.toolbar === 'expanded') ? this._showToolbar(0, true) : this._hideToolbar(0, true);
+			// setup toolbar mode
+			(this.settings.mode === 'layout') ? this._enableDragMode(300) : this._enableEditMode(300);
 		},
 
 		_events: function () {
@@ -147,6 +156,24 @@ CMS.$(document).ready(function () {
 				that._endModalMove(e);
 				that._endModalResize(e);
 			});
+
+			// event for switching between edit and layout mode
+			this.menu.bind('click', function (e) {
+				($(this).hasClass('cms_placeholders-menu-layout')) ? that._enableEditMode(300) : that._enableDragMode(300);
+				// reset dragholders
+				that.dragholders.removeClass('cms_dragholder-selected');
+				// attach active class to current element
+				var id = $(this).data('id');
+				$('#cms_dragholder-' + id).addClass('cms_dragholder-selected');
+			});
+			this.toolbar.find('.cms_toolbar-item_buttons li a').eq(0).bind('click', function (e) {
+				e.preventDefault();
+				that._enableEditMode(300);
+			});
+			this.toolbar.find('.cms_toolbar-item_buttons li a').eq(1).bind('click', function (e) {
+				e.preventDefault();
+				that._enableDragMode(300);
+			});
 		},
 
 		toggleToolbar: function (speed) {
@@ -168,6 +195,26 @@ CMS.$(document).ready(function () {
 			this.toolbar.slideUp(speed);
 			this.settings.toolbar = 'collapsed';
 			if(!init) this.setSettings();
+		},
+
+		_enableEditMode: function (speed) {
+			this.bars.hide();
+			this.plugins.fadeIn(speed);
+			this.dragholders.hide();
+			this.menu.hide().removeClass('cms_placeholders-menu-layout');
+
+			// set active item
+			this.toolbar.find('.cms_toolbar-item_buttons li').removeClass('active').eq(0).addClass('active');
+		},
+
+		_enableDragMode: function (speed) {
+			this.bars.fadeIn(speed);
+			this.plugins.hide();
+			this.dragholders.fadeIn(speed);
+			this.menu.hide().removeClass('cms_placeholders-menu-layout');
+
+			// set active item
+			this.toolbar.find('.cms_toolbar-item_buttons li').removeClass('active').eq(1).addClass('active');
 		},
 
 		// this function is a placeholder and should update the backend with various toolbar states

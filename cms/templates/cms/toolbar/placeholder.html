@@ -4,14 +4,8 @@
 CMS.$(document).ready(function () {
 	new CMS.Placeholder('#cms_placeholder-bar-{{ placeholder.pk }}', {
 		'type': 'bar',
-		'page_id': {{ page.id }},
 		'placeholder_id': '{{ placeholder.pk }}',
-		//'plugin_type': '',
-		//'plugin_id': 0,
-		'plugin_language': '{{ language }}',
-		//'plugin_parent': null,
-		//'plugin_order': null,
-		//'plugin_breadcrumb': [],
+		'plugin_restriction': ['TextPlugin', 'PicturePlugin'], // empty = false
 		'urls': {
 			'add_plugin': '{{ placeholder.get_add_url }}',
 			'edit_plugin': '{{ placeholder.get_changelist_url }}'

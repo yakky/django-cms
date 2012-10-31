@@ -5,24 +5,20 @@ CMS.$(document).ready(function () {
 	new CMS.Placeholder('#cms_placeholder-{{ instance.pk }}', {
 		'type': 'plugin',
 		'placeholder_id': '{{ instance.placeholder.id }}',
-		'placeholder_slot': '{{ instance.placeholder.slot }}', // TODO is this required?
 		'plugin_type': '{{ instance.plugin_type }}',
 		'plugin_id': '{{ instance.pk }}',
-        'allow_children': '{{ instance.get_plugin_class.allow_children }}',
-        'plugin_language': '{{ language }}',{% if child_plugin_classes %}
-        'child_classes' : [
-            {% for class, name in child_plugin_classes %}
-                {'class_name':'{{ class  }}', 'plugin_name':'{{ name }}'}{% if not forloop.last %},{% endif %}
-            {% endfor %}
-        ],{% endif %}
-
+		'plugin_language': '{{ language }}',
+		'plugin_children' : [ // empty = false
+			{% for class, name in child_plugin_classes %}
+			{'type':'{{ class  }}', 'title':'{{ name }}'}{% if not forloop.last %},{% endif %}
+			{% endfor %}
+		],
+		'plugin_order': null,
+		'plugin_breadcrumb': [],
 		'urls': {
+			'add_plugin': '{{ instance.placeholder.get_add_url }}',
 			'edit_plugin': '{{ instance.placeholder.get_changelist_url }}',
-			'move_plugin': '{{ instance.placeholder.get_move_url }}',
-			'remove_plugin': '{{ instance.placeholder.get_remove_url }}',
-			'change_list': '{{ instance.placeholder.get_changelist_url }}',
-            'add_plugin': '{{ instance.placeholder.get_add_url }}',
-            'change_list': '{{ instance.placeholder.get_changelist_url }}'
+			'remove_plugin': '{{ instance.placeholder.get_remove_url }}'
 		}
 	});
 });
@@ -43,3 +39,4 @@ CMS.$(document).ready(function () {
 		{% endfor %}
 	{% endif %}
 </div>
+

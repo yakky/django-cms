@@ -2,7 +2,7 @@
 /* #CMS.PLACEHOLDERS# */
 (function($) {
 // CMS.$ will be passed for $
-CMS.$(document).ready(function () {
+$(document).ready(function () {
 	/*!
 	 * Placeholder
 	 * @version: 2.0.0
@@ -19,10 +19,6 @@ CMS.$(document).ready(function () {
 
 	// TODO we might move all the cms placeholder initializers to CMS.Placeholders
 	CMS.Placeholders = new CMS.Class({
-
-		options: {
-			'mode': 'edit' // edit, drag or view
-		},
 
 		initialize: function (container, options) {
 			this.containers = $(container);
@@ -43,10 +39,6 @@ CMS.$(document).ready(function () {
 			this._events();
 			this._preventEvents();
 			this._dragging();
-
-			// handle initial modes
-			if(this.options.mode === 'edit') this._enableEditMode();
-			if(this.options.mode === 'drag') this._enableDragMode();
 		},
 
 		_events: function () {
@@ -69,55 +61,6 @@ CMS.$(document).ready(function () {
 			this.menu.bind('mouseenter.cms.placeholder mouseleave.cms.placeholder', function (e) {
 				(e.type === 'mouseenter') ? that._showMenu() : that._hideMenu();
 			});
-
-			// TODO only prototyping
-			this.menu.bind('click', function (e) {
-				if($(this).hasClass('cms_placeholders-menu-layout')) {
-					that._enableEditMode(300);
-				} else {
-					that._enableDragMode(300);
-				}
-
-				// reset dragholders
-				that.dragholders.removeClass('cms_dragholder-selected');
-				// attach active class to current element
-				var id = $(this).data('id');
-				$('#cms_dragholder-' + id).addClass('cms_dragholder-selected');
-			});
-			// TODO only prototyping
-			this.toolbar.find('.cms_toolbar-item_buttons li a').eq(0).bind('click', function (e) {
-				e.preventDefault();
-				that._enableEditMode(300);
-			});
-			// TODO only prototyping
-			this.toolbar.find('.cms_toolbar-item_buttons li a').eq(1).bind('click', function (e) {
-				e.preventDefault();
-				that._enableDragMode(300);
-			});
-		},
-
-		// TODO only prototyping
-		_enableEditMode: function (speed) {
-			this.bars.hide();
-			this.dragholders.hide();
-			this.containers.fadeIn(speed);
-			this.menu.hide();
-			this.menu.removeClass('cms_placeholders-menu-layout');
-
-			// set active item
-			this.toolbar.find('.cms_toolbar-item_buttons li').removeClass('active').eq(0).addClass('active');
-		},
-
-		// TODO only prototyping
-		_enableDragMode: function (speed) {
-			this.bars.fadeIn(speed);
-			this.dragholders.fadeIn(speed);
-			this.containers.hide();
-			this.menu.hide();
-			this.menu.removeClass('cms_placeholders-menu-layout');
-
-			// set active item
-			this.toolbar.find('.cms_toolbar-item_buttons li').removeClass('active').eq(1).addClass('active');
 		},
 
 		_setupPlaceholder: function (placeholder) {
@@ -397,16 +340,6 @@ CMS.$(document).ready(function () {
 				'csrfmiddlewaretoken': CMS.API.Toolbar.options.csrf
 			};
 
-			/*
-			 * new should be the following
-			 * plugin_id (id)
-			 * plugin_language (string)
-			 * plugin_parent (null)
-			 * plugin_order (id)
-			 * plugin_breadcrumb (array)
-			 * placeholder_id (id)
-			 */
-
 			$.ajax({
 				'type': 'POST',
 				'url': this.options.urls.add_plugin,
@@ -472,3 +405,26 @@ CMS.$(document).ready(function () {
 
 });
 })(CMS.$);
+
+/*
+ {
+ 'type': 'plugin', // bar or plugin
+ 'placeholder_id': 1,
+ 'plugin_type': 'TextPlugin',
+ 'plugin_id': 1,
+ 'plugin_language': 'en',
+ 'plugin_children': [
+ { 'type': 'ColumnPlugin', title: 'Column' }
+ ],
+ 'plugin_order': 2,
+ 'plugin_breadcrumb': [
+ { 'url': '/en/admin/cms/page/1/edit-plugin/1/', 'title': 'Text plugin' }
+ ]
+ 'plugin_restriction': ['TextPlugin', 'PicturePlugin', 'ColumnPlugin'],
+ 'urls': {
+ 'add_plugin': '',
+ 'edit_plugin': '',
+ 'move_plugin': ''
+ }
+ }
+ */
