@@ -51,10 +51,13 @@
 
 	// dragmenu
 	.cms_dragmenu { float:right; width:20px; height:20px; cursor:pointer; }
-	.cms_dragmenu-dropdown { display:none; zoom:1; position:absolute; right:-1px; top:26px; z-index:999; min-width:75px;
+	.cms_dragmenu-dropdown { display:none; zoom:1; position:absolute; right:-1px; top:26px; z-index:999; min-width:100px;
 		@include border-radius(0 0 3px 3px); }
-	.cms_dragmenu-dropdown a { display:block; font-size:12px; line-height:11px; text-align:right; padding:6px 8px 5px 5px; }
+	.cms_dragmenu-dropdown a,
+	.cms_dragmenu-dropdown span { display:block; font-size:12px; line-height:11px; text-align:right; padding:6px 8px 5px 5px; }
 	.cms_dragmenu-dropdown a:first-child { border-top:none; }
+	.cms_dragmenu-dropdown span { font-weight:bold; }
+	.cms_dragmenu-dropdown .last { border:none; }
 }
 .cms_dragholder-draggable { cursor:move; z-index:100; }
 
@@ -101,8 +104,9 @@
 	.cms_dragmenu { background:url('/static/cms/img/toolbar/sprite_toolbar.png') no-repeat 3px -181px; }
 	.cms_dragmenu:hover { background-position:-17px -181px; }
 	.cms_dragmenu-dropdown { border:1px solid #dfdfdf; background:#fff; @include box-shadow(0 2px 2px #e1e1e1); }
-	.cms_dragmenu-dropdown a {  border-top:1px solid #e1e1e1; }
+	.cms_dragmenu-dropdown a { border-bottom:1px dotted #e1e1e1; }
 	.cms_dragmenu-dropdown a:hover { color:#0eaaec; background:#f9f9f9; }
+	.cms_dragmenu-dropdown span { color:#0eaaec; border-bottom:1px dotted #e1e1e1;  }
 
 // end of light theme
 }

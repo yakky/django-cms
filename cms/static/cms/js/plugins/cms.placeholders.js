@@ -31,6 +31,7 @@ $(document).ready(function () {
 			this.bars = $('.cms_placeholder-bar');
 			this.sortareas = $('.cms_sortables');
 			this.dragholders = $('.cms_dragholder');
+
 			this.dragitems = $('.cms_dragholder-draggable');
 			this.dropareas = $('.cms_dragholder-droppable');
 
@@ -47,6 +48,7 @@ $(document).ready(function () {
 			// bind events to each placeholder
 			this.containers.each(function () {
 				that._setupPlaceholder($(this));
+				that._setupDragholder($('#cms_dragholder-' + that.getId($(this))));
 			});
 
 			// save placeholder elements, we need to unbind the event if its already available
@@ -65,9 +67,6 @@ $(document).ready(function () {
 
 		_setupPlaceholder: function (placeholder) {
 			var that = this;
-			// setup corresponding drag element
-			var id = this.getId(placeholder);
-			var dragholder = $('#cms_dragholder-' + id);
 
 			// attach mouseenter/mouseleave event
 			placeholder.bind('mouseenter.cms.placeholder mouseleave.cms.placeholder', function (e) {
@@ -76,17 +75,28 @@ $(document).ready(function () {
 				(e.type === 'mouseenter') ? that._showMenu(that.getId($(this))) : that._hideMenu();
 			});
 
-			placeholder.add(dragholder).bind('mousemove.cms.placeholder', function () {
+			placeholder.bind('mousemove.cms.placeholder', function () {
 				that.menu.css({
 					'left': $(this).position().left,
 					'top': $(this).position().top
 				});
 			});
+		},
+
+		_setupDragholder: function (dragholder) {
+			var that = this;
 
 			dragholder.bind('mouseenter.cms.placeholder mouseleave.cms.placeholder', function (e) {
 				// add tooltip event to every placeholder
 				(e.type === 'mouseenter') ? that._showMenu(that.getId($(this)), true) : that._hideMenu(true);
 				// bind current element id to
+			});
+
+			dragholder.bind('mousemove.cms.placeholder', function () {
+				that.menu.css({
+					'left': $(this).position().left,
+					'top': $(this).position().top
+				});
 			});
 		},
 
@@ -344,7 +354,7 @@ $(document).ready(function () {
 				'placeholder': this.options.placeholder_id,
 				'csrfmiddlewaretoken': CMS.API.Toolbar.options.csrf
 			};
-console.log(this.options.plugin_language);
+
 			$.ajax({
 				'type': 'POST',
 				'url': this.options.urls.add_plugin,
