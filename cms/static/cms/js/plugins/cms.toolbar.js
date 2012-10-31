@@ -71,7 +71,7 @@ $(document).ready(function () {
 			// setup toolbar visibility, we need to reverse the options to set the correct state
 			(this.settings.toolbar === 'expanded') ? this._showToolbar(0, true) : this._hideToolbar(0, true);
 			// setup toolbar mode
-			(this.settings.mode === 'layout') ? this._enableDragMode(300) : this._enableEditMode(300);
+			(this.settings.mode === 'layout') ? this._enableDragMode(300, true) : this._enableEditMode(300, true);
 		},
 
 		_events: function () {
@@ -197,7 +197,7 @@ $(document).ready(function () {
 			if(!init) this.setSettings();
 		},
 
-		_enableEditMode: function (speed) {
+		_enableEditMode: function (speed, init) {
 			this.bars.hide();
 			this.plugins.fadeIn(speed);
 			this.dragholders.hide();
@@ -205,9 +205,11 @@ $(document).ready(function () {
 
 			// set active item
 			this.toolbar.find('.cms_toolbar-item_buttons li').removeClass('active').eq(0).addClass('active');
+
+			if(!init) this.setSettings();
 		},
 
-		_enableDragMode: function (speed) {
+		_enableDragMode: function (speed, init) {
 			this.bars.fadeIn(speed);
 			this.plugins.hide();
 			this.dragholders.fadeIn(speed);
@@ -215,12 +217,14 @@ $(document).ready(function () {
 
 			// set active item
 			this.toolbar.find('.cms_toolbar-item_buttons li').removeClass('active').eq(1).addClass('active');
+
+			if(!init) this.setSettings();
 		},
 
 		// this function is a placeholder and should update the backend with various toolbar states
 		setSettings: function () {
 			// todo do queue system
-			console.log(this.getSettings());
+			//console.log(this.getSettings());
 		},
 
 		getSettings: function () {

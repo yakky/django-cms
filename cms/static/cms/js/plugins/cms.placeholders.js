@@ -204,6 +204,11 @@ $(document).ready(function () {
 
 	});
 
+
+
+
+
+
 	CMS.Placeholder = new CMS.Class({
 
 		options: {
@@ -339,7 +344,7 @@ $(document).ready(function () {
 				'placeholder': this.options.placeholder_id,
 				'csrfmiddlewaretoken': CMS.API.Toolbar.options.csrf
 			};
-
+console.log(this.options.plugin_language);
 			$.ajax({
 				'type': 'POST',
 				'url': this.options.urls.add_plugin,

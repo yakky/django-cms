@@ -5,6 +5,7 @@ CMS.$(document).ready(function () {
 	new CMS.Placeholder('#cms_placeholder-bar-{{ placeholder.pk }}', {
 		'type': 'bar',
 		'placeholder_id': '{{ placeholder.pk }}',
+		'plugin_language': '{{ language }}', // todo not required should be within backend
 		'plugin_restriction': ['TextPlugin', 'PicturePlugin'], // empty = false
 		'urls': {
 			'add_plugin': '{{ placeholder.get_add_url }}',
