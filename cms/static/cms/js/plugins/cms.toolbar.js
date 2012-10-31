@@ -241,7 +241,8 @@ CMS.$(document).ready(function () {
 			// prepare iframe
 			var that = this;
 			var holder = this.sideframe.find('.cms_sideframe-frame');
-			var iframe = $('<iframe src="'+url+'" class="" frameborder="0" />');
+			// TODO the additional param should be inside the url?
+			var iframe = $('<iframe src="'+url+'?cms_admin_frontend=true'+'" class="" frameborder="0" />');
 				iframe.hide();
 			var width = this.options.sidebarWidth;
 
