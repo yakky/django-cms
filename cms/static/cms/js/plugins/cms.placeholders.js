@@ -152,9 +152,11 @@ $(document).ready(function () {
 				'stop': function (event, ui) {
 					// TODO this needs refactoring, first should be ALL placeholders than all dragitems within a list
 					// TODO otherwise this wont work
+
 					//var dragitem = ui.item;
 
 					//plugin.insertBefore(dragitem);
+
 
 					// TODO we need some ajax checking before actually replacing
 					// TODO we might also need some loading indication
