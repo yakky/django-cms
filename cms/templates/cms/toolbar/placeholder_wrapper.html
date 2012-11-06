@@ -35,7 +35,8 @@ CMS.$(document).ready(function () {
 		<a rel="sideframe" href="{{ instance.placeholder.get_remove_url }}{{ instance.pk }}">Delete</a>
 		{% for class, name in child_plugin_classes %}
 		{% if forloop.first %}<span>{% trans "Add Plugin" %}</span>{% endif %}
-		<a rel="add_plugin"{% if forloop.last %} class="last"{% endif %} href="{{ class }}">{{ name }}</a>
+		<!-- TODO add correct url instead of only clas -->
+		<a rel="custom" href="#{{ class }}">{{ name }}</a>
 		{% endfor %}
 	</div>
 	<div class="cms_dragitem"><strong>{{ instance.plugin_type }}</strong> {{ instance.placeholder.slot }}</div>

@@ -51,7 +51,7 @@ $(document).ready(function () {
 			this.body = $('html');
 			this.sideframe = this.container.find('.cms_sideframe');
 			this.dialogue = this.container.find('.cms_dialogue');
-			this.dialogueActive = false;
+			this.lockToolbar = false;
 			this.modal = this.container.find('.cms_modal');
 
 			this.tooltip = this.container.find('.cms_placeholders-tooltip');
@@ -189,7 +189,7 @@ $(document).ready(function () {
 
 		_hideToolbar: function (speed, init) {
 			// cancel if dialogue is active
-			if(this.dialogueActive) return false;
+			if(this.lockToolbar) return false;
 
 			this.toolbarTrigger.removeClass('cms_toolbar-trigger-expanded');
 			this.toolbar.slideUp(speed);
@@ -428,6 +428,7 @@ $(document).ready(function () {
 		_showSideframe: function (width) {
 			this.sideframe.animate({ 'width': width }, this.options.sidebarDuration);
 			this.body.animate({ 'margin-left': width }, this.options.sidebarDuration);
+			this.lockToolbar = true;
 		},
 
 		_hideSideframe: function () {
@@ -436,6 +437,7 @@ $(document).ready(function () {
 			this.sideframe.find('.cms_sideframe-frame').removeClass('cms_modal-loader');
 			// remove the iframe
 			this.sideframe.find('iframe').remove();
+			this.lockToolbar = false;
 		},
 
 		_startSideframeResize: function () {
@@ -463,7 +465,7 @@ $(document).ready(function () {
 				'top': 30
 			}, this.options.dialogueDuration);
 
-			this.dialogueActive = true;
+			this.lockToolbar = true;
 		},
 
 		_hideDialogue: function () {
@@ -472,7 +474,7 @@ $(document).ready(function () {
 				'top': -height
 			}, this.options.dialogueDuration);
 
-			this.dialogueActive = false;
+			this.lockToolbar = false;
 		},
 
 		_showModal: function (speed) {

@@ -144,6 +144,11 @@ $(document).ready(function () {
 				'appendTo': 'body',
 				'placeholder': 'cms_reset cms_light cms_dragholder cms_dragholder-empty cms_dragholder-droppable ui-droppable',
 				'zIndex': 999999,
+				'start': function (event, ui) {
+					// remove with from helper
+					// TODO might be removed cause of handler pickup
+					ui.helper.css('width', 250);
+				},
 				'stop': function (event, ui) {
 					// TODO this needs refactoring, first should be ALL placeholders than all dragitems within a list
 					// TODO otherwise this wont work
@@ -331,7 +336,12 @@ $(document).ready(function () {
 			// _setNavigation
 			menu.find('a').bind('click', function (e) {
 				e.preventDefault();
-				CMS.API.Toolbar.delegate($(this));
+
+				if($(this).attr('rel') === 'custom') {
+					that.addPlugin($(this).attr('href').replace('#', ''))
+				} else {
+					CMS.API.Toolbar.delegate($(this));
+				}
 			});
 
 			// update plugin position
@@ -390,12 +400,18 @@ $(document).ready(function () {
 			// insert new position
 			plugin.insertBefore(dragitem);
 
+
+			// placeholder_id, plugin_type, plugin_id, plugin_language, plugin_order
+			/*
+			 'language': this.options.plugin_language,
+			 // TODO this should be page_id, not required for new system
+			 'placeholder_id': this.options.page_id,
+			 // TODO this should be placeholder_id
+			 'placeholder': this.options.placeholder_id,
+			 'csrfmiddlewaretoken': CMS.API.Toolbar.options.csrf
+			 */
 			var data = {
-				'language': this.options.plugin_language,
-				// TODO this should be page_id, not required for new system
 				'placeholder_id': this.options.page_id,
-				// TODO this should be placeholder_id
-				'placeholder': this.options.placeholder_id,
 				'csrfmiddlewaretoken': CMS.API.Toolbar.options.csrf
 			};
 
@@ -403,8 +419,10 @@ $(document).ready(function () {
 				'type': 'POST',
 				'url': this.options.urls.move_plugin,
 				'data': data,
-				'success': function (response) {
-					console.log(response);
+				'success': function (response, status) {
+
+					console.log(data);
+					//console.log(response);
 				},
 				'error': function (jqXHR) {
 					var msg = 'An error occured during the update.';
