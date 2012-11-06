@@ -83,8 +83,11 @@ def render_plugins(plugins, context, placeholder, processors=None):
     return out
 
 
-def render_dragables(plugins):
-    return render_to_string("cms/toolbar/placeholder_dragables.html", {'plugins':plugins})
+def render_dragables(plugins, slot, request):
+    print ",,,,,,,,,,,"
+    print plugins
+
+    return render_to_string("cms/toolbar/placeholder_dragables.html", {'plugins':plugins, 'slot':slot, 'request':request})
 
 
 def render_placeholder(placeholder, context_to_copy, name_fallback="Placeholder"):
@@ -134,7 +137,7 @@ def render_placeholder(placeholder, context_to_copy, name_fallback="Placeholder"
     dragables_content = ''
     if edit:
         toolbar_content = mark_safe(render_placeholder_toolbar(placeholder, context, name_fallback))
-        dragables_content = mark_safe(render_dragables(plugins))
+        dragables_content = mark_safe(render_dragables(plugins, slot, request))
     content = mark_safe("".join(content))
 
     result = render_to_string("cms/toolbar/placeholder.html", {'plugins':content, "toolbar":toolbar_content, "dragables":dragables_content, 'edit':edit})
