@@ -358,14 +358,18 @@
 
 				var that = this;
 				var data = {
+					'placeholder_id': this.options.page_id,
 					'plugin_type': type,
+					'plugin_parent': null,
+					'plugin_language': this.options.plugin_language,
+					'plugin_order': 0, // TODO might be first or last or custom
+
+
 					'language': this.options.plugin_language,
 					// TODO this should be page_id, not required for new system
-					'placeholder_id': this.options.page_id,
+					//'placeholder_id': this.options.page_id,
 					// TODO this should be placeholder_id
 					'placeholder': this.options.placeholder_id,
-					// TODO add plugin parent
-					'plugin_parent': null,
 					'csrfmiddlewaretoken': CMS.API.Toolbar.options.csrf
 				};
 
@@ -403,10 +407,10 @@
 				plugin.insertBefore(dragitem);
 
 				// get new poisition data
-				var placeholder_id = CMS.API.Placeholders.getId(plugin.prevAll('.cms_placeholder-bar').first());
-				//var plugin_order = plugin.prevUntil('.cms_placeholder-bar');
-
-				//console.log(plugin_order);
+				var placeholder_id = CMS.API.Placeholders.getId(dragitem.prevAll('.cms_placeholder-bar').first());
+				var plugin_order = dragitem.prevUntil('.cms_placeholder-bar').filter('[class*="cms_dragholder-draggable"]').length;
+				var plugin_parent = CMS.API.Placeholders.getId(dragitem.parent());
+					if(plugin_parent === '') plugin_parent = null;
 
 				/*
 				 'language': this.options.plugin_language,
@@ -417,15 +421,12 @@
 				 'csrfmiddlewaretoken': CMS.API.Toolbar.options.csrf
 				 */
 
-				//console.log(placeholder_id);
-
 				var data = {
 					'placeholder_id': placeholder_id,
-					// TODO might not be required
-					'plugin_parent': null,
 					'plugin_id': this.options.plugin_id,
+					'plugin_parent': plugin_parent,
 					'plugin_language': this.options.plugin_language,
-					'plugin_order': 1,
+					'plugin_order': plugin_order,
 					'csrfmiddlewaretoken': CMS.API.Toolbar.options.csrf
 				};
 
@@ -435,7 +436,7 @@
 					'data': data,
 					'success': function (response, status) {
 
-						console.log(data);
+						//console.log(data);
 						//console.log(response);
 					},
 					'error': function (jqXHR) {
