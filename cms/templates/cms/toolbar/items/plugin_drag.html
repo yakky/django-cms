@@ -1,21 +1,17 @@
-{% load i18n %}
+{% load cms_tags i18n  %}
 <div id="cms_dragholder-{{ plugin.pk }}" class="cms_reset cms_light cms_dragholder cms_dragholder-draggable">
 	<div class="cms_dragmenu"></div>
 	<div class="cms_dragmenu-dropdown">
 		<span>{% trans "Settings" %}</span>
 		<a rel="dialogue" data-text="Are you sure you want to copy this plugin?" href="#">Copy</a>
 		<a rel="sideframe" href="{{ plugin.placeholder.get_remove_url }}{{ plugin.pk }}">Delete</a>
-		{% for class, name in child_plugin_classes %}
-		{% if forloop.first %}<span>{% trans "Add Plugin" %}</span>{% endif %}
-		<!-- TODO add correct url instead of only clas -->
-		<a rel="custom" href="#{{ class }}">{{ name }}</a>
-		{% endfor %}
+		{% plugin_child_classes plugin %}
 	</div>
 	<div class="cms_dragitem"><strong>{{ plugin.plugin_type }}</strong> {{ plugin.placeholder.slot }}</div>
 	{% if plugin.get_plugin_class.allow_children and plugin.plugin_children_instances %}
 		{% for child in plugin.plugin_children_instances %}
 			{# workaround because include tag does not allow recursive includes #}
-			{% with template_name="cms/toolbar/items/plugin_drag.html" %}{% include template_name with plugin=child only %}{% endwith %}
+			{% with template_name="cms/toolbar/items/plugin_drag.html" %}{% include template_name with plugin=child %}{% endwith %}
 		{% endfor %}
 	{% endif %}
 </div>

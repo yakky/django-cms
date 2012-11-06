@@ -364,6 +364,8 @@
 					'placeholder_id': this.options.page_id,
 					// TODO this should be placeholder_id
 					'placeholder': this.options.placeholder_id,
+					// TODO add plugin parent
+					'plugin_parent': null,
 					'csrfmiddlewaretoken': CMS.API.Toolbar.options.csrf
 				};
 
