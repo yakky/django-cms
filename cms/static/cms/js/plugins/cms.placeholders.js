@@ -340,7 +340,7 @@
 					e.preventDefault();
 
 					if($(this).attr('rel') === 'custom') {
-						that.addPlugin($(this).attr('href').replace('#', ''))
+						that.addPlugin($(this).attr('href').replace('#', ''), that._getId($(this).closest('.cms_dragholder')))
 					} else {
 						CMS.API.Toolbar.delegate($(this));
 					}
@@ -352,7 +352,11 @@
 				});
 			},
 
-			addPlugin: function (type) {
+			_getId: function (el) {
+				return CMS.API.Placeholders.getId(el);
+			},
+
+			addPlugin: function (type, parent) {
 				// TODO needs refactoring
 				// I pass the plugin type and
 
@@ -360,9 +364,9 @@
 				var data = {
 					'placeholder_id': this.options.page_id,
 					'plugin_type': type,
-					'plugin_parent': null,
+					'plugin_parent': parent || null,
 					'plugin_language': this.options.plugin_language,
-					'plugin_order': 0, // TODO might be first or last or custom
+					'plugin_order': "0", // TODO might be first or last or custom
 
 
 					'language': this.options.plugin_language,
@@ -372,6 +376,8 @@
 					'placeholder': this.options.placeholder_id,
 					'csrfmiddlewaretoken': CMS.API.Toolbar.options.csrf
 				};
+
+				console.log(data);
 
 				$.ajax({
 					'type': 'POST',
@@ -407,9 +413,9 @@
 				plugin.insertBefore(dragitem);
 
 				// get new poisition data
-				var placeholder_id = CMS.API.Placeholders.getId(dragitem.prevAll('.cms_placeholder-bar').first());
+				var placeholder_id = this._getId(dragitem.prevAll('.cms_placeholder-bar').first());
 				var plugin_order = dragitem.prevUntil('.cms_placeholder-bar').filter('[class*="cms_dragholder-draggable"]').length;
-				var plugin_parent = CMS.API.Placeholders.getId(dragitem.parent());
+				var plugin_parent = this._getId(dragitem.parent());
 					if(plugin_parent === '') plugin_parent = null;
 
 				/*
