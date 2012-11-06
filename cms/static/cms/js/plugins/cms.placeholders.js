@@ -194,9 +194,6 @@ CMS.$(document).ready(function () {
 				'placeholder': 'cms_reset cms_light cms_dragholder cms_dragholder-empty cms_dragholder-droppable ui-droppable',
 				'zIndex': 999999,
 				'stop': function (event, ui) {
-
-
-
 					// TODO this needs refactoring, first should be ALL placeholders than all dragitems within a list
 					// TODO otherwise this wont work
 					var origin = ui.item;
@@ -205,6 +202,7 @@ CMS.$(document).ready(function () {
 
 
 					shadow.insertBefore(origin);
+
 
 					// TODO we need some ajax checking before actually replacing
 					// TODO we might also need some loading indication
