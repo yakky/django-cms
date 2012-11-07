@@ -1,0 +1,33 @@
+{% load i18n sekizai_tags %}
+{% addtoblock "js" %}
+<script type="text/javascript">
+CMS.$(document).ready(function () {
+	new CMS.Placeholder('#cms_placeholder-bar-{{ placeholder.pk }}', {
+		'type': 'bar',
+		'placeholder_id': '{{ placeholder.pk }}',
+		'plugin_language': '{{ language }}', // todo not required should be within backend
+		'plugin_restriction': ['TextPlugin', 'PicturePlugin'], // empty = false // todo just testing atm
+		'urls': {
+			'add_plugin': '{{ placeholder.get_add_url }}',
+			'edit_plugin': '{{ placeholder.get_changelist_url }}'
+		}
+	});
+});
+</script>
+{% endaddtoblock %}
+<div id="cms_placeholder-bar-{{ placeholder.pk }}" class="cms_reset cms_light cms_placeholder-bar">
+	<div class="cms_placeholder-title">{{ placeholder_label }}</div>
+	<div class="cms_placeholder-btn">
+		<a href="#"><span>{% trans "Add Plugin" %}</span></a>
+		<ul class="cms_placeholder-subnav">
+			{% regroup installed_plugins by module as module_list %}
+			{% for module in module_list %}
+			<li class="cms_placeholder-subnav-title"><span>{% if module.grouper %}{{ module.grouper|capfirst }}{% else %}{% trans "Available plugins" %}{% endif %}</span></li>
+			{% for p in module.list %}
+			<li><a href="#{{ p.value }}">{{ p.name }}</a></li>
+			{% endfor %}
+			{% endfor %}
+		</ul>
+	</div>
+</div>
+<div class="cms_reset cms_light cms_dragholder cms_dragholder-empty cms_dragholder-droppable"><div class="cms_dragitem">Drop a plugin here</div></div>

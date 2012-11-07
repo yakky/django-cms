@@ -10,6 +10,7 @@ from django.template import Template, Context
 from django.template.defaultfilters import title
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
+from django.utils.safestring import mark_safe
 
 # these are always called before all other plugin context processors
 DEFAULT_PLUGIN_CONTEXT_PROCESSORS = (
@@ -81,6 +82,14 @@ def render_plugins(plugins, context, placeholder, processors=None):
         context.pop()
     return out
 
+
+def render_dragables(plugins, slot, request):
+    print ",,,,,,,,,,,"
+    print plugins
+
+    return render_to_string("cms/toolbar/placeholder_dragables.html", {'plugins':plugins, 'slot':slot, 'request':request})
+
+
 def render_placeholder(placeholder, context_to_copy, name_fallback="Placeholder"):
     """
     Renders plugins for a placeholder on the given page using shallow copies of the 
@@ -108,7 +117,7 @@ def render_placeholder(placeholder, context_to_copy, name_fallback="Placeholder"
         if not key in context:
             context[key] = value
 
-    content = []
+
 
     # Prepend frontedit toolbar output if applicable
     edit = False
@@ -122,15 +131,20 @@ def render_placeholder(placeholder, context_to_copy, name_fallback="Placeholder"
         processors = (toolbar_plugin_processor,)
     else:
         processors = None
-
+    content = []
     content.extend(render_plugins(plugins, context, placeholder, processors))
-    content = "".join(content)
+    toolbar_content = ''
+    dragables_content = ''
     if edit:
-        content = render_placeholder_toolbar(placeholder, context, content, name_fallback)
-    context.pop()
-    return content
+        toolbar_content = mark_safe(render_placeholder_toolbar(placeholder, context, name_fallback))
+        dragables_content = mark_safe(render_dragables(plugins, slot, request))
+    content = mark_safe("".join(content))
 
-def render_placeholder_toolbar(placeholder, context, content, name_fallback=None):
+    result = render_to_string("cms/toolbar/placeholder.html", {'plugins':content, "toolbar":toolbar_content, "dragables":dragables_content, 'edit':edit})
+    context.pop()
+    return result
+
+def render_placeholder_toolbar(placeholder, context, name_fallback=None):
     from cms.plugin_pool import plugin_pool
     request = context['request']
     page = placeholder.page if placeholder else None
@@ -149,6 +163,7 @@ def render_placeholder_toolbar(placeholder, context, content, name_fallback=None
     else:
         slot = None
     installed_plugins = plugin_pool.get_all_plugins(slot, page)
+    print installed_plugins
     name = get_placeholder_conf("name", slot, template, title(slot))
     name = _(name)
     context.push()
@@ -157,6 +172,6 @@ def render_placeholder_toolbar(placeholder, context, content, name_fallback=None
     context['placeholder_label'] = name
     context['placeholder'] = placeholder
     context['page'] = page
-    toolbar = render_to_string("cms/toolbar/placeholder.html", context)
+    toolbar = render_to_string("cms/toolbar/placeholder_toolbar.html", context)
     context.pop()
-    return "".join([toolbar, content])
+    return toolbar

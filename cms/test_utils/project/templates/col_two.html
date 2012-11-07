@@ -4,21 +4,26 @@
 {% block tpl_id %}tpl_col_two{% endblock %}
 
 {% block content %}
-    <div id="col1" class="grid_4">	    
-		{% include "sidebar_submenu.html" %}	
+	{% block page_title %}<h1>{% page_attribute title %}</h1>{% endblock %}
+	<div id="col1" class="grid_4">
+		<div class="cms_sortables">
+		{% include "sidebar_submenu.html" %}
 		{% block col_sidebar %}
 			{% with "220" as width %}
 	    		{% placeholder col_sidebar %}
 			{% endwith %}
 		{% endblock %}
+		</div>
     </div>
-	
+
     <div id="col2" class="grid_11 push_1">
-    	{% block page_title %}<h1>{% page_attribute title %}</h1>{% endblock %}
+		{% show_editable_page_title %}
+	    <div class="cms_sortables">
 		{% block col_left %}
 			{% with "640" as width %}
 				{% placeholder col_left %}
 			{% endwith %}
 		{% endblock %}
+		</div>
     </div>
 {% endblock %}

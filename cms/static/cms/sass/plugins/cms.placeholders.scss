@@ -1,0 +1,146 @@
+@charset "utf-8";
+/*!
+ * @copyright:	https://github.com/divio/django-cms
+ */
+
+//##################################################
+// #IMPORT SETTINGS#
+@import "partials/settings";
+
+//##################################################
+// #PLACEHOLDER#
+.cms_placeholder { display:inline; position:relative; }
+
+//##################################################
+// #PLACEHOLDER-BAR#
+.cms_placeholder-bar {
+	font-size:13px; line-height:20px; position:relative; left:0; top:0; z-index:9999;
+	height:27px; @include border-radius(3px);
+}
+.cms_placeholder-bar {
+	.cms_placeholder-title { float:left; font-size:12px; line-height:20px; text-transform:uppercase;
+		font-weight:bold; padding:4px 0 3px 10px; }
+	.cms_placeholder-btn { float:right; margin:1px 2px 1px 1px; }
+	.cms_placeholder-btn {
+		> a { float:right; font-size:11px; font-weight:bold; padding:1px 8px;
+			@include border-radius(3px); }
+		> a span { float:left; @include hide-text(); width:8px; }
+
+		&:hover > ul { display:block; }
+
+		// #PLACEHOLDER-BAR/subnav#
+		.cms_placeholder-subnav { display:none; zoom:1; position:absolute; right:2px; top:23px; z-index:10; min-width:150px;
+			@include border-radius(0 0 3px 3px); }
+		.cms_placeholder-subnav li { zoom:1; }
+		.cms_placeholder-subnav li a,
+		.cms_placeholder-subnav-title span { zoom:1; display:block; padding:3px 5px 2px 8px; }
+		.cms_placeholder-subnav-title { font-weight:bold; }
+		.cms_placeholder-subnav li:first-child span { border-top:none; }
+	}
+}
+
+//##################################################
+// #PLACEHOLDER-DRAGITEM#
+.cms_dragholder { position:relative; left:0; top:0; z-index:99;
+	color:#888; padding:3px 6px 2px 9px; margin:3px 0;
+	border:1px solid #dadada; background:#f5f5f5;
+	@include border-radius(3px); }
+.cms_dragholder {
+	// levels
+	.cms_dragholder { position:relative; z-index:99; white-space:nowrap; }
+
+	// dragmenu
+	.cms_dragmenu { float:right; width:20px; height:20px; cursor:pointer; }
+	.cms_dragmenu-dropdown { display:none; zoom:1; position:absolute; right:-1px; top:26px; z-index:999; min-width:100px;
+		max-height:230px; overflow:auto; @include border-radius(0 0 3px 3px); }
+	.cms_dragmenu-dropdown a,
+	.cms_dragmenu-dropdown span { display:block; font-size:12px; line-height:11px; text-align:right; padding:6px 8px 5px 5px; }
+	.cms_dragmenu-dropdown a:first-child { border-top:none; }
+	.cms_dragmenu-dropdown span { font-weight:bold; }
+	.cms_dragmenu-dropdown *:last-child { border:none !important; }
+}
+.cms_dragholder-draggable { cursor:move; z-index:100; }
+
+/*
+.cms_dragitem-collapsable { cursor:pointer; padding-left:15px;
+	background:url('/static/img/toolbar/arrow-down-active.png') no-repeat 3px 4px; }
+.cms_dragitem-collapsed { background:url('/static/img/toolbar/arrow-down-collapsed.png') no-repeat 3px 3px; }
+*/
+
+//##################################################
+// #LIGHT THEME#
+.cms_light.cms_placeholder-bar { border-top:1px solid #dadada; background:#f5f5f5; @include box-shadow(#ebebeb 0px 1px 0px inset); }
+.cms_light {
+	.cms_placeholder-title { color:#444; @include text-shadow(0px 1px 0px #fff); }
+	.cms_placeholder-btn {
+		> a { color:#444; border:1px solid #ddd; @include background-image(linear-gradient(#fff, #eee)); }
+		> a span { background:url('/static/cms/img/toolbar/sprite_toolbar.png') no-repeat -6px -162px; }
+		> a:hover, > a:active, > a:focus, > a.active {
+			color:#fff; border:1px solid #0a84e4;
+			@include background-image(linear-gradient(#0eaaec, #0a84e4));
+		}
+		> a:hover span, > a:active span, > a:focus span, > a.active span {
+			background-position:-46px -162px;
+		}
+	}
+
+	// #PLACEHOLDER-BAR/subnav#
+	.cms_placeholder-subnav { border:1px solid #dfdfdf; background:#fff; @include box-shadow(0 2px 2px #e1e1e1); }
+	.cms_placeholder-subnav li a,
+	.cms_placeholder-subnav-title span { border-top:1px dotted #e1e1e1; }
+	.cms_placeholder-subnav-title { color:#0eaaec; }
+	.cms_placeholder-subnav li a:hover { color:#0eaaec; background:#f9f9f9; }
+
+// end of light theme
+}
+
+.cms_light.cms_dragholder { color:#888; border:1px solid #dadada; background:#f5f5f5; }
+.cms_light {
+	strong { color:#000; }
+	// levels
+	.cms_dragholder { background:#fbfbfb; }
+	.cms_dragholder .cms_dragholder { background:#fff; }
+	// dragmenu
+	.cms_dragmenu { background:url('/static/cms/img/toolbar/sprite_toolbar.png') no-repeat 3px -181px; }
+	.cms_dragmenu:hover { background-position:-17px -181px; }
+	.cms_dragmenu-dropdown { border:1px solid #dfdfdf; background:#fff; @include box-shadow(0 2px 2px #e1e1e1); }
+	.cms_dragmenu-dropdown a { border-bottom:1px dotted #e1e1e1; }
+	.cms_dragmenu-dropdown a:hover { color:#0eaaec; background:#f9f9f9; }
+	.cms_dragmenu-dropdown span { color:#0eaaec; border-bottom:1px dotted #e1e1e1;  }
+
+// end of light theme
+}
+.cms_light.cms_dragholder-selected { border:1px solid #0a84e4 !important; background:#0a84e4 !important;
+	@include background-image(linear-gradient(#0eaaec, #0a84e4) !important); }
+.cms_light.cms_dragholder-selected .cms_dragitem,
+.cms_light.cms_dragholder-selected .cms_dragitem strong { color:#fff !important; }
+
+.cms_light.cms_dragholder-empty { border:1px dotted #c9c9c9 !important; background:transparent !important; }
+
+.cms_light.cms_dragholder-allowed, .cms_light.cms_dragholder-hover-allowed, .cms_light.cms_dragholder-placeholder { color:#363 !important; border:1px solid #cea !important; }
+.cms_light.cms_dragholder-disallowed, .cms_light.cms_dragholder-hover-disallowed { color:#c00 !important; border:1px solid #faa !important; }
+.cms_light.cms_dragholder-hover-allowed, .cms_light.cms_dragholder-placeholder { background:#efc !important; }
+.cms_light.cms_dragholder-hover-disallowed { background:#fdd !important; }
+
+//##################################################
+// #DARK THEME#
+.cms_dark {
+
+	// end of dark theme
+}
+
+//##################################################
+// #RETINA#
+@media only screen and (-webkit-min-device-pixel-ratio:1.5),
+only screen and (-o-min-device-pixel-ratio:3/2),
+only screen and (min--moz-device-pixel-ratio:1.5),
+only screen and (min-device-pixel-ratio:1.5) {
+
+	.cms_dragholder .cms_dragmenu,
+	.cms_placeholder-bar .cms_placeholder-btn > a span {
+		background-image:url('/static/cms/img/toolbar/sprite_toolbar@2x.png');
+		background-size:190px;
+	}
+
+// end of retina
+}

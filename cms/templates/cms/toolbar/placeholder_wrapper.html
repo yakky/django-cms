@@ -1,30 +1,31 @@
-{% load sekizai_tags %}
+{% load i18n sekizai_tags cms_tags %}
 {% addtoblock "js" %}
 <script type="text/javascript">
 CMS.$(document).ready(function () {
 	new CMS.Placeholder('#cms_placeholder-{{ instance.pk }}', {
-		'type': 'holder',
-		'plugin_id': '{{ instance.pk }}',
-		'plugin_type': '{{ instance.plugin_type }}',
+		'type': 'plugin',
+		'page_id': '{{ instance.page.id }}', // todo this should be removed / not required
 		'placeholder_id': '{{ instance.placeholder.id }}',
-		'placeholder_slot': '{{ instance.placeholder.slot }}',
-        'allow_children': '{{ instance.get_plugin_class.allow_children }}',
-        'page_language': '{{ language }}',{% if child_plugin_classes %}
-        'child_classes' : [
-            {% for class, name in child_plugin_classes %}
-                {'class_name':'{{ class  }}', 'plugin_name':'{{ name }}'}{% if not forloop.last %},{% endif %}
-            {% endfor %}
-        ],{% endif %}
+		'plugin_type': '{{ instance.plugin_type }}',
+		'plugin_id': '{{ instance.pk }}',
+		'plugin_language': '{{ instance.language }}',
+		'plugin_children' : [ // empty = false
+			{% for class, name in child_plugin_classes %}
+			{'type':'{{ class  }}', 'title':'{{ name }}'}{% if not forloop.last %},{% endif %}
+			{% endfor %}
+		],
+		'plugin_order': null,
+		'plugin_breadcrumb': [],
+		'plugin_restriction': [], // only for nested plugins, see placeholder_toolbar.html
 		'urls': {
-			'remove_plugin': '{{ instance.placeholder.get_remove_url }}',
+			'add_plugin': '{{ instance.placeholder.get_add_url }}',
+			'edit_plugin': '{{ instance.placeholder.get_changelist_url }}',
 			'move_plugin': '{{ instance.placeholder.get_move_url }}',
-			'change_list': '{{ instance.placeholder.get_changelist_url }}',
-            'add_plugin': '{{ instance.placeholder.get_add_url }}',
-            'change_list': '{{ instance.placeholder.get_changelist_url }}'
+			'remove_plugin': '{{ instance.placeholder.get_remove_url }}'
 		}
 	});
 });
 </script>
 {% endaddtoblock %}
-<div id="cms_placeholder-{{ instance.pk }}" class="cms_placeholder cms_placeholder_slot::{{ instance.placeholder.slot }}">{% if instance.get_plugin_class.allow_children %}{{ instance.get_plugin_class.name }}{% else %}{{ rendered_content }}{% endif %}</div>
-{% if instance.get_plugin_class.allow_children %}{{ rendered_content }}{% endif %}
+
+<div id="cms_placeholder-{{ instance.pk }}" class="cms_placeholder cms_light">{{ rendered_content }}</div>

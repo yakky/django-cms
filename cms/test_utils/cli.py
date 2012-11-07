@@ -93,6 +93,7 @@ def configure(**extra):
             'cms.test_utils.project.fakemlng',
             'cms.test_utils.project.fileapp',
             'stacks',
+            'djangocms_column',
             'south',
             'reversion',
             'sekizai',
@@ -163,7 +164,11 @@ def configure(**extra):
         CMS_PLACEHOLDER_CONF={
             'col_sidebar': {
                 'plugins': ('FilePlugin', 'FlashPlugin', 'LinkPlugin', 'PicturePlugin',
+<<<<<<< HEAD
                             'TextPlugin', 'SnippetPlugin', 'StackPlugin'),
+== == ===
+                            'TextPlugin', 'SnippetPlugin', 'MultiColumnPlugin'),
+>>>>>>> 3.0
                 'name': gettext("sidebar column")
             },
 
@@ -186,35 +191,35 @@ def configure(**extra):
                 "name": "extra context"
             },
         },
-        CMS_SOFTROOT=True,
-        CMS_MODERATOR=True,
-        CMS_PERMISSION=True,
-        CMS_PUBLIC_FOR='all',
-        CMS_CACHE_DURATIONS={
+        CMS_SOFTROOT = True,
+        CMS_MODERATOR = True,
+        CMS_PERMISSION = True,
+        CMS_PUBLIC_FOR = 'all',
+        CMS_CACHE_DURATIONS = {
             'menus': 0,
             'content': 0,
             'permissions': 0,
         },
-        CMS_APPHOOKS=[],
-        CMS_REDIRECTS=True,
-        CMS_SEO_FIELDS=True,
-        CMS_MENU_TITLE_OVERWRITE=True,
-        CMS_URL_OVERWRITE=True,
-        CMS_SHOW_END_DATE=True,
-        CMS_SHOW_START_DATE=True,
-        CMS_PLUGIN_PROCESSORS=tuple(),
-        CMS_PLUGIN_CONTEXT_PROCESSORS=tuple(),
-        CMS_SITE_CHOICES_CACHE_KEY='CMS:site_choices',
-        CMS_PAGE_CHOICES_CACHE_KEY='CMS:page_choices',
-        SOUTH_TESTS_MIGRATE=False,
-        CMS_NAVIGATION_EXTENDERS=(
+        CMS_APPHOOKS = [],
+        CMS_REDIRECTS = True,
+        CMS_SEO_FIELDS = True,
+        CMS_MENU_TITLE_OVERWRITE = True,
+        CMS_URL_OVERWRITE = True,
+        CMS_SHOW_END_DATE = True,
+        CMS_SHOW_START_DATE = True,
+        CMS_PLUGIN_PROCESSORS = tuple(),
+        CMS_PLUGIN_CONTEXT_PROCESSORS = tuple(),
+        CMS_SITE_CHOICES_CACHE_KEY = 'CMS:site_choices',
+        CMS_PAGE_CHOICES_CACHE_KEY = 'CMS:page_choices',
+        SOUTH_TESTS_MIGRATE = False,
+        CMS_NAVIGATION_EXTENDERS = (
             ('cms.test_utils.project.sampleapp.menu_extender.get_nodes', 'SampleApp Menu'),
         ),
-        TEST_RUNNER='cms.test_utils.runners.NormalTestRunner',
-        JUNIT_OUTPUT_DIR='.',
-        TIME_TESTS=False,
-        ROOT_URLCONF='cms.test_utils.cli',
-        PASSWORD_HASHERS=(
+        TEST_RUNNER = 'cms.test_utils.runners.NormalTestRunner',
+        JUNIT_OUTPUT_DIR = '.',
+        TIME_TESTS = False,
+        ROOT_URLCONF = 'cms.test_utils.cli',
+        PASSWORD_HASHERS = (
             'django.contrib.auth.hashers.MD5PasswordHasher',
         )
     )

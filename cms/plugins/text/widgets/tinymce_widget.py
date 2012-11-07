@@ -36,10 +36,7 @@ class TinyMCEEditor(TinyMCE):
           'js/placeholder_editor_registry.js',
         )])
         media.add_css({
-            "all": [
-                cms_static_url(path) for path in ('css/jquery/cupertino/jquery-ui.css',
-                                                  'css/tinymce_toolbar.css')
-            ]
+            "all": [cms_static_url(path) for path in ('css/cms.base.css',)]
         })
         
         return media

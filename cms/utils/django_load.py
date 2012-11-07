@@ -28,9 +28,9 @@ def get_module(app, modname, verbose, failfast):
     if verbose:
         print "Loaded %r from %r" % (modname, app)
     return module
-        
 
-def load(modname, verbose=False, failfast=False):
+
+def load(modname, verbose=True, failfast=False):
     """
     Loads all modules with name 'modname' from all installed apps.
     
@@ -40,7 +40,7 @@ def load(modname, verbose=False, failfast=False):
     """
     for app in settings.INSTALLED_APPS:
         get_module(app, modname, verbose, failfast)
-        
+
 
 def iterload(modname, verbose=False, failfast=False):
     """
