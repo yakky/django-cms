@@ -1,0 +1,15 @@
+{% load i18n sekizai_tags cms_tags %}
+{% addtoblock "js" %}
+<script type="text/javascript">
+CMS.$(document).ready(function () {
+	new CMS.Placeholder('#cms_placeholder-generic-{{ current_page.pk }}', {
+		'type': 'generic',
+		'urls': {
+			'edit': '{% url admin:cms_page_edit_title current_page.pk %}'
+		}
+	});
+});
+</script>
+{% endaddtoblock %}
+
+<div id="cms_placeholder-generic-{{ current_page.pk }}" class=""><h1>{% page_attribute title %}</h1></div>
