@@ -500,6 +500,8 @@ register.tag(CMSToolbar)
 
 
 class CMSEditablePageTitle(InclusionTag):
+    # TODO: only wrap the html if edit mode is active
+    # TODO: make this more generic (not only for title)
     template = 'cms/toolbar/placeholder_text.html'
     name = 'show_editable_page_title'
 
