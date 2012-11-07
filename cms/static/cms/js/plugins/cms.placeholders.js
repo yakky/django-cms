@@ -119,6 +119,9 @@
 			},
 
 			getId: function (el) {
+				// cancel if no element is defined
+				if(el === undefined || el.length <= 0) return false;
+
 				var id = null;
 
 				if(el.hasClass('cms_placeholder')) {
@@ -389,14 +392,18 @@
 				var dragitem = $('#cms_dragholder-' + this.options.plugin_id);
 
 				// insert new position
-				plugin.insertBefore(dragitem);
+				//plugin.insertBefore();
+				var id = this._getId(dragitem.prev('.cms_dragholder-draggable'));
+				if(id) {
+					plugin.insertAfter($('#cms_placeholder-' + id));
+				} else {
+					plugin.insertAfter(dragitem.siblings('.cms_dragholder-empty'));
+				}
 
 				// get new poisition data
 				var placeholder_id = this._getId(dragitem.prevAll('.cms_placeholder-bar').first());
 				var plugin_parent = this._getId(dragitem.parent());
 				var plugin_order = this._getIds(dragitem.siblings('.cms_dragholder-draggable').andSelf());
-
-				//dragitem.prevUntil('.cms_placeholder-bar').filter('[class*="cms_dragholder-draggable"]').length;
 
 				// gather the data for ajax request
 				var data = {
@@ -407,7 +414,7 @@
 					'plugin_order': plugin_order,
 					'csrfmiddlewaretoken': CMS.API.Toolbar.options.csrf
 				};
-console.log(data);
+
 				$.ajax({
 					'type': 'POST',
 					'url': this.options.urls.move_plugin,
