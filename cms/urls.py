@@ -21,5 +21,5 @@ if apphook_pool.get_apphooks():
     """
     from cms.appresolver import get_app_patterns
     urlpatterns += get_app_patterns()
-    
+
 urlpatterns = patterns('', *urlpatterns)
