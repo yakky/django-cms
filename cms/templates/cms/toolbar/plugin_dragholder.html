@@ -11,7 +11,7 @@
 	{% if plugin.child_plugins_instances %}
 		{% for child in plugin.child_plugins_instances %}
 			{# workaround because include tag does not allow recursive includes #}
-			{% with template_name="cms/toolbar/plugin_drag.html" %}{% include template_name with plugin=child %}{% endwith %}
+			{% with template_name="cms/toolbar/plugin_dragholder.html" %}{% include template_name with plugin=child %}{% endwith %}
 		{% endfor %}
 	{% endif %}
 </div>
