@@ -484,7 +484,7 @@ The template used for wrapping the plugin in frontend editing.
 
 Default:
 
-`cms/toolbar/placeholder_wrapper.html`
+`cms/toolbar/placeholder_plugin.html`
 	
 
 admin_preview

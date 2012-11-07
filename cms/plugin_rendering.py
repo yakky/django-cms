@@ -87,7 +87,7 @@ def render_dragables(plugins, slot, request):
     print ",,,,,,,,,,,"
     print plugins
 
-    return render_to_string("cms/toolbar/placeholder_dragables.html", {'plugins':plugins, 'slot':slot, 'request':request})
+    return render_to_string("cms/toolbar/placeholder_dragholder.html", {'plugins':plugins, 'slot':slot, 'request':request})
 
 
 def render_placeholder(placeholder, context_to_copy, name_fallback="Placeholder"):
@@ -172,6 +172,6 @@ def render_placeholder_toolbar(placeholder, context, name_fallback=None):
     context['placeholder_label'] = name
     context['placeholder'] = placeholder
     context['page'] = page
-    toolbar = render_to_string("cms/toolbar/placeholder_toolbar.html", context)
+    toolbar = render_to_string("cms/toolbar/placeholder_bar.html", context)
     context.pop()
     return toolbar
