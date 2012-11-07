@@ -1325,61 +1325,49 @@ class PageAdmin(ModelAdmin):
     @create_on_success
     def move_plugin(self, request):
         if request.method != "POST":
-            return HttpResponse(str("error"))
+            return HttpResponseServerError(str("Only post request allowed"))
         if 'history' in request.path:
-            return HttpResponse(str("error"))
-        pos = 0
-        page = None
-        success = False
-        if 'plugin_id' in request.POST:
-            plugin = CMSPlugin.objects.get(pk=int(request.POST['plugin_id']))
-            if not permissions.has_plugin_permission(request.user, plugin.plugin_type, "change"):
-                return HttpResponseForbidden()
+            return HttpResponseServerError(str("No plugin moves in history mode"))
 
-            page = plugins.get_page_from_plugin_or_404(plugin)
-            if not page.has_change_permission(request):
-                return HttpResponseForbidden(ugettext("You have no permission to change this page"))
+        plugin = CMSPlugin.objects.get(pk=int(request.POST['plugin_id']))
+        placeholder = Placeholder.objects.get(pk=request.POST['placeholder_id'])
+        parent_id = request.POST['plugin_parent']
+        order = request.POST['plugin_order']
 
-            placeholder_slot = request.POST['placeholder']
-            placeholders = self.get_fieldset_placeholders(page.get_template())
-            if not placeholder_slot in placeholders:
-                return HttpResponse(str("error"))
-            placeholder = page.placeholders.get(slot=placeholder_slot)
-            plugin.placeholder = placeholder
-            # plugin positions are 0 based, so just using count here should give us 'last_position + 1'
-            position = CMSPlugin.objects.filter(placeholder=placeholder).count()
-            plugin.position = position
-            # update the placeholder on all descendant plugins as well
-            for child in plugin.get_descendants():
-                child.placeholder = placeholder
-                child.save()
+        if not permissions.has_plugin_permission(request.user, plugin.plugin_type, "change"):
+            return HttpResponseForbidden(ugettext("You have no permission to move a plugin"))
+        page = plugin.placeholder.page if plugin.placeholder else None
+        if page and not page.has_change_permission(request):
+            return HttpResponseForbidden(ugettext("You have no permission to change this page"))
+
+        plugin.parent_id = parent_id
+        plugin.placeholder = placeholder
+        plugin.save()
+
+        for child in plugin.get_descendants():
+            child.placeholder = placeholder
+            child.save()
+
+        plugins = CMSPlugin.objects.filter(parent=parent_id, placeholder=placeholder)
+        for plugin in plugins:
+            x = 0
+            found = False
+            for pk in order:
+                if plugin.pk == pk:
+                    plugin.position = x
+                    found = True
+                    break
+                x += 1
+            if not found:
+                return HttpResponseServerError(str("Plugin found but not present in plugin_order"))
             plugin.save()
-            success = True
-        if 'ids' in request.POST:
-            for plugin_id in request.POST['ids'].split("_"):
-                plugin = CMSPlugin.objects.select_related('placeholder').get(pk=plugin_id)
-                if not permissions.has_plugin_permission(request.user, plugin.plugin_type, "change"):
-                    return HttpResponseForbidden(ugettext("You have no permission to move a plugin"))
-                page = plugin.placeholder.page if plugin.placeholder else None
-                if not page: # use placeholderadmin instead!
-                    raise Http404
-                if not page.has_change_permission(request):
-                    return HttpResponseForbidden(ugettext("You have no permission to change this page"))
-
-                if plugin.position != pos:
-                    plugin.position = pos
-                    plugin.save()
-                pos += 1
-            success = True
-        if not success:
-            return HttpResponse(str("error"))
 
         if page and 'reversion' in settings.INSTALLED_APPS:
             helpers.make_revision_with_plugins(page)
             reversion.revision.user = request.user
             reversion.revision.comment = ugettext(u"Plugins where moved")
 
-        return HttpResponse(str("ok"))
+        return HttpResponse(str("success"))
 
     @create_on_success
     def remove_plugin(self, request):
