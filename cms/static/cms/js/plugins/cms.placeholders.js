@@ -393,18 +393,12 @@
 
 				// get new poisition data
 				var placeholder_id = this._getId(dragitem.prevAll('.cms_placeholder-bar').first());
-				var plugin_order = dragitem.prevUntil('.cms_placeholder-bar').filter('[class*="cms_dragholder-draggable"]').length;
 				var plugin_parent = this._getId(dragitem.parent());
+				var plugin_order = this._getIds(dragitem.siblings('.cms_dragholder-draggable').andSelf());
 
-				/*
-				 'language': this.options.plugin_language,
-				 // TODO this should be page_id, not required for new system
-				 'placeholder_id': this.options.page_id,
-				 // TODO this should be placeholder_id
-				 'placeholder': this.options.placeholder_id,
-				 'csrfmiddlewaretoken': CMS.API.Toolbar.options.csrf
-				 */
+				//dragitem.prevUntil('.cms_placeholder-bar').filter('[class*="cms_dragholder-draggable"]').length;
 
+				// gather the data for ajax request
 				var data = {
 					'placeholder_id': placeholder_id,
 					'plugin_id': this.options.plugin_id,
@@ -436,6 +430,14 @@
 			// API helpers
 			_getId: function (el) {
 				return CMS.API.Placeholders.getId(el);
+			},
+
+			_getIds: function (els) {
+				var array = [];
+				els.each(function () {
+					array.push(CMS.API.Placeholders.getId($(this)));
+				});
+				return array;
 			},
 
 			_openModal: function (url, breadcrumb) {
