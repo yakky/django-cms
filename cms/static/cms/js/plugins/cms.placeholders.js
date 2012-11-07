@@ -4,7 +4,7 @@
 // CMS.$ will be passed for $
 	$(document).ready(function () {
 		/*!
-		 * Placeholder
+		 * Placeholders
 		 * @version: 2.0.0
 		 * @description: Adds placeholder handling
 		 */
@@ -221,16 +221,15 @@
 
 		});
 
-
-
-
-
-
+		/*!
+		 * Placeholder
+		 * @version: 2.0.0
+		 * @description: Adds individual handling
+		 */
 		CMS.Placeholder = new CMS.Class({
 
 			options: {
 				'type': '', // bar or plugin
-				'page_id': null, // TODO SHOULD BE REMOVED
 				'placeholder_id': null,
 				'plugin_type': '',
 				'plugin_id': null,
@@ -252,12 +251,16 @@
 				this.options = $.extend(true, {}, this.options, options);
 
 				this.body = $(document);
+				this.csrf = CMS.API.Toolbar.options.csrf;
 
-				// attach event handling to placeholder bar
+				// handler for placeholder bars
 				if(this.options.type === 'bar') this._setBar();
 
-				// attach events to the placeholders itself
+				// handler for all generic plugins
 				if(this.options.type === 'plugin') this._setPlugin();
+
+				// handler for specific static items
+				if(this.options.type === 'text') this._setText();
 			},
 
 			_setBar: function () {
@@ -291,64 +294,41 @@
 					e.preventDefault();
 					e.stopPropagation();
 
-					// TODO this url should be passed as option
-					var url = that.options.urls.edit_plugin + that.options.page_id + '/edit-plugin/' + that.options.plugin_id;
-
-					// TODO breadcrumb should be saved through that.options.plugin_breadcrumb
-					that.editPlugin(url, [{
-						'title': 'MultiColumnPlugin',
-						'url': url
-					},{
-						'title': 'ColumnRow',
-						'url': url
-					},{
-						'title': that.options.plugin_type,
-						'url': url
-					}]);
+					that.editPlugin(that.options.urls.edit_plugin, that.options.plugin_breadcrumb);
 				});
-
-				// attach options as data values
-				//this.container.data(this.options);
 
 				var draggable = $('#cms_dragholder-' + this.options.plugin_id);
 				var menu = draggable.find('.cms_dragmenu-dropdown');
 				var speed = 200;
+
 				// attach events
 				draggable.find('.cms_dragmenu').bind('click', function () {
-					if(menu.is(':visible')) {
-						hide();
-					} else {
-						show();
-					}
+					(menu.is(':visible')) ? hide() : show();
 				}).bind('mouseleave', function (e) {
-						that.timer = setTimeout(hide, speed);
-					});
-				draggable.find('.cms_dragmenu-dropdown').bind('mouseleave.cms.draggable mouseenter.cms.draggable', function (e) {
+					that.timer = setTimeout(hide, speed);
+				}).end().find('.cms_dragmenu-dropdown').bind('mouseleave.cms.draggable mouseenter.cms.draggable', function (e) {
 					clearTimeout(that.timer);
-					if(e.type === 'mouseleave') {
-						that.timer = setTimeout(hide, speed);
-					}
+					if(e.type === 'mouseleave') that.timer = setTimeout(hide, speed);
 				});
 
 				function hide() {
 					menu.hide();
 					draggable.css('z-index', 99);
 				}
-
 				function show() {
 					menu.show();
 					draggable.css('z-index', 999);
 				}
 
 				// atach default item behaviour
-				// _setNavigation
 				menu.find('a').bind('click', function (e) {
 					e.preventDefault();
+					var el = $(this);
 
-					if($(this).attr('rel') === 'custom') {
-						that.addPlugin($(this).attr('href').replace('#', ''), that._getId($(this).closest('.cms_dragholder')))
+					if(el.attr('rel') === 'custom') {
+						that.addPlugin(el.attr('href').replace('#', ''), that._getId(el.closest('.cms_dragholder')))
 					} else {
-						CMS.API.Toolbar.delegate($(this));
+						that._delegate(el);
 					}
 				});
 
@@ -358,8 +338,12 @@
 				});
 			},
 
-			_getId: function (el) {
-				return CMS.API.Placeholders.getId(el);
+			_setText: function () {
+				var that = this;
+
+				this.container.bind('dblclick', function () {
+					that.editPlugin(that.options.urls.edit_plugin, []);
+				});
 			},
 
 			addPlugin: function (type, parent) {
@@ -369,36 +353,28 @@
 					'plugin_type': type,
 					'plugin_parent': parent || '',
 					'plugin_language': this.options.plugin_language,
-					'plugin_order': '0',
-					'csrfmiddlewaretoken': CMS.API.Toolbar.options.csrf
+					//'plugin_order': [], // TODO this is not implemented yet
+					'csrfmiddlewaretoken': this.csrf
 				};
-
-				console.log(data);
 
 				$.ajax({
 					'type': 'POST',
 					'url': this.options.urls.add_plugin,
 					'data': data,
-					'success': function (url) {
-						// TODO instead of the id we should get the full url so options.edit_plugin is not required
-						//var url = that.options.urls.edit_plugin + that.options.page_id + '/edit-plugin/' + id;
-
-						that.editPlugin(url, [{
-							'title': data.plugin_type,
-							'url': url
-						}]);
+					'success': function (data) {
+						that.editPlugin(data.url, data.breadcrumb);
 					},
 					'error': function (jqXHR) {
 						var msg = 'The following error occured while adding a new plugin: ';
 						// trigger error
-						CMS.API.Toolbar.showError(msg + jqXHR.status + ' ' + jqXHR.statusText);
+						that._showError(msg + jqXHR.status + ' ' + jqXHR.statusText);
 					}
 				});
 			},
 
 			editPlugin: function (url, breadcrumb) {
 				// trigger modal window
-				CMS.API.Toolbar.openModal(url, breadcrumb);
+				this._openModal(url, breadcrumb);
 			},
 
 			updatePlugin: function () {
@@ -443,11 +419,28 @@
 					'error': function (jqXHR) {
 						var msg = 'An error occured during the update.';
 						// trigger error
-						CMS.API.Toolbar.showError(msg + jqXHR.status + ' ' + jqXHR.statusText);
+						that._showError(msg + jqXHR.status + ' ' + jqXHR.statusText);
 
 						// TODO refresh browser?
 					}
 				})
+			},
+
+			// API helpers
+			_getId: function (el) {
+				return CMS.API.Placeholders.getId(el);
+			},
+
+			_openModal: function (url, breadcrumb) {
+				return CMS.API.Toolbar.openModal(url, breadcrumb);
+			},
+
+			_showError: function (msg) {
+				return CMS.API.Toolbar.showError(msg);
+			},
+
+			_delegate: function (el) {
+				return CMS.API.Toolbar.delegate(el);
 			}
 
 		});

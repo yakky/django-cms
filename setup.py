@@ -41,6 +41,7 @@ setup(
         'Sphinx==1.1.3',
         'Jinja2==2.6',
         'Pygments==1.5',
+        'djangocms-column',
         
     ],
     packages=find_packages(exclude=["project","project.*"]),

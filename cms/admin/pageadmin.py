@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from cms.admin.change_list import CMSChangeList
 from cms.admin.dialog.views import get_copy_dialog
-from cms.admin.forms import PageForm, PageAddForm
+from cms.admin.forms import PageForm, PageAddForm, PageTitleForm
 from cms.admin.permissionadmin import (PAGE_ADMIN_INLINES,
     PagePermissionInlineAdmin, ViewRestrictionInlineAdmin)
 from cms.admin.views import revert_plugins
@@ -203,6 +203,7 @@ class PageAdmin(ModelAdmin):
             pat(r'edit-plugin/([0-9]+)/$', self.edit_plugin),
             pat(r'remove-plugin/$', self.remove_plugin),
             pat(r'move-plugin/$', self.move_plugin),
+            pat(r'^([0-9]+)/edit-title/$', self.edit_title),
             pat(r'^([0-9]+)/delete-translation/$', self.delete_translation),
             pat(r'^([0-9]+)/move-page/$', self.move_page),
             pat(r'^([0-9]+)/copy-page/$', self.copy_page),
@@ -1444,6 +1445,21 @@ class PageAdmin(ModelAdmin):
         if key == 'site__exact':
             return True
         return super(PageAdmin, self).lookup_allowed(key, *args, **kwargs)
+
+    def edit_title(self, request, page_id):
+        language = 'en'
+        title = Title.objects.get(page_id=page_id, language=language)
+        if request.method == 'POST':
+            form = PageTitleForm(instance=title, data=request.POST)
+            if form.is_valid():
+                form.save()
+        else:
+            form = PageTitleForm(instance=title)
+        context = {
+            'form': form
+        }
+        return render_to_response('admin/cms/page/page_attribute_change_form.html', context, RequestContext(request))
+
 
 contribute_fieldsets(PageAdmin)
 contribute_list_filter(PageAdmin)
