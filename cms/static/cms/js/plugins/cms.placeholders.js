@@ -4,7 +4,7 @@
 // CMS.$ will be passed for $
 	$(document).ready(function () {
 		/*!
-		 * Placeholder
+		 * Placeholders
 		 * @version: 2.0.0
 		 * @description: Adds placeholder handling
 		 */
@@ -221,16 +221,15 @@
 
 		});
 
-
-
-
-
-
+		/*!
+		 * Placeholder
+		 * @version: 2.0.0
+		 * @description: Adds individual handling
+		 */
 		CMS.Placeholder = new CMS.Class({
 
 			options: {
 				'type': '', // bar or plugin
-				'page_id': null, // TODO SHOULD BE REMOVED
 				'placeholder_id': null,
 				'plugin_type': '',
 				'plugin_id': null,
@@ -252,12 +251,16 @@
 				this.options = $.extend(true, {}, this.options, options);
 
 				this.body = $(document);
+				this.csrf = CMS.API.Toolbar.options.csrf;
 
-				// attach event handling to placeholder bar
+				// handler for placeholder bars
 				if(this.options.type === 'bar') this._setBar();
 
-				// attach events to the placeholders itself
+				// handler for all generic plugins
 				if(this.options.type === 'plugin') this._setPlugin();
+
+				// handler for specific static items
+				if(this.options.type === 'text') this._setText();
 			},
 
 			_setBar: function () {
@@ -348,7 +351,7 @@
 					if($(this).attr('rel') === 'custom') {
 						that.addPlugin($(this).attr('href').replace('#', ''), that._getId($(this).closest('.cms_dragholder')))
 					} else {
-						CMS.API.Toolbar.delegate($(this));
+						that._delegate($(this));
 					}
 				});
 
@@ -358,8 +361,8 @@
 				});
 			},
 
-			_getId: function (el) {
-				return CMS.API.Placeholders.getId(el);
+			_setText: function () {
+				this.editPlugin(this.options.urls.edit_plugin, []);
 			},
 
 			addPlugin: function (type, parent) {
@@ -370,10 +373,8 @@
 					'plugin_parent': parent || '',
 					'plugin_language': this.options.plugin_language,
 					'plugin_order': '0',
-					'csrfmiddlewaretoken': CMS.API.Toolbar.options.csrf
+					'csrfmiddlewaretoken': this.csrf
 				};
-
-				console.log(data);
 
 				$.ajax({
 					'type': 'POST',
@@ -391,14 +392,14 @@
 					'error': function (jqXHR) {
 						var msg = 'The following error occured while adding a new plugin: ';
 						// trigger error
-						CMS.API.Toolbar.showError(msg + jqXHR.status + ' ' + jqXHR.statusText);
+						that._showError(msg + jqXHR.status + ' ' + jqXHR.statusText);
 					}
 				});
 			},
 
 			editPlugin: function (url, breadcrumb) {
 				// trigger modal window
-				CMS.API.Toolbar.openModal(url, breadcrumb);
+				this._openModal(url, breadcrumb);
 			},
 
 			updatePlugin: function () {
@@ -443,11 +444,28 @@
 					'error': function (jqXHR) {
 						var msg = 'An error occured during the update.';
 						// trigger error
-						CMS.API.Toolbar.showError(msg + jqXHR.status + ' ' + jqXHR.statusText);
+						that._showError(msg + jqXHR.status + ' ' + jqXHR.statusText);
 
 						// TODO refresh browser?
 					}
 				})
+			},
+
+			// API helpers
+			_getId: function (el) {
+				return CMS.API.Placeholders.getId(el);
+			},
+
+			_openModal: function (url, breadcrumb) {
+				return CMS.API.Toolbar.openModal(url, breadcrumb);
+			},
+
+			_showError: function (msg) {
+				return CMS.API.Toolbar.showError(msg);
+			},
+
+			_delegate: function (el) {
+				return CMS.API.Toolbar.delegate(el);
 			}
 
 		});
