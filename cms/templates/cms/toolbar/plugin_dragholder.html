@@ -7,7 +7,8 @@
 		<a rel="sideframe" href="{% url admin:cms_page_delete_plugin plugin.pk %}">Delete</a>
 		{% plugin_child_classes plugin %}
 	</div>
-	<div class="cms_dragitem"><strong>{{ plugin.plugin_type }}</strong> {{ plugin.placeholder.slot }}</div>
+	<div class="cms_dragitem{% if plugin.child_plugins_instances %} cms_dragitem-collapsable{% endif %}"><strong>{{ plugin.plugin_type }}</strong> {{ plugin.placeholder.slot }}</div>
+
 	{% if plugin.child_plugins_instances %}
 		{% for child in plugin.child_plugins_instances %}
 			{# workaround because include tag does not allow recursive includes #}
