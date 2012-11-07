@@ -16,6 +16,7 @@ from cms.plugin_rendering import PluginContext, render_plugin
 from cms.utils.helpers import reversion_register
 
 from mptt.models import MPTTModel, MPTTModelBase
+from django.core.urlresolvers import reverse
 
 
 class BoundRenderMeta(object):
@@ -330,6 +331,13 @@ class CMSPlugin(MPTTModel):
         """
         return self.position + 1
 
+    def get_breadcrumb(self):
+        breadcrumb = []
+        if not self.parent_id:
+            return breadcrumb
+        for parent in self.get_descendants():
+            breadcrumb.append({'name':parent.get_plugin_name(), 'class':parent.plugin_type, 'desc':parent.get_short_description(), 'url':unicode(reverse("admin:cms_page_edit_plugin", args=[parent.pk]))})
+        return breadcrumb
 reversion_register(CMSPlugin)
 
 
