@@ -260,7 +260,7 @@
 				if(this.options.type === 'plugin') this._setPlugin();
 
 				// handler for specific static items
-				if(this.options.type === 'text') this._setText();
+				if(this.options.type === 'generic') this._setGeneric();
 			},
 
 			_setBar: function () {
@@ -338,11 +338,16 @@
 				});
 			},
 
-			_setText: function () {
+			_setGeneric: function () {
 				var that = this;
 
 				this.container.bind('dblclick', function () {
 					that.editPlugin(that.options.urls.edit_plugin, []);
+				});
+
+				this.container.bind('mouseenter.cms.placeholder mouseleave.cms.placeholder', function (e) {
+					// add tooltip event to every placeholder
+					(e.type === 'mouseenter') ? CMS.API.Placeholders.tooltip.show() : CMS.API.Placeholders.tooltip.hide();
 				});
 			},
 
@@ -378,6 +383,8 @@
 			},
 
 			updatePlugin: function () {
+				var that = this;
+
 				var plugin = $('#cms_placeholder-' + this.options.plugin_id);
 				var dragitem = $('#cms_dragholder-' + this.options.plugin_id);
 
@@ -414,7 +421,7 @@
 					'success': function (response, status) {
 
 						//console.log(data);
-						//console.log(response);
+						console.log(status);
 					},
 					'error': function (jqXHR) {
 						var msg = 'An error occured during the update.';
