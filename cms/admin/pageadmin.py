@@ -1332,7 +1332,9 @@ class PageAdmin(ModelAdmin):
         plugin = CMSPlugin.objects.get(pk=int(request.POST['plugin_id']))
         placeholder = Placeholder.objects.get(pk=request.POST['placeholder_id'])
         parent_id = request.POST['plugin_parent']
-        order = request.POST['plugin_order']
+        if not parent_id:
+            parent_id = None
+        order = request.POST.getlist("plugin_order[]")
 
         if not permissions.has_plugin_permission(request.user, plugin.plugin_type, "change"):
             return HttpResponseForbidden(ugettext("You have no permission to move a plugin"))
@@ -1353,13 +1355,13 @@ class PageAdmin(ModelAdmin):
             x = 0
             found = False
             for pk in order:
-                if plugin.pk == pk:
+                if plugin.pk == int(pk):
                     plugin.position = x
                     found = True
                     break
                 x += 1
             if not found:
-                return HttpResponseServerError(str("Plugin found but not present in plugin_order"))
+                return HttpResponseServerError(str("Plugin found but not present in plugin_order: %s" % plugin.pk))
             plugin.save()
 
         if page and 'reversion' in settings.INSTALLED_APPS:
