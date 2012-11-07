@@ -2,7 +2,7 @@
 from cms.apphook_pool import apphook_pool
 from cms.forms.widgets import UserSelectAdminWidget
 from cms.models import (Page, PagePermission, PageUser, ACCESS_PAGE, 
-    PageUserGroup)
+    PageUserGroup, Title)
 from cms.utils.i18n import get_language_tuple, get_language_list
 from cms.utils.mail import mail_page_user_change
 from cms.utils.page import is_valid_page_slug
@@ -402,3 +402,9 @@ class PageUserGroupForm(GenericCmsPermissionForm):
         save_permissions(self.cleaned_data, group)
 
         return group
+
+
+class PageTitleForm(forms.ModelForm):
+    class Meta:
+        model = Title
+        fields = ('title', )

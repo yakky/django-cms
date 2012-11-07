@@ -496,3 +496,14 @@ class CMSToolbar(InclusionTag):
         return context
 
 register.tag(CMSToolbar)
+
+
+
+class CMSEditablePageTitle(InclusionTag):
+    template = 'cms/toolbar/placeholder_text.html'
+    name = 'show_editable_page_title'
+
+    def get_context(self, context):
+        return context
+
+register.tag(CMSEditablePageTitle)
