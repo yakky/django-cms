@@ -45,6 +45,8 @@ from django.utils.translation import ugettext, ugettext_lazy as _
 from menus.menu_pool import menu_pool
 import django
 from django.utils import simplejson
+from django.contrib.auth.admin import csrf_protect_m
+from django.template.response import TemplateResponse
 
 
 DJANGO_1_3 = LooseVersion(django.get_version()) < LooseVersion('1.4')
@@ -200,6 +202,7 @@ class PageAdmin(ModelAdmin):
             pat(r'copy-plugins/$', self.copy_plugins),
             pat(r'add-plugin/$', self.add_plugin),
             pat(r'edit-plugin/([0-9]+)/$', self.edit_plugin),
+            pat(r'delete-plugin/([0-9]+)/$', self.delete_plugin),
             pat(r'remove-plugin/$', self.remove_plugin),
             pat(r'move-plugin/$', self.move_plugin),
             pat(r'^([0-9]+)/edit-title/$', self.edit_title),
@@ -1370,6 +1373,61 @@ class PageAdmin(ModelAdmin):
             reversion.revision.comment = ugettext(u"Plugins where moved")
 
         return HttpResponse(str("success"))
+
+    @transaction.commit_on_success
+    @create_on_success
+    @csrf_protect_m
+    def delete_plugin(self, request, plugin_id):
+        opts = CMSPlugin._meta
+        app_label = "plugin"
+        plugin = get_object_or_404(CMSPlugin, pk=plugin_id)
+        inst, cls = plugin.get_plugin_instance()
+        opts = inst._meta
+        if not permissions.has_plugin_permission(request.user, plugin.plugin_type, "delete"):
+            return HttpResponseForbidden(ugettext("You have not permission to delete this plugin"))
+        page = plugin.placeholder.page if plugin.placeholder else None
+        if page and not page.has_change_permission(request):
+            return HttpResponseForbidden(ugettext("You have no permission to change this page"))
+        using = router.db_for_write(CMSPlugin)
+
+        # Populate deleted_objects, a data structure of all related objects that
+        # will also be deleted.
+        (deleted_objects, perms_needed, protected) = get_deleted_objects(
+            [plugin], opts, request.user, self.admin_site, using)
+
+        if request.POST: # The user has already confirmed the deletion.
+            if perms_needed:
+                raise PermissionDenied
+            obj_display = force_unicode(plugin)
+            self.log_deletion(request, plugin, obj_display)
+            self.delete_model(request, plugin)
+
+            self.message_user(request, _('The %(name)s "%(obj)s" was deleted successfully.') % {'name': force_unicode(opts.verbose_name), 'obj': force_unicode(obj_display)})
+
+            if not self.has_change_permission(request, None):
+                return HttpResponseRedirect(reverse('admin:index',
+                                                    current_app=self.admin_site.name))
+            return HttpResponse("ok")
+
+        object_name = force_unicode(opts.verbose_name)
+
+        if perms_needed or protected:
+            title = _("Cannot delete %(name)s") % {"name": object_name}
+        else:
+            title = _("Are you sure?")
+
+        context = {
+            "title": title,
+            "object_name": object_name,
+            "object": plugin.get_short_description(),
+            "deleted_objects": deleted_objects,
+            "perms_lacking": perms_needed,
+            "protected": protected,
+            "opts": opts,
+            "app_label": app_label,
+        }
+
+        return TemplateResponse(request, "cms/toolbar/delete_confirmation.html", context, current_app=self.admin_site.name)
 
     @create_on_success
     def remove_plugin(self, request):

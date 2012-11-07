@@ -4,7 +4,7 @@
 	<div class="cms_dragmenu-dropdown">
 		<span>{% trans "Settings" %}</span>
 		<a rel="dialogue" data-text="Are you sure you want to copy this plugin?" href="#">Copy</a>
-		<a rel="sideframe" href="{{ plugin.placeholder.get_remove_url }}{{ plugin.pk }}">Delete</a>
+		<a rel="sideframe" href="{% url admin:cms_page_delete_plugin plugin.pk %}">Delete</a>
 		{% plugin_child_classes plugin %}
 	</div>
 	<div class="cms_dragitem"><strong>{{ plugin.plugin_type }}</strong> {{ plugin.placeholder.slot }}</div>
