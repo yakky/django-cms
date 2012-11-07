@@ -4,7 +4,7 @@
 {% block tpl_id %}tpl_col_two{% endblock %}
 
 {% block content %}
-	{% block page_title %}<h1>{% page_attribute title %}</h1>{% endblock %}
+	{% show_editable_page_title %}
 	<div id="col1" class="grid_4">
 		<div class="cms_sortables">
 		{% include "sidebar_submenu.html" %}
@@ -17,7 +17,6 @@
     </div>
 
     <div id="col2" class="grid_11 push_1">
-		{% show_editable_page_title %}
 	    <div class="cms_sortables">
 		{% block col_left %}
 			{% with "640" as width %}

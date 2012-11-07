@@ -68,6 +68,10 @@
 */
 
 //##################################################
+// #PLACEHOLDER-GENERIC#
+.cms_placeholder-generic { display:inline; position:relative; }
+
+//##################################################
 // #LIGHT THEME#
 .cms_light.cms_placeholder-bar { border-top:1px solid #dadada; background:#f5f5f5; @include box-shadow(#ebebeb 0px 1px 0px inset); }
 .cms_light {
