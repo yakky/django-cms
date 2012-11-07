@@ -5,7 +5,7 @@ CMS.$(document).ready(function () {
 	new CMS.Placeholder('#cms_placeholder-generic-{{ current_page.pk }}', {
 		'type': 'generic',
 		'urls': {
-			'edit': '{% url admin:cms_page_edit_title current_page.pk %}'
+			'edit_plugin': '{% url admin:cms_page_edit_title current_page.pk %}'
 		}
 	});
 });
