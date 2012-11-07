@@ -407,7 +407,7 @@
 					'plugin_order': plugin_order,
 					'csrfmiddlewaretoken': CMS.API.Toolbar.options.csrf
 				};
-
+console.log(data);
 				$.ajax({
 					'type': 'POST',
 					'url': this.options.urls.move_plugin,

@@ -371,7 +371,8 @@ $(document).ready(function () {
 
 			// prepare iframe
 			var that = this;
-			var iframe = $('<iframe src="'+url+'" class="" frameborder="0" />');
+			// TODO background style needs fixing
+			var iframe = $('<iframe src="'+url+'" frameborder="0" style="background:#fff;" />');
 				iframe.hide();
 			var holder = this.modal.find('.cms_modal-frame');
 
