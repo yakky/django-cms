@@ -44,6 +44,8 @@ from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext, ugettext_lazy as _
 from menus.menu_pool import menu_pool
 import django
+from django.conf.urls import include
+from django.utils import simplejson
 
 
 DJANGO_1_3 = LooseVersion(django.get_version()) < LooseVersion('1.4')
@@ -1101,19 +1103,17 @@ class PageAdmin(ModelAdmin):
         plugin_type = request.POST['plugin_type']
         if not permissions.has_plugin_permission(request.user, plugin_type, "add"):
             return HttpResponseForbidden(ugettext('You have no permission to add a plugin'))
-        placeholder_id = request.POST.get('placeholder', None)
-        parent_id = request.POST.get('parent_id', None)
-        if placeholder_id:
-            placeholder = get_object_or_404(Placeholder, pk=placeholder_id)
-            page = placeholder.page
-        else:
-            placeholder = None
-            page = None
+        placeholder_id = request.POST['placeholder_id']
+        parent_id = request.POST.get('plugin_parent', None)
+
+        placeholder = get_object_or_404(Placeholder, pk=placeholder_id)
+        page = placeholder.page
         parent = None
+
         # page add-plugin
-        if page:
-            language = request.POST['language'] or get_language_from_request(request)
-            position = CMSPlugin.objects.filter(language=language, placeholder=placeholder).count()
+        if not parent_id:
+            language = request.POST['plugin_language'] or get_language_from_request(request)
+            position = request.POST.get('plugin_order', CMSPlugin.objects.filter(language=language, placeholder=placeholder).count())
             limits = placeholder_utils.get_placeholder_conf("limits", placeholder.slot, page.get_template())
             if limits:
                 global_limit = limits.get("global")
@@ -1126,19 +1126,15 @@ class PageAdmin(ModelAdmin):
                         plugin_name = unicode(plugin_pool.get_plugin(plugin_type).name)
                         return HttpResponseBadRequest("This placeholder already has the maximum number allowed of %s plugins." % plugin_name)
         # in-plugin add-plugin
-        elif parent_id:
+        else:
             parent = get_object_or_404(CMSPlugin, pk=parent_id)
             placeholder = parent.placeholder
             page = placeholder.page if placeholder else None
             if not page: # Make sure we do have a page
                 raise Http404
-            language = parent.language
-            position = None
+            language = request.POST.get('plugin_language', parent.language)
+            position = request.POST.get('plugin_order', None)
         # placeholder (non-page) add-plugin
-        else:
-            # do NOT allow non-page placeholders to use this method, they
-            # should use their respective admin!
-            raise Http404
 
         if not page.has_change_permission(request):
             # we raise a 404 instead of 403 for a slightly improved security
@@ -1162,7 +1158,12 @@ class PageAdmin(ModelAdmin):
             plugin_name = unicode(plugin_pool.get_plugin(plugin_type).name)
             reversion.revision.comment = unicode(_(u"%(plugin_name)s plugin added to %(placeholder)s") % {'plugin_name':plugin_name, 'placeholder':placeholder})
 
-        return HttpResponse(str(plugin.pk))
+        response = {
+            'url':unicode(reverse("admin:cms_page_edit_plugin", args=[plugin.pk])),
+            'breadcrumb': plugin.get_breadcrumb(),
+        }
+        return HttpResponse(simplejson.dumps(response), content_type='application/json')
+
 
     @create_on_success
     @transaction.commit_on_success
