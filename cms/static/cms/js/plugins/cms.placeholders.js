@@ -296,6 +296,12 @@
 
 					// TODO breadcrumb should be saved through that.options.plugin_breadcrumb
 					that.editPlugin(url, [{
+						'title': 'MultiColumnPlugin',
+						'url': url
+					},{
+						'title': 'ColumnRow',
+						'url': url
+					},{
 						'title': that.options.plugin_type,
 						'url': url
 					}]);
@@ -357,23 +363,13 @@
 			},
 
 			addPlugin: function (type, parent) {
-				// TODO needs refactoring
-				// I pass the plugin type and
-
 				var that = this;
 				var data = {
-					'placeholder_id': this.options.page_id,
+					'placeholder_id': this.options.placeholder_id,
 					'plugin_type': type,
-					'plugin_parent': parent || null,
+					'plugin_parent': parent || '',
 					'plugin_language': this.options.plugin_language,
-					'plugin_order': "0", // TODO might be first or last or custom
-
-
-					'language': this.options.plugin_language,
-					// TODO this should be page_id, not required for new system
-					//'placeholder_id': this.options.page_id,
-					// TODO this should be placeholder_id
-					'placeholder': this.options.placeholder_id,
+					'plugin_order': '0',
 					'csrfmiddlewaretoken': CMS.API.Toolbar.options.csrf
 				};
 
@@ -383,9 +379,9 @@
 					'type': 'POST',
 					'url': this.options.urls.add_plugin,
 					'data': data,
-					'success': function (id) {
+					'success': function (url) {
 						// TODO instead of the id we should get the full url so options.edit_plugin is not required
-						var url = that.options.urls.edit_plugin + that.options.page_id + '/edit-plugin/' + id;
+						//var url = that.options.urls.edit_plugin + that.options.page_id + '/edit-plugin/' + id;
 
 						that.editPlugin(url, [{
 							'title': data.plugin_type,
@@ -416,7 +412,6 @@
 				var placeholder_id = this._getId(dragitem.prevAll('.cms_placeholder-bar').first());
 				var plugin_order = dragitem.prevUntil('.cms_placeholder-bar').filter('[class*="cms_dragholder-draggable"]').length;
 				var plugin_parent = this._getId(dragitem.parent());
-					if(plugin_parent === '') plugin_parent = null;
 
 				/*
 				 'language': this.options.plugin_language,
