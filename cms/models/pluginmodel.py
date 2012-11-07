@@ -335,7 +335,7 @@ class CMSPlugin(MPTTModel):
         breadcrumb = []
         if not self.parent_id:
             return breadcrumb
-        for parent in self.get_descendants():
+        for parent in self.get_descendants(True):
             breadcrumb.append({'name':parent.get_plugin_name(), 'class':parent.plugin_type, 'desc':parent.get_short_description(), 'url':unicode(reverse("admin:cms_page_edit_plugin", args=[parent.pk]))})
         return breadcrumb
 reversion_register(CMSPlugin)
