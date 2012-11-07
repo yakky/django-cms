@@ -44,7 +44,6 @@ from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext, ugettext_lazy as _
 from menus.menu_pool import menu_pool
 import django
-from django.conf.urls import include
 from django.utils import simplejson
 
 
