@@ -1448,6 +1448,7 @@ class PageAdmin(ModelAdmin):
         return super(PageAdmin, self).lookup_allowed(key, *args, **kwargs)
 
     def edit_title(self, request, page_id):
+        # TODO: Permission checks
         language = 'en'
         title = Title.objects.get(page_id=page_id, language=language)
         if request.method == 'POST':
