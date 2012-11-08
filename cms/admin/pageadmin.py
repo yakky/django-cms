@@ -1154,8 +1154,8 @@ class PageAdmin(ModelAdmin):
         plugin = CMSPlugin(language=language, plugin_type=plugin_type, position=position, placeholder=placeholder)
 
         if parent:
-            plugin.parent = parent
             plugin.position = CMSPlugin.objects.filter(parent=parent).count()
+            plugin.insert_at(parent, position='last-child', save=False)
         plugin.save()
 
         if 'reversion' in settings.INSTALLED_APPS and page:
@@ -1355,7 +1355,7 @@ class PageAdmin(ModelAdmin):
             else:
                 parent = None
             #plugin.parent_id = parent_id
-            CMSPlugin.objects.move_node(plugin, parent, position='last-child')
+            plugin.move_to(parent, position='last-child')
         plugin.placeholder = placeholder
         plugin.save()
 
