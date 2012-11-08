@@ -8,16 +8,6 @@
 		 * @version: 2.0.0
 		 * @description: Adds placeholder handling
 		 */
-		/*
-		 concept:
-		 the bar only stores default options.
-		 we need to send an ajax request to the backend to figure out all the details
-		 so we can speed up the rendering
-		 question: is the ID enough information?
-		 - we might also need the plugin type
-		 */
-
-		// TODO we might move all the cms placeholder initializers to CMS.Placeholders
 		CMS.Placeholders = new CMS.Class({
 
 			initialize: function (container, options) {
@@ -45,13 +35,13 @@
 			_events: function () {
 				var that = this;
 
-				// bind events to each placeholder
+				// handling placeholder and dragholders one-time initialization
 				this.containers.each(function () {
 					that._setupPlaceholder($(this));
 					that._setupDragholder($('#cms_dragholder-' + that.getId($(this))));
 				});
 
-				// save placeholder elements, we need to unbind the event if its already available
+				// this sets the correct position for the edit tooltip
 				$(document.body).bind('mousemove.cms.placeholder', function (e) {
 					that.tooltip.css({
 						'left': e.pageX + 20,
@@ -59,7 +49,7 @@
 					});
 				});
 
-				// add event to placeholder bar menu
+				// bind menu specific events so its not hidden when hovered
 				this.menu.bind('mouseenter.cms.placeholder mouseleave.cms.placeholder', function (e) {
 					(e.type === 'mouseenter') ? that._showMenu() : that._hideMenu();
 				});
