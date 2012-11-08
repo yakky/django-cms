@@ -64,10 +64,14 @@ class CMSToolbar(Toolbar):
         self.is_staff = self.request.user.is_staff
         self.can_change = (hasattr(self.request.current_page, 'has_change_permission') and
                            self.request.current_page.has_change_permission(self.request))
-        #self.edit_mode_switcher = Switcher(LEFT, 'editmode', 'edit', 'edit-off',
-        #                                   _('Edit mode'))
-        self.edit_mode = self.is_staff
-        self.show_toolbar = self.is_staff
+        self.edit_mode = self.is_staff and self.request.session.get('cms_edit', False)
+        self.show_toolbar = self.request.session.get('cms_edit', False) or self.is_staff
+
+    def get_state(self, request, param, session_key):
+        state = self.add_parameter in request.GET
+        if self.session_key and request.session.get(self.session_key, False):
+            return True
+        return state
 
     def get_items(self):
         """

@@ -306,7 +306,7 @@ class PageAdmin(ModelAdmin):
         if request.method != "POST":
             return HttpResponseServerError(str("Only post request allowed"))
         if page.has_change_permission(request):
-            to_template = request.POST.get("template", None)
+            to_template = request.GET.get("template", None)
             if to_template in dict(settings.CMS_TEMPLATES):
                 page.template = to_template
                 page.save()
