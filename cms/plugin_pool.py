@@ -20,7 +20,6 @@ class PluginPool(object):
         load('cms_plugins')
 
     def register_plugin(self, plugin):
-        print plugin
         """
         Registers the given plugin(s).
 

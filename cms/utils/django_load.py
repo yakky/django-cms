@@ -30,7 +30,7 @@ def get_module(app, modname, verbose, failfast):
     return module
 
 
-def load(modname, verbose=True, failfast=False):
+def load(modname, verbose=False, failfast=False):
     """
     Loads all modules with name 'modname' from all installed apps.
     

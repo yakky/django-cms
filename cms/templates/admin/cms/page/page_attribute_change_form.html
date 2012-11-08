@@ -1,10 +1,4 @@
+{% extends "admin/cms/page/plugin_change_form.html" %}
 {% load i18n admin_modify adminmedia cms_admin %}
 {% load url from future %}
-
-<form action="" method="post">{% csrf_token %}
-	{{ form.as_p }}
-	<span class="plugin-submit-row"{% if is_popup %} style="overflow: auto;"{% endif %}>
-		<input type="submit" style="float:none;" name="_save" class="default" value="{% trans "Save" %}" {{ onclick_attrib }}/>
-	</span>
-</form>
 
