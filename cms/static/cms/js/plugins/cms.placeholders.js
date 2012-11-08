@@ -326,11 +326,11 @@
 
 				function hide() {
 					menu.hide();
-					draggable.css('z-index', 99);
+					draggable.parents().andSelf().css('z-index', 99);
 				}
 				function show() {
 					menu.show();
-					draggable.css('z-index', 999);
+					draggable.parents().andSelf().css('z-index', 999);
 				}
 
 				// atach default item behaviour

@@ -51,7 +51,7 @@
 
 	// dragmenu
 	.cms_dragmenu { float:right; width:20px; height:20px; cursor:pointer; }
-	.cms_dragmenu-dropdown { display:none; zoom:1; position:absolute; right:-1px; top:26px; z-index:999; min-width:100px;
+	.cms_dragmenu-dropdown { display:none; zoom:1; position:absolute; right:-1px; top:26px; z-index:999; min-width:140px;
 		max-height:230px; overflow:auto; @include border-radius(0 0 3px 3px); }
 	.cms_dragmenu-dropdown a,
 	.cms_dragmenu-dropdown span { display:block; font-size:12px; line-height:11px; text-align:right; padding:6px 8px 5px 5px; }
