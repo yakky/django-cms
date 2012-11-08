@@ -1366,9 +1366,10 @@ class PageAdmin(ModelAdmin):
                     break
                 x += 1
             if not found:
-                pass
+                pass #TODO: fix this
                 #plugin.delete()
-            plugin.save()
+            else:
+                plugin.save()
 
         if page and 'reversion' in settings.INSTALLED_APPS:
             helpers.make_revision_with_plugins(page)
