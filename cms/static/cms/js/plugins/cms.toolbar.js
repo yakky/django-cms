@@ -338,7 +338,7 @@ $(document).ready(function () {
 
 			// TODO: the crsf token needs to be added through the backend or read from the options
 			$.ajax({
-				'method': 'post',
+				'type': 'POST',
 				'url': url,
 				'data': {
 					'csrfmiddlewaretoken': this.options.csrf
