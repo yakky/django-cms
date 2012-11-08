@@ -136,6 +136,8 @@
 				// sortable allows to rearrange items, it also enables draggable which is kinda weird
 				// TODO we need to connect to a list directly
 				// TODO successfull sorting should also update the position
+				//console.log(this.dragitems);
+
 				this.sortareas.sortable({
 					'items': this.dragitems,
 					'cursor': 'move',
@@ -404,15 +406,15 @@
 				}
 
 				// get new poisition data
-				var placeholder_id = this._getId(dragitem.parent().prevAll('.cms_placeholder-bar').first());
-				var plugin_parent = this._getId(dragitem.parent());
+				var placeholder_id = this._getId(dragitem.closest('.cms_sortarea').prevAll('.cms_placeholder-bar').first());
+				var plugin_parent = this._getId(dragitem.parent().closest('.cms_dragholder'));
 				var plugin_order = this._getIds(dragitem.siblings('.cms_dragholder-draggable').andSelf());
 
 				// gather the data for ajax request
 				var data = {
 					'placeholder_id': placeholder_id,
 					'plugin_id': this.options.plugin_id,
-					'plugin_parent': plugin_parent,
+					'plugin_parent': plugin_parent || '',
 					'plugin_language': this.options.plugin_language,
 					'plugin_order': plugin_order,
 					'csrfmiddlewaretoken': CMS.API.Toolbar.options.csrf
@@ -431,8 +433,6 @@
 						var msg = 'An error occured during the update.';
 						// trigger error
 						that._showError(msg + jqXHR.status + ' ' + jqXHR.statusText);
-
-						// TODO refresh browser?
 					}
 				})
 			},
@@ -466,26 +466,3 @@
 
 	});
 })(CMS.$);
-
-/*
- {
- 'type': 'plugin', // bar or plugin
- 'placeholder_id': 1,
- 'plugin_type': 'TextPlugin',
- 'plugin_id': 1,
- 'plugin_language': 'en',
- 'plugin_children': [
- { 'type': 'ColumnPlugin', title: 'Column' }
- ],
- 'plugin_order': 2,
- 'plugin_breadcrumb': [
- { 'url': '/en/admin/cms/page/1/edit-plugin/1/', 'title': 'Text plugin' }
- ]
- 'plugin_restriction': ['TextPlugin', 'PicturePlugin', 'ColumnPlugin'],
- 'urls': {
- 'add_plugin': '',
- 'edit_plugin': '',
- 'move_plugin': ''
- }
- }
- */

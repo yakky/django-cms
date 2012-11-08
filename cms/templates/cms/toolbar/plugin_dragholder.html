@@ -8,11 +8,18 @@
 		{% plugin_child_classes plugin %}
 	</div>
 	<div class="cms_dragitem{% if plugin.child_plugins_instances %} cms_dragitem-collapsable{% endif %}"><strong>{{ plugin.plugin_type }}</strong> {{ plugin.placeholder.slot }}</div>
-
+	{% if plugin.get_plugin_class.allow_children %}
+	<div class="cms_sortables">
+	<!--<div class="cms_reset cms_light cms_dragholder cms_dragholder-empty cms_dragholder-droppable"><div class="cms_dragitem">{% trans "Drop a plugin here" %}</div></div>-->
+	{% endif %}
+	{% if plugin.get_plugin_class.allow_children and not plugin.child_plugins_instances.0 %}
+	<div class="cms_reset cms_light cms_dragholder cms_dragholder-empty cms_dragholder-droppable"><div class="cms_dragitem">{% trans "Drop a plugin here" %}</div></div>
+	{% endif %}
 	{% if plugin.child_plugins_instances %}
 		{% for child in plugin.child_plugins_instances %}
 			{# workaround because include tag does not allow recursive includes #}
 			{% with template_name="cms/toolbar/plugin_dragholder.html" %}{% include template_name with plugin=child %}{% endwith %}
 		{% endfor %}
 	{% endif %}
+	{% if plugin.get_plugin_class.allow_children %}</div>{% endif %}
 </div>
