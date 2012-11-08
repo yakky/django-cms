@@ -2,7 +2,6 @@ from classytags.arguments import Argument, KeywordArgument
 from classytags.core import Tag, Options
 from django import template
 from django.utils.translation import get_language
-import re
 from django.utils.safestring import mark_safe
 from stacks import models as stack_models
 
