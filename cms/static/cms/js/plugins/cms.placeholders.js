@@ -94,10 +94,9 @@
 							'left': el.offset().left,
 							'top': el.offset().top
 						});
+						// show element and attach id to CMS.Toolbar
+						that.menu.fadeIn(speed).data('id', that.getId(el));
 					}
-
-					// show element and attach id to CMS.Toolbar
-					that.menu.fadeIn(speed).data('id', that.getId(el));
 				}, speed);
 			},
 
