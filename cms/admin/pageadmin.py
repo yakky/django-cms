@@ -1350,8 +1350,12 @@ class PageAdmin(ModelAdmin):
         if page and not page.has_change_permission(request):
             return HttpResponseForbidden(ugettext("You have no permission to change this page"))
         if plugin.parent_id != parent_id:
-            plugin.parent_id = parent_id
-            CMSPlugin.objects.move_to(plugin, 'last_child')
+            if parent_id:
+                parent = CMSPlugin.objects.get(pk=parent_id)
+            else:
+                parent = None
+            #plugin.parent_id = parent_id
+            CMSPlugin.objects.move_node(plugin, parent, position='last-child')
         plugin.placeholder = placeholder
         plugin.save()
 
