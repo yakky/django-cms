@@ -256,7 +256,8 @@ $(document).ready(function () {
 					this.openAjax(el.attr('href'));
 					break;
 				default:
-					this.openModal(el.attr('href'), []);
+					// TODO el.text() is an issue on API level (example edit button)
+					this.openModal(el.attr('href'), el.text(), []);
 			}
 		},
 
@@ -374,10 +375,10 @@ $(document).ready(function () {
 			this._showDialogue();
 		},
 
-		openModal: function (url, breadcrumb) {
+		openModal: function (url, name, breadcrumb) {
 			// TODO DOUBLE DBLCLICK OPEN
 			// TODO DBL CLICK OPEN
-
+console.log(name);
 			// prepare iframe
 			var that = this;
 			// TODO background style needs fixing
@@ -401,7 +402,7 @@ $(document).ready(function () {
 
 			// set correct title
 			var title = this.modal.find('.cms_modal-title');
-				title.text('Text plugin');
+				title.text(name);
 
 			// insure modal is not maximized
 			if(this.modal.find('.cms_modal-collapsed').length) this._minimizeModal();
