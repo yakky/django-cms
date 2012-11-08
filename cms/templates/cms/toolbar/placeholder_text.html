@@ -12,4 +12,7 @@ CMS.$(document).ready(function () {
 </script>
 {% endaddtoblock %}
 
-<div id="cms_placeholder-generic-{{ current_page.pk }}" class="cms_placeholder-generic"><h1>{% page_attribute title %}</h1></div>
+<div id="cms_placeholder-generic-{{ current_page.pk }}" class="cms_placeholder-generic">
+	<!-- TODO: the content here needs to be generalized -->
+	<h1>{% page_attribute title %}</h1>
+</div>

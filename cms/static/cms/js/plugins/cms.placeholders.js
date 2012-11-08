@@ -68,14 +68,11 @@
 			_setupPlaceholder: function (placeholder) {
 				var that = this;
 
-				// attach mouseenter/mouseleave event
 				placeholder.bind('mouseenter.cms.placeholder mouseleave.cms.placeholder', function (e) {
 					// add tooltip event to every placeholder
 					(e.type === 'mouseenter') ? that.tooltip.show() : that.tooltip.hide();
 					(e.type === 'mouseenter') ? that._showMenu(that.getId($(this))) : that._hideMenu();
-				});
-
-				placeholder.bind('mousemove.cms.placeholder', function () {
+					// reassign menu position
 					that.menu.css({
 						'left': $(this).position().left,
 						'top': $(this).position().top
@@ -89,10 +86,7 @@
 				dragholder.bind('mouseenter.cms.placeholder mouseleave.cms.placeholder', function (e) {
 					// add tooltip event to every placeholder
 					(e.type === 'mouseenter') ? that._showMenu(that.getId($(this)), true) : that._hideMenu(true);
-					// bind current element id to
-				});
-
-				dragholder.bind('mousemove.cms.placeholder', function () {
+					// reassign menu position
 					that.menu.css({
 						'left': $(this).position().left,
 						'top': $(this).position().top
@@ -104,13 +98,13 @@
 				clearTimeout(this.timer);
 				this.menu.fadeIn(100);
 				if(dragging) this.menu.addClass('cms_placeholders-menu-layout');
-				// attach element to menu
+				// attach element id to menu for CMS.Toolbar
 				this.menu.data('id', id);
 			},
 
 			_hideMenu: function (dragging) {
 				var that = this;
-
+				clearTimeout(this.timer);
 				this.timer = setTimeout(function () {
 					that.menu.fadeOut(100, function () {
 						if(dragging) that.menu.removeClass('cms_placeholders-menu-layout');
@@ -291,8 +285,7 @@
 
 			_setPlugin: function () {
 				var that = this;
-
-				// add plugin edit event
+				// CONTENT
 				this.container.bind('dblclick', function (e) {
 					e.preventDefault();
 					e.stopPropagation();
@@ -300,6 +293,7 @@
 					that.editPlugin(that.options.urls.edit_plugin, that.options.plugin_breadcrumb);
 				});
 
+				// DRAGGABLE
 				var draggable = $('#cms_dragholder-' + this.options.plugin_id);
 				var menu = draggable.find('> .cms_dragmenu-dropdown');
 				var speed = 200;

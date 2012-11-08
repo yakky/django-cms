@@ -279,7 +279,7 @@ register.tag(RenderPlugin)
 
 
 class PluginChildClasses(InclusionTag):
-    template = "cms/toolbar/placeholder_plugin_classes.html"
+    template = "cms/toolbar/plugin_dragholder-menu.html"
     name = "plugin_child_classes"
     options = Options(
         Argument('plugin')

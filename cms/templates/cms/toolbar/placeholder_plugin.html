@@ -9,13 +9,8 @@ CMS.$(document).ready(function () {
 		'plugin_id': '{{ instance.pk }}',
 		'plugin_language': '{{ instance.language }}',
 		'plugin_parent': '{{ instance.parent_id }}',
-		'plugin_children' : [ // empty = false
-			{% for class, name in child_plugin_classes %}
-			{'type':'{{ class  }}', 'title':'{{ name }}'}{% if not forloop.last %},{% endif %}
-			{% endfor %}
-		],
-		'plugin_order': null,
-		'plugin_breadcrumb': [],
+		'plugin_order': '{{ instance.plugin_order }}',
+		//'plugin_breadcrumb': {{ instance.plugin_breadcrumb }},
 		'plugin_restriction': [], // only for nested plugins, see placeholder_toolbar.html
 		'urls': {
 			'add_plugin': '{% url admin:cms_page_add_plugin %}',
