@@ -1120,7 +1120,8 @@ class PageAdmin(ModelAdmin):
         if not parent_id:
             language = request.POST['plugin_language'] or get_language_from_request(request)
             position = request.POST.get('plugin_order', CMSPlugin.objects.filter(language=language, placeholder=placeholder).count())
-            limits = placeholder_utils.get_placeholder_conf("limits", placeholder.slot, page.get_template())
+
+            limits = placeholder_utils.get_placeholder_conf("limits", placeholder.slot, (page and page.get_template()) or None)
             if limits:
                 global_limit = limits.get("global")
                 type_limit = limits.get(plugin_type)
@@ -1136,15 +1137,14 @@ class PageAdmin(ModelAdmin):
             parent = get_object_or_404(CMSPlugin, pk=parent_id)
             placeholder = parent.placeholder
             page = placeholder.page if placeholder else None
-            if not page: # Make sure we do have a page
-                raise Http404
             language = request.POST.get('plugin_language', parent.language)
             position = request.POST.get('plugin_order', None)
         # placeholder (non-page) add-plugin
 
-        if not page.has_change_permission(request):
+        if page and not page.has_change_permission(request):
             # we raise a 404 instead of 403 for a slightly improved security
             # and to be consistent with placeholder admin
+            # TODO: how do we check permissions for placeholders that are not connected to a page (e.g stacks) in a generid way?
             raise Http404
 
         # Sanity check to make sure we're not getting bogus values from JavaScript:

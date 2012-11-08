@@ -31,13 +31,7 @@ class Placeholder(models.Model):
         return self._get_url('changelist')
 
     def _get_url(self, key):
-        model = self._get_attached_model()
-        if not model:
-            return reverse('admin:cms_page_%s' % key)
-        else:
-            app_label = model._meta.app_label
-            model_name = model.__name__.lower()
-            return reverse('admin:%s_%s_%s' % (app_label, model_name, key))
+        return reverse('admin:cms_page_%s' % key)
 
     def _get_permission(self, request, key):
         """
