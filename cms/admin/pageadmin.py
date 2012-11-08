@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.contrib.admin.helpers import AdminForm
 from cms.admin.change_list import CMSChangeList
 from cms.admin.dialog.views import get_copy_dialog
 from cms.admin.forms import PageForm, PageAddForm, PageTitleForm
@@ -1507,17 +1508,39 @@ class PageAdmin(ModelAdmin):
 
     def edit_title(self, request, page_id):
         # TODO: Permission checks
+        # TODO: Reversion support
         language = 'en'
         title = Title.objects.get(page_id=page_id, language=language)
-        if request.method == 'POST':
+        saved_successfully = False
+        cancel_clicked = request.POST.get("_cancel", False)
+        if not cancel_clicked and request.method == 'POST':
             form = PageTitleForm(instance=title, data=request.POST)
             if form.is_valid():
                 form.save()
+                saved_successfully = True
         else:
             form = PageTitleForm(instance=title)
+        adminform = AdminForm(form, fieldsets=[(None, {'fields': ('title',)})], prepopulated_fields={}, model_admin=self)
+        media = self.media + adminform.media
         context = {
-            'form': form
-        }
+            'title': 'Title',
+            'plugin': title.page,
+            'plugin_id': title.page.id,
+            'adminform': adminform,
+            'add': False,
+            'is_popup': True,
+            'CMS_MEDIA_URL': settings.CMS_MEDIA_URL,
+            'media': media,
+            'window_close_timeout': 10,
+            }
+        if cancel_clicked:
+            # cancel button was clicked
+            context.update({
+                'cancel': True,
+            })
+            return render_to_response('admin/cms/page/plugin_forms_ok.html', context, RequestContext(request))
+        if not cancel_clicked and request.method == 'POST' and saved_successfully:
+            return render_to_response('admin/cms/page/plugin_forms_ok.html', context, RequestContext(request))
         return render_to_response('admin/cms/page/page_attribute_change_form.html', context, RequestContext(request))
 
 

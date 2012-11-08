@@ -301,15 +301,16 @@
 				});
 
 				var draggable = $('#cms_dragholder-' + this.options.plugin_id);
-				var menu = draggable.find('.cms_dragmenu-dropdown');
+				var menu = draggable.find('> .cms_dragmenu-dropdown');
 				var speed = 200;
 
 				// attach events
-				draggable.find('.cms_dragmenu').bind('click', function () {
+				draggable.find('> .cms_dragmenu').bind('click', function () {
 					(menu.is(':visible')) ? hide() : show();
 				}).bind('mouseleave', function (e) {
 					that.timer = setTimeout(hide, speed);
-				}).end().find('.cms_dragmenu-dropdown').bind('mouseleave.cms.draggable mouseenter.cms.draggable', function (e) {
+				});
+				menu.bind('mouseleave.cms.draggable mouseenter.cms.draggable', function (e) {
 					clearTimeout(that.timer);
 					if(e.type === 'mouseleave') that.timer = setTimeout(hide, speed);
 				});
@@ -337,7 +338,7 @@
 
 				// update plugin position
 				this.container.bind('cms.placeholder.update', function () {
-					that.updatePlugin();
+					that.movePlugin();
 				});
 			},
 
@@ -385,23 +386,22 @@
 				this._openModal(url, breadcrumb);
 			},
 
-			updatePlugin: function () {
+			movePlugin: function () {
 				var that = this;
 
 				var plugin = $('#cms_placeholder-' + this.options.plugin_id);
 				var dragitem = $('#cms_dragholder-' + this.options.plugin_id);
 
 				// insert new position
-				//plugin.insertBefore();
 				var id = this._getId(dragitem.prev('.cms_dragholder-draggable'));
 				if(id) {
 					plugin.insertAfter($('#cms_placeholder-' + id));
 				} else {
-					plugin.insertAfter(dragitem.siblings('.cms_dragholder-empty'));
+					dragitem.parent().prepend(plugin);
 				}
 
 				// get new poisition data
-				var placeholder_id = this._getId(dragitem.prevAll('.cms_placeholder-bar').first());
+				var placeholder_id = this._getId(dragitem.parent().prevAll('.cms_placeholder-bar').first());
 				var plugin_parent = this._getId(dragitem.parent());
 				var plugin_order = this._getIds(dragitem.siblings('.cms_dragholder-draggable').andSelf());
 

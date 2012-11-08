@@ -28,7 +28,7 @@ jQuery(document).ready(function ($) {
         	
 		} else {
 			// frontend edit
-			setTimeout(function () { window.parent.CMS.API.Helpers.reloadBrowser(); }, 1000);
+			setTimeout(function () { window.parent.CMS.API.Helpers.reloadBrowser(); }, {{ window_close_timeout|default:1000 }});
 		}
 	} else {
         opener.dismissEditPluginPopup(window, {% javascript_string %}{{ plugin_id }}{% end_javascript_string %}, {% javascript_string %}{{ icon }}{% end_javascript_string %}, {% javascript_string %}{{ alt }}{% end_javascript_string %});
