@@ -3,7 +3,7 @@ from stacks.models import Stack
 from cms.admin.placeholderadmin import PlaceholderAdmin
 
 class StackAdmin(PlaceholderAdmin):
-    list_display = ('name', 'language')
+    list_display = ('code', 'name', 'language')
     list_filter = ('language',)
     search_fields = ('name',)
 
