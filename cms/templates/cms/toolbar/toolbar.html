@@ -59,7 +59,10 @@ CMS.$(document).ready(function () {
 			{% endif %}
 
 			<ul class="cms_toolbar-item cms_toolbar-item_navigation">
-				<li>
+				{% for item in request.toolbar.get_items %}
+					{{ item.render }}
+				{% endfor %}
+				<!--li>
 					<a href="{% url admin:index %}">{% trans "Admin" %}</a>
 					<ul>
 						<li><a href="{% url admin:index %}" rel="sideframe">{% trans "Administration" %}</a></li>
@@ -89,7 +92,7 @@ CMS.$(document).ready(function () {
 						<li><a href="{% url admin:cms_page_change_template current_page.pk %}?template=INHERIT" rel="ajax">Inherit from nearest ancestor</a></li>
 						{% endfor %}
 					</ul>
-				</li>
+				</li--->
 				<li{% if not request.toolbar.edit_mode %} class="cms_toolbar-item_navigation-disabled"{% endif %}>
 					<a href="{% url admin:cms_page_change current_page.pk %}">{% trans "Publish" %}</a>
 					<ul>
