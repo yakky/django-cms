@@ -51,23 +51,19 @@
 
 				// bind menu specific events so its not hidden when hovered
 				this.menu.bind('mouseover.cms.placeholder mouseout.cms.placeholder', function (e) {
-					clearTimeout(that.timer);
-					(e.type === 'mouseover') ? that._showMenu() : that._hideMenu();
+					e.stopPropagation();
+					(e.type === 'mouseover') ? that._showMenu($(this)) : that._hideMenu($(this));
 				});
 			},
 
 			_setupPlaceholder: function (placeholder) {
 				var that = this;
 
-				placeholder.bind('mouseenter.cms.placeholder mouseleave.cms.placeholder', function (e) {
-					// add tooltip event to every placeholder
-					(e.type === 'mouseenter') ? that.tooltip.show() : that.tooltip.hide();
-					(e.type === 'mouseenter') ? that._showMenu(that.getId($(this))) : that._hideMenu();
-					// reassign menu position
-					that.menu.css({
-						'left': $(this).offset().left,
-						'top': $(this).offset().top
-					});
+				placeholder.bind('mouseover.cms.placeholder mouseout.cms.placeholder', function (e) {
+					e.stopPropagation();
+					// add events to placeholder
+					(e.type === 'mouseover') ? that.tooltip.show() : that.tooltip.hide();
+					(e.type === 'mouseover') ? that._showMenu($(this)) : that._hideMenu($(this));
 				});
 			},
 
@@ -76,36 +72,46 @@
 
 				dragholder.bind('mouseover.cms.placeholder mouseout.cms.placeholder', function (e) {
 					e.stopPropagation();
-
-					// add tooltip event to every placeholder
-					(e.type === 'mouseover') ? that._showMenu(that.getId($(this)), true) : that._hideMenu(true);
-					// reassign menu position
-					that.menu.css({
-						'left': $(this).offset().left,
-						'top': $(this).offset().top
-					});
+					// add events to dragholder
+					(e.type === 'mouseover') ? that._showMenu($(this)) : that._hideMenu($(this));
 				});
 			},
 
-			_showMenu: function (id, dragging) {
+			_showMenu: function (el) {
 				var that = this;
+				var speed = 50;
+
 				clearTimeout(this.timer);
+
+				// sets the timer to switch elements
 				this.timer = setTimeout(function () {
-					that.menu.fadeIn(100);
-					if(dragging) that.menu.addClass('cms_placeholders-menu-layout');
-					// attach element id to menu for CMS.Toolbar
-					that.menu.data('id', id);
-				}, 400);
+					// exclude if hovering menu itself
+					if(!el.hasClass('cms_placeholders-menu')) {
+						that.menu.css({
+							'left': el.offset().left,
+							'top': el.offset().top
+						});
+					}
+					// handle class handling
+					if(el.hasClass('cms_dragholder')) that.menu.addClass('cms_placeholders-menu-layout');
+
+					// show element and attach id to CMS.Toolbar
+					that.menu.fadeIn(speed).data('id', that.getId(el));
+				}, speed);
 			},
 
-			_hideMenu: function (dragging) {
+			_hideMenu: function (el) {
 				var that = this;
+				var speed = 200;
+
 				clearTimeout(this.timer);
+
+				// sets the timer for closing
 				this.timer = setTimeout(function () {
-					that.menu.fadeOut(100, function () {
-						if(dragging) that.menu.removeClass('cms_placeholders-menu-layout');
+					that.menu.fadeOut(speed, function () {
+						if(el.hasClass('cms_dragholder')) that.menu.removeClass('cms_placeholders-menu-layout');
 					});
-				}, 400);
+				}, speed);
 			},
 
 			getId: function (el) {
@@ -289,6 +295,15 @@
 					that.editPlugin(that.options.urls.edit_plugin, that.options.plugin_breadcrumb);
 				});
 
+				this._setPluginMenu();
+
+				// update plugin position
+				this.container.bind('cms.placeholder.update', function () {
+					that.movePlugin();
+				});
+			},
+
+			_setPluginMenu: function () {
 				// DRAGGABLE
 				var draggable = $('#cms_dragholder-' + this.options.plugin_id);
 				var menu = draggable.find('> .cms_dragmenu-dropdown');
@@ -298,8 +313,8 @@
 				draggable.find('> .cms_dragmenu').bind('click', function () {
 					(menu.is(':visible')) ? hide() : show();
 				}).bind('mouseleave', function (e) {
-					that.timer = setTimeout(hide, speed);
-				});
+						that.timer = setTimeout(hide, speed);
+					});
 				menu.bind('mouseleave.cms.draggable mouseenter.cms.draggable', function (e) {
 					clearTimeout(that.timer);
 					if(e.type === 'mouseleave') that.timer = setTimeout(hide, speed);
@@ -324,11 +339,6 @@
 					} else {
 						that._delegate(el);
 					}
-				});
-
-				// update plugin position
-				this.container.bind('cms.placeholder.update', function () {
-					that.movePlugin();
 				});
 			},
 
@@ -410,9 +420,9 @@
 					'url': this.options.urls.move_plugin,
 					'data': data,
 					'success': function (response, status) {
-
+						if(response === 'success') {}
 						//console.log(data);
-						console.log(status);
+						//console.log(response);
 					},
 					'error': function (jqXHR) {
 						var msg = 'An error occured during the update.';
