@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.contrib.auth.forms import AuthenticationForm
 from cms.toolbar.base import Toolbar
 from cms.toolbar.constants import LEFT, RIGHT
 from cms.toolbar.items import (Anchor, Switcher, TemplateHTML, ListItem, List, 
@@ -49,10 +50,10 @@ def _get_publish_url(context, toolbar, **kwargs):
     return reverse('admin:cms_page_publish_page', args=(toolbar.request.current_page.pk,))
 
 
-class CMSToolbarLoginForm(forms.Form):
-    cms_username = forms.CharField()
-    cms_password = forms.CharField()
-
+class CMSToolbarLoginForm(AuthenticationForm):
+    def __init__(self, *args, **kwargs):
+        kwargs['prefix'] = kwargs.get('prefix', 'cms_')
+        super(CMSToolbarLoginForm, self).__init__(*args, **kwargs)
 
 class CMSToolbar(Toolbar):
     """
@@ -60,6 +61,7 @@ class CMSToolbar(Toolbar):
     """
     def __init__(self, request):
         super(CMSToolbar, self).__init__(request)
+        self.login_form = CMSToolbarLoginForm()
         self.init()
         
     def init(self):
@@ -70,7 +72,7 @@ class CMSToolbar(Toolbar):
                                            _('Edit mode'))
         self.edit_mode   = self.is_staff and self.edit_mode_switcher.get_state(self.request)
         self.show_toolbar = self.is_staff or self.edit_mode_switcher.get_state(self.request)
-    
+
     def get_items(self, context, **kwargs):
         """
         Get the CMS items on the toolbar
@@ -228,11 +230,8 @@ class CMSToolbar(Toolbar):
     def _request_hook_post(self):
         # login hook
         if 'cms-toolbar-login' in self.request.GET:
-            login_form = CMSToolbarLoginForm(self.request.POST)
-            if login_form.is_valid():
-                username = login_form.cleaned_data['cms_username']
-                password = login_form.cleaned_data['cms_password']
-                user = authenticate(username=username, password=password)
-                if user:
-                    login(self.request, user)
-                    self.init()
+            self.login_form = CMSToolbarLoginForm(self.request.POST)
+            if self.login_form.is_valid():
+                login(self.request, self.login_form.user_cache)
+                self.init()
+                return HttpResponseRedirect(self.request.path)
