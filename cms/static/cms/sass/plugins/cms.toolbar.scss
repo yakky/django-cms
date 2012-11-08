@@ -183,7 +183,7 @@
 	// #TOOLBAR/pmenu#
 	.cms_placeholders-menu {
 		display:none; position:absolute; left:0; top:0;
-		width:26px; height:26px; padding:0; margin:3px 0 0 -31px; cursor:pointer;
+		width:26px; height:26px; padding:0; margin:0 0 0 -31px; cursor:pointer;
 		font-size:11px; line-height:11px; text-align:center; overflow:hidden;
 		@include border-radius(3px);
 	}

@@ -1,49 +1,33 @@
+from classytags.arguments import Argument, KeywordArgument
+from classytags.core import Tag, Options
 from django import template
+from django.utils.translation import get_language
 import re
 from django.utils.safestring import mark_safe
 from stacks import models as stack_models
 
 register = template.Library()
 
-class StackNode(template.Node):
-    def __init__(self, code, var_name):
-        self.code = code
-        self.var_name = var_name
-    def render(self, context):
-        try:
-            stack = stack_models.Stack.objects.get(code=self.code)
-        except stack_models.Stack.DoesNotExist:
-            return ''
+class StackNode(Tag):
+    name = 'stack'
+    options = Options(
+        Argument('code', required=True),
+        KeywordArgument('language', required=False, default=None, ),
+        'as',
+        Argument('varname', required=False, resolve=False)
+    )
+
+    def render_tag(self, context, code, language, varname):
+        language = language or get_language()
+        stack, created = stack_models.Stack.objects.get_or_create(
+            code=code, language=language, defaults={'name': code})
         if not stack.content:
             return ''
         placeholder = stack.content
         rendered_placeholder = mark_safe(placeholder.render(context, None))
-        if self.var_name:
-            context[self.var_name] = rendered_placeholder
+        if varname:
+            context[varname] = rendered_placeholder
             return ''
         return rendered_placeholder
 
-def do_stack(parser, token):
-    '''
-    parses the parameters of the templatetag
-    {% contentblock 'my_block_name' %}
-    {% contentblock 'my_block_name' as my_varname %}
-    '''
-    try:
-        # Splitting by None == splitting by spaces.
-        tag_name, arg = token.contents.split(None, 1)
-    except ValueError:
-        raise template.TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
-    m = re.search(r'(.*?) as (\w+)$', arg)
-    m2 = re.search(r'(.*?)$', arg)
-    if m:
-        code_string, var_name = m.groups()
-    elif m2 and len(m2.groups()) == 1:
-        code_string = m2.groups()[0]
-        var_name = None
-    else:
-        raise template.TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
-    if not (code_string[0] == code_string[-1] and code_string[0] in ('"', "'")):
-        raise template.TemplateSyntaxError, "%r tag's argument should be in quotes" % tag_name
-    return StackNode(code_string[1:-1], var_name)
-register.tag('stack', do_stack)
+register.tag(StackNode)

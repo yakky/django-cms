@@ -62,10 +62,15 @@
 .cms_dragholder-draggable { cursor:move; z-index:100; }
 
 
+
+
 .cms_dragitem-collapsable { cursor:pointer; padding-left:15px !important;
 	background:url('/static/cms/img/toolbar/arrow-down-active.png') no-repeat 3px 7px !important; }
 .cms_dragitem-collapsed { background:url('/static/cms/img/toolbar/arrow-down-collapsed.png') no-repeat 3px 6px !important; }
 
+//##################################################
+// #PLACEHOLDER-SORTABLES#
+.cms_sortables { min-height:25px; }
 
 //##################################################
 // #PLACEHOLDER-GENERIC#
@@ -119,7 +124,7 @@
 .cms_light.cms_dragholder-selected .cms_dragitem,
 .cms_light.cms_dragholder-selected .cms_dragitem strong { color:#fff !important; }
 
-.cms_light.cms_dragholder-empty { border:1px dotted #c9c9c9 !important; background:transparent !important; }
+.cms_light.cms_dragholder-empty { border:1px dotted #c9c9c9 !important; background:#fcfcfc !important; }
 
 .cms_light.cms_dragholder-allowed, .cms_light.cms_dragholder-hover-allowed, .cms_light.cms_dragholder-placeholder { color:#363 !important; border:1px solid #cea !important; }
 .cms_light.cms_dragholder-disallowed, .cms_light.cms_dragholder-hover-disallowed { color:#c00 !important; border:1px solid #faa !important; }

@@ -23,7 +23,7 @@ CMS.$(document).ready(function () {
 		'debug': true,
 		'settings': {
 			'toolbar': 'expanded',
-			'mode': 'layout'
+			'mode': 'edit'
 		},
 		'lang': {
 			'move_warning': {% javascript_string %}{% trans "The selected element can not be moved to the desired location." %}{% end_javascript_string %},
@@ -105,7 +105,7 @@ CMS.$(document).ready(function () {
 			<ul class="cms_toolbar-item cms_toolbar-item_buttons">
 				<li{% if request.toolbar.edit_mode %} class="active"{% endif %}><a href="?edit">{% trans "Edit" %}</a></li>
 				<li><a href="?layout=true">{% trans "Layout" %}</a></li>
-				<li{% if not request.toolbar.edit_mode %} class="active"{% endif %}><a href="?edit-off">{% trans "View" %}</a></li>
+				<!--<li{% if not request.toolbar.edit_mode %} class="active"{% endif %}><a href="?edit-off">{% trans "View" %}</a></li>-->
 			</ul>
 			{% endif %}
 			<div class="cms_toolbar-item cms_toolbar-item_switch{% if not request.toolbar.edit_mode %} cms_toolbar-item_switch-active{% endif %}">

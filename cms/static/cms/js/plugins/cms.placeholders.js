@@ -6,18 +6,8 @@
 		/*!
 		 * Placeholders
 		 * @version: 2.0.0
-		 * @description: Adds placeholder handling
+		 * @description: Adds one-time placeholder handling
 		 */
-		/*
-		 concept:
-		 the bar only stores default options.
-		 we need to send an ajax request to the backend to figure out all the details
-		 so we can speed up the rendering
-		 question: is the ID enough information?
-		 - we might also need the plugin type
-		 */
-
-		// TODO we might move all the cms placeholder initializers to CMS.Placeholders
 		CMS.Placeholders = new CMS.Class({
 
 			initialize: function (container, options) {
@@ -45,13 +35,13 @@
 			_events: function () {
 				var that = this;
 
-				// bind events to each placeholder
+				// handling placeholder and dragholders one-time initialization
 				this.containers.each(function () {
 					that._setupPlaceholder($(this));
 					that._setupDragholder($('#cms_dragholder-' + that.getId($(this))));
 				});
 
-				// save placeholder elements, we need to unbind the event if its already available
+				// this sets the correct position for the edit tooltip
 				$(document.body).bind('mousemove.cms.placeholder', function (e) {
 					that.tooltip.css({
 						'left': e.pageX + 20,
@@ -59,63 +49,70 @@
 					});
 				});
 
-				// add event to placeholder bar menu
-				this.menu.bind('mouseenter.cms.placeholder mouseleave.cms.placeholder', function (e) {
-					(e.type === 'mouseenter') ? that._showMenu() : that._hideMenu();
+				// bind menu specific events so its not hidden when hovered
+				this.menu.bind('mouseover.cms.placeholder mouseout.cms.placeholder', function (e) {
+					e.stopPropagation();
+					(e.type === 'mouseover') ? that._showMenu($(this)) : that._hideMenu($(this));
 				});
 			},
 
 			_setupPlaceholder: function (placeholder) {
 				var that = this;
 
-				// attach mouseenter/mouseleave event
-				placeholder.bind('mouseenter.cms.placeholder mouseleave.cms.placeholder', function (e) {
-					// add tooltip event to every placeholder
-					(e.type === 'mouseenter') ? that.tooltip.show() : that.tooltip.hide();
-					(e.type === 'mouseenter') ? that._showMenu(that.getId($(this))) : that._hideMenu();
-				});
-
-				placeholder.bind('mousemove.cms.placeholder', function () {
-					that.menu.css({
-						'left': $(this).position().left,
-						'top': $(this).position().top
-					});
+				placeholder.bind('mouseover.cms.placeholder mouseout.cms.placeholder', function (e) {
+					e.stopPropagation();
+					// add events to placeholder
+					(e.type === 'mouseover') ? that.tooltip.show() : that.tooltip.hide();
+					(e.type === 'mouseover') ? that._showMenu($(this)) : that._hideMenu($(this));
 				});
 			},
 
 			_setupDragholder: function (dragholder) {
 				var that = this;
 
-				dragholder.bind('mouseenter.cms.placeholder mouseleave.cms.placeholder', function (e) {
-					// add tooltip event to every placeholder
-					(e.type === 'mouseenter') ? that._showMenu(that.getId($(this)), true) : that._hideMenu(true);
-					// bind current element id to
-				});
-
-				dragholder.bind('mousemove.cms.placeholder', function () {
-					that.menu.css({
-						'left': $(this).position().left,
-						'top': $(this).position().top
-					});
+				dragholder.bind('mouseover.cms.placeholder mouseout.cms.placeholder', function (e) {
+					e.stopPropagation();
+					// add events to dragholder
+					(e.type === 'mouseover') ? that._showMenu($(this)) : that._hideMenu($(this));
 				});
 			},
 
-			_showMenu: function (id, dragging) {
-				clearTimeout(this.timer);
-				this.menu.fadeIn(100);
-				if(dragging) this.menu.addClass('cms_placeholders-menu-layout');
-				// attach element to menu
-				this.menu.data('id', id);
-			},
-
-			_hideMenu: function (dragging) {
+			_showMenu: function (el) {
 				var that = this;
+				var speed = 50;
 
+				clearTimeout(this.timer);
+
+				// handle class handling
+				if(el.hasClass('cms_dragholder')) this.menu.addClass('cms_placeholders-menu-layout');
+
+				// sets the timer to switch elements
 				this.timer = setTimeout(function () {
-					that.menu.fadeOut(100, function () {
-						if(dragging) that.menu.removeClass('cms_placeholders-menu-layout');
+					// exclude if hovering menu itself
+					if(!el.hasClass('cms_placeholders-menu')) {
+						that.menu.css({
+							'left': el.offset().left,
+							'top': el.offset().top
+						});
+					}
+
+					// show element and attach id to CMS.Toolbar
+					that.menu.fadeIn(speed).data('id', that.getId(el));
+				}, speed);
+			},
+
+			_hideMenu: function (el) {
+				var that = this;
+				var speed = 50;
+
+				clearTimeout(this.timer);
+
+				// sets the timer for closing
+				this.timer = setTimeout(function () {
+					that.menu.fadeOut(speed, function () {
+						that.menu.removeClass('cms_placeholders-menu-layout');
 					});
-				}, 500);
+				}, speed);
 			},
 
 			getId: function (el) {
@@ -147,6 +144,7 @@
 					// creates a cline thats over everything else
 					'helper': 'clone',
 					'appendTo': 'body',
+					'dropOnEmpty': true,
 					'placeholder': 'cms_reset cms_light cms_dragholder cms_dragholder-empty cms_dragholder-droppable ui-droppable',
 					'zIndex': 999999,
 					'start': function (event, ui) {
@@ -232,7 +230,7 @@
 		CMS.Placeholder = new CMS.Class({
 
 			options: {
-				'type': '', // bar or plugin
+				'type': '', // bar, plugin or generic
 				'placeholder_id': null,
 				'plugin_type': '',
 				'plugin_id': null,
@@ -291,8 +289,7 @@
 
 			_setPlugin: function () {
 				var that = this;
-
-				// add plugin edit event
+				// CONTENT
 				this.container.bind('dblclick', function (e) {
 					e.preventDefault();
 					e.stopPropagation();
@@ -300,6 +297,17 @@
 					that.editPlugin(that.options.urls.edit_plugin, that.options.plugin_breadcrumb);
 				});
 
+				this._setPluginMenu();
+
+				// update plugin position
+				this.container.bind('cms.placeholder.update', function () {
+					that.movePlugin();
+				});
+			},
+
+			_setPluginMenu: function () {
+				// DRAGGABLE
+				var that = this;
 				var draggable = $('#cms_dragholder-' + this.options.plugin_id);
 				var menu = draggable.find('> .cms_dragmenu-dropdown');
 				var speed = 200;
@@ -308,8 +316,8 @@
 				draggable.find('> .cms_dragmenu').bind('click', function () {
 					(menu.is(':visible')) ? hide() : show();
 				}).bind('mouseleave', function (e) {
-					that.timer = setTimeout(hide, speed);
-				});
+						that.timer = setTimeout(hide, speed);
+					});
 				menu.bind('mouseleave.cms.draggable mouseenter.cms.draggable', function (e) {
 					clearTimeout(that.timer);
 					if(e.type === 'mouseleave') that.timer = setTimeout(hide, speed);
@@ -334,11 +342,6 @@
 					} else {
 						that._delegate(el);
 					}
-				});
-
-				// update plugin position
-				this.container.bind('cms.placeholder.update', function () {
-					that.movePlugin();
 				});
 			},
 
@@ -420,9 +423,9 @@
 					'url': this.options.urls.move_plugin,
 					'data': data,
 					'success': function (response, status) {
-
+						if(response === 'success') {}
 						//console.log(data);
-						console.log(status);
+						//console.log(response);
 					},
 					'error': function (jqXHR) {
 						var msg = 'An error occured during the update.';

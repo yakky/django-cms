@@ -68,10 +68,14 @@ $(document).ready(function () {
 		},
 
 		_setup: function () {
+			// set correct settings
+			if(this.getSettings() === null) this.setSettings();
+			this.settings = this.getSettings();
+
 			// setup toolbar visibility, we need to reverse the options to set the correct state
 			(this.settings.toolbar === 'expanded') ? this._showToolbar(0, true) : this._hideToolbar(0, true);
 			// setup toolbar mode
-			(this.settings.mode === 'layout') ? this._enableDragMode(300, true) : this._enableEditMode(300, true);
+			(this.settings.mode === 'drag') ? this._enableDragMode(300, true) : this._enableEditMode(300, true);
 		},
 
 		_events: function () {
@@ -205,6 +209,7 @@ $(document).ready(function () {
 
 			// set active item
 			this.toolbar.find('.cms_toolbar-item_buttons li').removeClass('active').eq(0).addClass('active');
+			this.settings.mode = 'edit';
 
 			if(!init) this.setSettings();
 		},
@@ -217,18 +222,20 @@ $(document).ready(function () {
 
 			// set active item
 			this.toolbar.find('.cms_toolbar-item_buttons li').removeClass('active').eq(1).addClass('active');
+			this.settings.mode = 'drag';
 
 			if(!init) this.setSettings();
 		},
 
 		// this function is a placeholder and should update the backend with various toolbar states
 		setSettings: function () {
-			// todo do queue system
-			//console.log(this.getSettings());
+			// TODO should be done different (ie < 8)
+			return localStorage.setItem('cms_cookie', JSON.stringify(this.settings));
 		},
 
 		getSettings: function () {
-			return this.options;
+			// TODO should be done different (ie < 8)
+			return JSON.parse(localStorage.getItem('cms_cookie'));
 		},
 
 		delegate: function (el) {
