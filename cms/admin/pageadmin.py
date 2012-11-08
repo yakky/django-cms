@@ -1345,8 +1345,9 @@ class PageAdmin(ModelAdmin):
         page = plugin.placeholder.page if plugin.placeholder else None
         if page and not page.has_change_permission(request):
             return HttpResponseForbidden(ugettext("You have no permission to change this page"))
-
-        plugin.parent_id = parent_id
+        if plugin.parent_id != int(parent_id):
+            CMSPlugin.objects.move_to(parent_id, 'last_child')
+        #plugin.parent_id = parent_id
         plugin.placeholder = placeholder
         plugin.save()
 
@@ -1365,7 +1366,8 @@ class PageAdmin(ModelAdmin):
                     break
                 x += 1
             if not found:
-                return HttpResponseServerError(str("Plugin found but not present in plugin_order: %s" % plugin.pk))
+                pass
+                #plugin.delete()
             plugin.save()
 
         if page and 'reversion' in settings.INSTALLED_APPS:
