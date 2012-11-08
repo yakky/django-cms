@@ -307,6 +307,7 @@
 
 			_setPluginMenu: function () {
 				// DRAGGABLE
+				var that = this;
 				var draggable = $('#cms_dragholder-' + this.options.plugin_id);
 				var menu = draggable.find('> .cms_dragmenu-dropdown');
 				var speed = 200;
