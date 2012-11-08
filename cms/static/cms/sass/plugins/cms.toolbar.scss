@@ -238,6 +238,7 @@
 
 		li a:hover, li a:active, li a:focus, .active > a { color:#fff; background:#0a84e4;
 			@include background-image(linear-gradient(#0eaaec, #0a84e4)); }
+		li a:hover strong, li a:active strong, li a:focus strong, .active > a strong { color:#fff !important; }
 
 		.cms_toolbar-item_navigation-break { border-bottom:1px solid #ddd; }
 

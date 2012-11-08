@@ -52,8 +52,9 @@ CMS.$(document).ready(function () {
 			{% if not user.is_authenticated %}
 			<form class="cms_toolbar-item cms_form-login" method="post" action="?cms-toolbar-login=1">
 				{% csrf_token %}
+				<!-- TODO: add class="cms_error" to label for error -->
 				<label>{% trans "Username" %} <input type="text" name="cms_username" /></label>
-				<label class="cms_error">{% trans "Password" %} <input type="password" name="cms_password" /></label>
+				<label>{% trans "Password" %} <input type="password" name="cms_password" /></label>
 				<label><input type="submit" value="Login" /></label>
 			</form>
 			{% endif %}
