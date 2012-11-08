@@ -303,6 +303,8 @@ class PageAdmin(ModelAdmin):
     @create_on_success
     def change_template(self, request, object_id):
         page = get_object_or_404(Page, pk=object_id)
+        if request.method != "POST":
+            return HttpResponseServerError(str("Only post request allowed"))
         if page.has_change_permission(request):
             to_template = request.POST.get("template", None)
             if to_template in dict(settings.CMS_TEMPLATES):
