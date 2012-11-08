@@ -303,8 +303,10 @@ class PageAdmin(ModelAdmin):
     @create_on_success
     def change_template(self, request, object_id):
         page = get_object_or_404(Page, pk=object_id)
+        if request.method != "POST":
+            return HttpResponseServerError(str("Only post request allowed"))
         if page.has_change_permission(request):
-            to_template = request.POST.get("template", None)
+            to_template = request.GET.get("template", None)
             if to_template in dict(settings.CMS_TEMPLATES):
                 page.template = to_template
                 page.save()
@@ -1152,8 +1154,8 @@ class PageAdmin(ModelAdmin):
         plugin = CMSPlugin(language=language, plugin_type=plugin_type, position=position, placeholder=placeholder)
 
         if parent:
-            plugin.parent = parent
             plugin.position = CMSPlugin.objects.filter(parent=parent).count()
+            plugin.insert_at(parent, position='last-child', save=False)
         plugin.save()
 
         if 'reversion' in settings.INSTALLED_APPS and page:
@@ -1348,8 +1350,12 @@ class PageAdmin(ModelAdmin):
         if page and not page.has_change_permission(request):
             return HttpResponseForbidden(ugettext("You have no permission to change this page"))
         if plugin.parent_id != parent_id:
-            plugin.parent_id = parent_id
-            CMSPlugin.objects.move_to(plugin, 'last_child')
+            if parent_id:
+                parent = CMSPlugin.objects.get(pk=parent_id)
+            else:
+                parent = None
+            #plugin.parent_id = parent_id
+            plugin.move_to(parent, position='last-child')
         plugin.placeholder = placeholder
         plugin.save()
 
@@ -1413,7 +1419,7 @@ class PageAdmin(ModelAdmin):
             if not self.has_change_permission(request, None):
                 return HttpResponseRedirect(reverse('admin:index',
                                                     current_app=self.admin_site.name))
-            return HttpResponse("ok")
+            return render_to_response("admin/cms/page/close_sidebar.html")
 
         object_name = force_unicode(opts.verbose_name)
 

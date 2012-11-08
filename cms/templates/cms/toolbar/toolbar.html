@@ -52,6 +52,7 @@ CMS.$(document).ready(function () {
 			{% if not user.is_authenticated %}
 			<form class="cms_toolbar-item cms_form-login" method="post" action="?edit&cms-toolbar-login=1">
 				{% csrf_token %}
+				<!-- TODO: add class="cms_error" to label for error -->
 				<label{% if request.toolbar.login_form.username %} class="cms_error"{% endif %}>{% trans "Username" %} {{ request.toolbar.login_form.username }}</label>
 				<label{% if request.toolbar.login_form.password %} class="cms_error"{% endif %}>{% trans "Password" %} {{ request.toolbar.login_form.password }}</label>
 				<label><input type="submit" value="Login" /></label>
@@ -59,37 +60,9 @@ CMS.$(document).ready(function () {
 			{% endif %}
 
 			<ul class="cms_toolbar-item cms_toolbar-item_navigation">
-				<li>
-					<a href="{% url admin:index %}">{% trans "Admin" %}</a>
-					<ul>
-						<li><a href="{% url admin:index %}" rel="sideframe">{% trans "Administration" %}</a></li>
-						<li><a href="{% url admin:cms_page_changelist %}" rel="sideframe">{% trans "Pages" %}</a></li>
-						<li><a href="{% url admin:auth_user_changelist %}" rel="sideframe">{% trans "Users" %}</a></li>
-						<li class="cms_toolbar-item_navigation-break">-----</li>
-						<li><a href="{% url admin:logout %}" rel="ajax"><strong>{% trans "Logout" %}</strong></a></li>
-					</ul>
-				</li>
-				<li>
-					<a href="{% url admin:cms_page_change current_page.pk %}">{% trans "Page" %}</a>
-					<ul>
-						<li><a href="{% url admin:cms_page_change current_page.pk %}" rel="sideframe">{% trans "Edit settings" %}</a></li>
-						<li><a href="{% url admin:cms_page_delete current_page.pk %}" rel="sideframe">{% trans "Delete page" %}</a></li>
-					</ul>
-				</li>
-				<li>
-					<a href="{% url admin:cms_page_change current_page.pk %}">{% trans "Template" %}</a>
-					<ul>
-						{% for template in templates %}
-						<li><span>{% trans "No templates defined" %}</span></li>
-						{% empty %}
-						<li class="active"><a href="{% url admin:cms_page_change_template current_page.pk %}?template=col_two.html" rel="ajax">two columns</a></li>
-						<li><a href="{% url admin:cms_page_change_template current_page.pk %}?template=col_three.html" rel="ajax">three columns</a></li>
-						<li><a href="{% url admin:cms_page_change_template current_page.pk %}?template=nav_playground.html" rel="ajax">navigation examples</a></li>
-						<li class="cms_toolbar-item_navigation-break">-----</li>
-						<li><a href="{% url admin:cms_page_change_template current_page.pk %}?template=INHERIT" rel="ajax">Inherit from nearest ancestor</a></li>
-						{% endfor %}
-					</ul>
-				</li>
+				{% for item in request.toolbar.get_items %}
+					{{ item.render }}
+				{% endfor %}
 				<li{% if not request.toolbar.edit_mode %} class="cms_toolbar-item_navigation-disabled"{% endif %}>
 					<a href="{% url admin:cms_page_change current_page.pk %}">{% trans "Publish" %}</a>
 					<ul>

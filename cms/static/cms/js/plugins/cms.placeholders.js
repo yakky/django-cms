@@ -284,7 +284,8 @@
 				// attach events to the anchors
 				this.container.find('.cms_placeholder-subnav a').bind('click', function (e) {
 					e.preventDefault();
-					that.addPlugin($(this).attr('href').replace('#', ''));
+
+					that.addPlugin($(this).attr('href').replace('#', ''), $(this).text());
 				});
 			},
 
@@ -295,7 +296,7 @@
 					e.preventDefault();
 					e.stopPropagation();
 
-					that.editPlugin(that.options.urls.edit_plugin, that.options.plugin_breadcrumb);
+					that.editPlugin(that.options.urls.edit_plugin, that.options.plugin_name, that.options.plugin_breadcrumb);
 				});
 
 				this._setPluginMenu();
@@ -339,7 +340,7 @@
 					var el = $(this);
 
 					if(el.attr('rel') === 'custom') {
-						that.addPlugin(el.attr('href').replace('#', ''), that._getId(el.closest('.cms_dragholder')))
+						that.addPlugin(el.attr('href').replace('#', ''), el.text(), that._getId(el.closest('.cms_dragholder')))
 					} else {
 						that._delegate(el);
 					}
@@ -350,7 +351,7 @@
 				var that = this;
 
 				this.container.bind('dblclick', function () {
-					that.editPlugin(that.options.urls.edit_plugin, []);
+					that.editPlugin(that.options.urls.edit_plugin, that.options.plugin_name, []);
 				});
 
 				this.container.bind('mouseenter.cms.placeholder mouseleave.cms.placeholder', function (e) {
@@ -359,7 +360,7 @@
 				});
 			},
 
-			addPlugin: function (type, parent) {
+			addPlugin: function (type, name, parent) {
 				var that = this;
 				var data = {
 					'placeholder_id': this.options.placeholder_id,
@@ -375,7 +376,7 @@
 					'url': this.options.urls.add_plugin,
 					'data': data,
 					'success': function (data) {
-						that.editPlugin(data.url, data.breadcrumb);
+						that.editPlugin(data.url, name, data.breadcrumb);
 					},
 					'error': function (jqXHR) {
 						var msg = 'The following error occured while adding a new plugin: ';
@@ -385,9 +386,9 @@
 				});
 			},
 
-			editPlugin: function (url, breadcrumb) {
+			editPlugin: function (url, name, breadcrumb) {
 				// trigger modal window
-				this._openModal(url, breadcrumb);
+				this._openModal(url, name, breadcrumb);
 			},
 
 			movePlugin: function () {
@@ -449,8 +450,8 @@
 				return array;
 			},
 
-			_openModal: function (url, breadcrumb) {
-				return CMS.API.Toolbar.openModal(url, breadcrumb);
+			_openModal: function (url, name, breadcrumb) {
+				return CMS.API.Toolbar.openModal(url, name, breadcrumb);
 			},
 
 			_showError: function (msg) {

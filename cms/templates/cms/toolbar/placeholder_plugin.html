@@ -6,11 +6,12 @@ CMS.$(document).ready(function () {
 		'type': 'plugin',
 		'placeholder_id': '{{ instance.placeholder.id }}',
 		'plugin_type': '{{ instance.plugin_type }}',
+		'plugin_name': '{{ instance.get_plugin_name }}',
 		'plugin_id': '{{ instance.pk }}',
 		'plugin_language': '{{ instance.language }}',
 		'plugin_parent': '{{ instance.parent_id }}',
 		'plugin_order': '{{ instance.plugin_order }}',
-		//'plugin_breadcrumb': {{ instance.plugin_breadcrumb }},
+		'plugin_breadcrumb': {{ instance.get_breadcrumb_json }},
 		'plugin_restriction': [], // only for nested plugins, see placeholder_toolbar.html
 		'urls': {
 			'add_plugin': '{% url admin:cms_page_add_plugin %}',

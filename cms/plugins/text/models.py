@@ -32,7 +32,11 @@ class AbstractText(CMSPlugin):
     search_fields = ('body',)
     
     def __unicode__(self):
-        return u"%s" % (truncate_words(strip_tags(self.body), 3)[:30]+"...")
+        body = strip_tags(self.body)
+        result = truncate_words(body, 10)[:50]
+        if len(result) < len(body):
+            result += '[...]'
+        return u'"%s"' % (result,)
     
     def clean(self):
         self.body = clean_html(self.body, full=False)

@@ -89,9 +89,12 @@ $(document).ready(function () {
 
 			// attach event to the navigation elements
 			this.navigations.each(function () {
-				$(this).find('a').bind('click', function (e) {
+				$(this).find('li ul a').bind('click', function (e) {
 					e.preventDefault();
 					that.delegate($(e.currentTarget));
+				});
+				$(this).find('li > a').bind('click', function (e) {
+					e.preventDefault();
 				});
 				// handle active passive states
 				var root = $(this).find('> li');
@@ -229,7 +232,7 @@ $(document).ready(function () {
 
 		// this function is a placeholder and should update the backend with various toolbar states
 		setSettings: function () {
-			// TODO should be done different (ie < 8)
+			// TODO should be done different
 			return localStorage.setItem('cms_cookie', JSON.stringify(this.settings));
 		},
 
@@ -253,7 +256,10 @@ $(document).ready(function () {
 					this.openAjax(el.attr('href'));
 					break;
 				default:
-					this.openModal(el.attr('href'), []);
+					this.openModal(el.attr('href'), el.attr('data-name'), [{
+						'title': el.attr('data-name'),
+						'url': el.attr('href')
+					}]);
 			}
 		},
 
@@ -335,7 +341,7 @@ $(document).ready(function () {
 
 			// TODO: the crsf token needs to be added through the backend or read from the options
 			$.ajax({
-				'method': 'post',
+				'type': 'POST',
 				'url': url,
 				'data': {
 					'csrfmiddlewaretoken': this.options.csrf
@@ -371,7 +377,7 @@ $(document).ready(function () {
 			this._showDialogue();
 		},
 
-		openModal: function (url, breadcrumb) {
+		openModal: function (url, name, breadcrumb) {
 			// TODO DOUBLE DBLCLICK OPEN
 			// TODO DBL CLICK OPEN
 
@@ -398,7 +404,7 @@ $(document).ready(function () {
 
 			// set correct title
 			var title = this.modal.find('.cms_modal-title');
-				title.text('Text plugin');
+				title.text(name);
 
 			// insure modal is not maximized
 			if(this.modal.find('.cms_modal-collapsed').length) this._minimizeModal();
