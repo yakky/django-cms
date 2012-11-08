@@ -6,7 +6,7 @@
 		/*!
 		 * Placeholders
 		 * @version: 2.0.0
-		 * @description: Adds placeholder handling
+		 * @description: Adds one-time placeholder handling
 		 */
 		CMS.Placeholders = new CMS.Class({
 
@@ -50,8 +50,9 @@
 				});
 
 				// bind menu specific events so its not hidden when hovered
-				this.menu.bind('mouseenter.cms.placeholder mouseleave.cms.placeholder', function (e) {
-					(e.type === 'mouseenter') ? that._showMenu() : that._hideMenu();
+				this.menu.bind('mouseover.cms.placeholder mouseout.cms.placeholder', function (e) {
+					clearTimeout(that.timer);
+					(e.type === 'mouseover') ? that._showMenu() : that._hideMenu();
 				});
 			},
 
@@ -64,8 +65,8 @@
 					(e.type === 'mouseenter') ? that._showMenu(that.getId($(this))) : that._hideMenu();
 					// reassign menu position
 					that.menu.css({
-						'left': $(this).position().left,
-						'top': $(this).position().top
+						'left': $(this).offset().left,
+						'top': $(this).offset().top
 					});
 				});
 			},
@@ -73,23 +74,28 @@
 			_setupDragholder: function (dragholder) {
 				var that = this;
 
-				dragholder.bind('mouseenter.cms.placeholder mouseleave.cms.placeholder', function (e) {
+				dragholder.bind('mouseover.cms.placeholder mouseout.cms.placeholder', function (e) {
+					e.stopPropagation();
+
 					// add tooltip event to every placeholder
-					(e.type === 'mouseenter') ? that._showMenu(that.getId($(this)), true) : that._hideMenu(true);
+					(e.type === 'mouseover') ? that._showMenu(that.getId($(this)), true) : that._hideMenu(true);
 					// reassign menu position
 					that.menu.css({
-						'left': $(this).position().left,
-						'top': $(this).position().top
+						'left': $(this).offset().left,
+						'top': $(this).offset().top
 					});
 				});
 			},
 
 			_showMenu: function (id, dragging) {
+				var that = this;
 				clearTimeout(this.timer);
-				this.menu.fadeIn(100);
-				if(dragging) this.menu.addClass('cms_placeholders-menu-layout');
-				// attach element id to menu for CMS.Toolbar
-				this.menu.data('id', id);
+				this.timer = setTimeout(function () {
+					that.menu.fadeIn(100);
+					if(dragging) that.menu.addClass('cms_placeholders-menu-layout');
+					// attach element id to menu for CMS.Toolbar
+					that.menu.data('id', id);
+				}, 400);
 			},
 
 			_hideMenu: function (dragging) {
@@ -99,7 +105,7 @@
 					that.menu.fadeOut(100, function () {
 						if(dragging) that.menu.removeClass('cms_placeholders-menu-layout');
 					});
-				}, 500);
+				}, 400);
 			},
 
 			getId: function (el) {
@@ -216,7 +222,7 @@
 		CMS.Placeholder = new CMS.Class({
 
 			options: {
-				'type': '', // bar or plugin
+				'type': '', // bar, plugin or generic
 				'placeholder_id': null,
 				'plugin_type': '',
 				'plugin_id': null,
