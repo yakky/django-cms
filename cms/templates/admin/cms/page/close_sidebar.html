@@ -1,0 +1,14 @@
+{% load i18n admin_modify adminmedia cms_js_tags cms_admin %}
+<html>
+	<head>
+		<script type="text/javascript" src="{% admin_static_url %}js/jquery.min.js"></script>
+		<script type="text/javascript">
+			//<![CDATA[
+			setTimeout(function () { window.parent.CMS.API.Helpers.reloadBrowser(); }, 10);
+			//]]>
+		</script>
+	</head>
+	<body>
+		ok
+	</body>
+</html>

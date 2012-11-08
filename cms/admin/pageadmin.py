@@ -1419,7 +1419,7 @@ class PageAdmin(ModelAdmin):
             if not self.has_change_permission(request, None):
                 return HttpResponseRedirect(reverse('admin:index',
                                                     current_app=self.admin_site.name))
-            return HttpResponse("ok")
+            return render_to_response("admin/cms/page/close_sidebar.html")
 
         object_name = force_unicode(opts.verbose_name)
 
