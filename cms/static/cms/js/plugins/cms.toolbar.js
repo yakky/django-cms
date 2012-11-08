@@ -89,9 +89,12 @@ $(document).ready(function () {
 
 			// attach event to the navigation elements
 			this.navigations.each(function () {
-				$(this).find('a').bind('click', function (e) {
+				$(this).find('li ul a').bind('click', function (e) {
 					e.preventDefault();
 					that.delegate($(e.currentTarget));
+				});
+				$(this).find('li > a').bind('click', function (e) {
+					e.preventDefault();
 				});
 				// handle active passive states
 				var root = $(this).find('> li');
@@ -229,7 +232,7 @@ $(document).ready(function () {
 
 		// this function is a placeholder and should update the backend with various toolbar states
 		setSettings: function () {
-			// TODO should be done different (ie < 8)
+			// TODO should be done different
 			return localStorage.setItem('cms_cookie', JSON.stringify(this.settings));
 		},
 
