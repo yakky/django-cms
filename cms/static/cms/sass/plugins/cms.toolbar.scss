@@ -203,7 +203,7 @@
 .cms_light {
 	.cms_toolbar { border-bottom:1px solid #e1e1e1 !important; background-color:#fcfcfc; // old browsers
 		@include background-image(linear-gradient(top, #fcfcfc 0%, #fefefe 50%, #fcfcfc 100%));
-		@include box-shadow(0 0 15px #bbb); }
+		@include box-shadow(0 0 15px rgba(0, 0, 0, 0.2)); }
 
 	// #TOOLBAR/logo#
 	.cms_toolbar-item_logo a { background:url('/static/cms/img/toolbar/sprite_toolbar.png') no-repeat left top;
@@ -308,7 +308,7 @@
 	// #TOOLBAR/dialogue#
 	.cms_dialogue { background:#fff; }
 	.cms_dialogue-title { color:#fff; background:#fcfcfc; @include background-image(linear-gradient(top, #666, #444)); }
-	.cms_dialogue-inner { border:1px solid #e1e1e1; @include box-shadow(0 0 5px #bbb); }
+	.cms_dialogue-inner { border:1px solid #e1e1e1; @include box-shadow(0 0 5px rgba(0, 0, 0, 0.2)); }
 	.cms_dialogue-text { border-bottom:1px solid #e1e1e1; @include text-shadow(0px 1px 0px #fff); }
 	.cms_dialogue-buttons { border-top:1px solid #fff; }
 	.cms_dialogue-buttons a { color:#fff; border:1px solid #434343;
@@ -321,7 +321,7 @@
 	// #TOOLBAR/modal#
 	.cms_modal { display:none; position:fixed; left:50%; top:50%; z-index:999999; overflow:hidden;
 		@include border-radius(5px);
-		@include box-shadow(0 0 15px #bbb); background:#fff; }
+		@include box-shadow(0 0 15px rgba(0, 0, 0, 0.2)); background:#fff; }
 	.cms_modal {
 		.cms_modal-title { color:#444; background:#f9f9f9; }
 		.cms_modal-body { border-top:1px solid #e4e4e4; border-bottom:1px solid #e4e4e4; }
