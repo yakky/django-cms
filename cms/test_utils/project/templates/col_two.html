@@ -6,23 +6,19 @@
 {% block content %}
 	<h1>{% show_editable_page_title %}</h1>
 	<div id="col1" class="grid_4">
-		<div class="cms_sortables">
 		{% include "sidebar_submenu.html" %}
 		{% block col_sidebar %}
 			{% with "220" as width %}
 	    		{% placeholder col_sidebar %}
 			{% endwith %}
 		{% endblock %}
-		</div>
     </div>
 
     <div id="col2" class="grid_11 push_1">
-	    <div class="cms_sortables">
 		{% block col_left %}
 			{% with "640" as width %}
 				{% placeholder col_left %}
 			{% endwith %}
 		{% endblock %}
-		</div>
     </div>
 {% endblock %}

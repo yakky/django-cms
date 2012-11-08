@@ -4,11 +4,11 @@
 CMS.$(document).ready(function () {
 	new CMS.Placeholder('#cms_placeholder-{{ instance.pk }}', {
 		'type': 'plugin',
-		'page_id': '{{ instance.page.id }}', // todo this should be removed / not required
 		'placeholder_id': '{{ instance.placeholder.id }}',
 		'plugin_type': '{{ instance.plugin_type }}',
 		'plugin_id': '{{ instance.pk }}',
 		'plugin_language': '{{ instance.language }}',
+		'plugin_parent': '{{ instance.parent_id }}',
 		'plugin_children' : [ // empty = false
 			{% for class, name in child_plugin_classes %}
 			{'type':'{{ class  }}', 'title':'{{ name }}'}{% if not forloop.last %},{% endif %}
@@ -18,10 +18,9 @@ CMS.$(document).ready(function () {
 		'plugin_breadcrumb': [],
 		'plugin_restriction': [], // only for nested plugins, see placeholder_toolbar.html
 		'urls': {
-			'add_plugin': '{{ instance.placeholder.get_add_url }}',
-			'edit_plugin': '{{ instance.placeholder.get_changelist_url }}',
-			'move_plugin': '{{ instance.placeholder.get_move_url }}',
-			'remove_plugin': '{{ instance.placeholder.get_remove_url }}'
+			'add_plugin': '{% url admin:cms_page_add_plugin %}',
+			'edit_plugin': '{% url admin:cms_page_edit_plugin instance.pk %}',
+			'move_plugin': '{% url admin:cms_page_move_plugin %}'
 		}
 	});
 });

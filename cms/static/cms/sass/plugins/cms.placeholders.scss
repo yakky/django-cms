@@ -42,7 +42,7 @@
 //##################################################
 // #PLACEHOLDER-DRAGITEM#
 .cms_dragholder { position:relative; left:0; top:0; z-index:99;
-	color:#888; padding:3px 6px 2px 9px; margin:3px 0;
+	color:#888; padding:3px 6px 2px 9px !important; margin:3px 0 !important;
 	border:1px solid #dadada; background:#f5f5f5;
 	@include border-radius(3px); }
 .cms_dragholder {
@@ -61,11 +61,11 @@
 }
 .cms_dragholder-draggable { cursor:move; z-index:100; }
 
-/*
-.cms_dragitem-collapsable { cursor:pointer; padding-left:15px;
-	background:url('/static/img/toolbar/arrow-down-active.png') no-repeat 3px 4px; }
-.cms_dragitem-collapsed { background:url('/static/img/toolbar/arrow-down-collapsed.png') no-repeat 3px 3px; }
-*/
+
+.cms_dragitem-collapsable { cursor:pointer; padding-left:15px !important;
+	background:url('/static/cms/img/toolbar/arrow-down-active.png') no-repeat 3px 7px !important; }
+.cms_dragitem-collapsed { background:url('/static/cms/img/toolbar/arrow-down-collapsed.png') no-repeat 3px 6px !important; }
+
 
 //##################################################
 // #PLACEHOLDER-GENERIC#
