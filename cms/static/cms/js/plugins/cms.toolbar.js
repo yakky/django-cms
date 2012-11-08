@@ -257,7 +257,9 @@ $(document).ready(function () {
 					break;
 				default:
 					// TODO el.text() is an issue on API level (example edit button)
-					this.openModal(el.attr('href'), el.text(), []);
+					name = el.text();
+					if(el.text() === 'Edit') name = el.closest('.cms_dragholder').find('> .cms_dragitem strong').text();
+					this.openModal(el.attr('href'), name, []);
 			}
 		},
 
