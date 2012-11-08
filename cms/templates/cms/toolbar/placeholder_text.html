@@ -12,4 +12,5 @@ CMS.$(document).ready(function () {
 </script>
 {% endaddtoblock %}
 
-<div id="cms_placeholder-generic-{{ current_page.pk }}" class="cms_placeholder-generic"><h1>{% page_attribute title %}</h1></div>
+{# TODO: don't hardcode title stuff. Should be dynamic #}
+<div id="cms_placeholder-generic-{{ current_page.pk }}" class="cms_placeholder-generic">{% page_attribute title %}</div>
