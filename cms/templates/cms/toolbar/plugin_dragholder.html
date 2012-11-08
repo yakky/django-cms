@@ -8,7 +8,7 @@
 		<a rel="sideframe" href="{% url admin:cms_page_delete_plugin plugin.pk %}">{% trans "Delete" %}</a>
 		{% plugin_child_classes plugin %}
 	</div>
-	<div class="cms_dragitem{% if plugin.child_plugins_instances %} cms_dragitem-collapsable{% endif %}"><strong>{{ plugin.plugin_type }}</strong> {{ plugin.placeholder.slot }}</div>
+	<div class="cms_dragitem{% if plugin.child_plugins_instances %} cms_dragitem-collapsable{% endif %}"><strong>{{ plugin.get_plugin_name }}</strong> {{ plugin.get_short_description }}</div>
 	{% if plugin.get_plugin_class.allow_children %}
 	<div class="cms_sortables">
 	<!--<div class="cms_reset cms_light cms_dragholder cms_dragholder-empty cms_dragholder-droppable"><div class="cms_dragitem">{% trans "Drop a plugin here" %}</div></div>-->
