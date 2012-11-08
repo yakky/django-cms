@@ -596,6 +596,9 @@ $(document).ready(function () {
 			var iframe = $('<iframe src="'+el.attr('href')+'" class="" frameborder="0" />');
 			var holder = this.modal.find('.cms_modal-frame');
 				holder.html(iframe);
+
+			// update title
+			this.modal.find('.cms_modal-title').text(el.text());
 		},
 
 		showError: function (msg) {
