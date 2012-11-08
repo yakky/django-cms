@@ -83,6 +83,9 @@
 
 				clearTimeout(this.timer);
 
+				// handle class handling
+				if(el.hasClass('cms_dragholder')) this.menu.addClass('cms_placeholders-menu-layout');
+
 				// sets the timer to switch elements
 				this.timer = setTimeout(function () {
 					// exclude if hovering menu itself
@@ -92,8 +95,6 @@
 							'top': el.offset().top
 						});
 					}
-					// handle class handling
-					if(el.hasClass('cms_dragholder')) that.menu.addClass('cms_placeholders-menu-layout');
 
 					// show element and attach id to CMS.Toolbar
 					that.menu.fadeIn(speed).data('id', that.getId(el));
@@ -102,14 +103,14 @@
 
 			_hideMenu: function (el) {
 				var that = this;
-				var speed = 200;
+				var speed = 50;
 
 				clearTimeout(this.timer);
 
 				// sets the timer for closing
 				this.timer = setTimeout(function () {
 					that.menu.fadeOut(speed, function () {
-						if(el.hasClass('cms_dragholder')) that.menu.removeClass('cms_placeholders-menu-layout');
+						that.menu.removeClass('cms_placeholders-menu-layout');
 					});
 				}, speed);
 			},
@@ -143,6 +144,7 @@
 					// creates a cline thats over everything else
 					'helper': 'clone',
 					'appendTo': 'body',
+					'dropOnEmpty': true,
 					'placeholder': 'cms_reset cms_light cms_dragholder cms_dragholder-empty cms_dragholder-droppable ui-droppable',
 					'zIndex': 999999,
 					'start': function (event, ui) {
