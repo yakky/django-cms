@@ -84,7 +84,7 @@ def render_plugins(plugins, context, placeholder, processors=None):
 
 
 def render_dragables(plugins, slot, request):
-    return render_to_string("cms/toolbar/placeholder_dragables.html", {'plugins':plugins, 'slot':slot, 'request':request})
+    return render_to_string("cms/toolbar/placeholder_dragholder.html", {'plugins':plugins, 'slot':slot, 'request':request})
 
 
 
