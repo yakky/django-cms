@@ -256,10 +256,10 @@ $(document).ready(function () {
 					this.openAjax(el.attr('href'));
 					break;
 				default:
-					// TODO el.text() is an issue on API level (example edit button)
-					name = el.text();
-					if(el.text() === 'Edit') name = el.closest('.cms_dragholder').find('> .cms_dragitem strong').text();
-					this.openModal(el.attr('href'), name, []);
+					this.openModal(el.attr('href'), el.attr('data-name'), [{
+						'title': el.attr('data-name'),
+						'url': el.attr('href')
+					}]);
 			}
 		},
 
@@ -380,7 +380,7 @@ $(document).ready(function () {
 		openModal: function (url, name, breadcrumb) {
 			// TODO DOUBLE DBLCLICK OPEN
 			// TODO DBL CLICK OPEN
-console.log(name);
+
 			// prepare iframe
 			var that = this;
 			// TODO background style needs fixing
