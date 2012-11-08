@@ -17,6 +17,8 @@ from cms.utils.helpers import reversion_register
 
 from mptt.models import MPTTModel, MPTTModelBase
 from django.core.urlresolvers import reverse
+from django.utils import simplejson
+from django.utils.safestring import mark_safe
 
 
 class BoundRenderMeta(object):
@@ -334,10 +336,18 @@ class CMSPlugin(MPTTModel):
     def get_breadcrumb(self):
         breadcrumb = []
         if not self.parent_id:
+            breadcrumb.append({'title':unicode(self.get_plugin_name()), 'url':unicode(reverse("admin:cms_page_edit_plugin", args=[self.pk]))})
             return breadcrumb
-        for parent in self.get_descendants(True):
-            breadcrumb.append({'name':unicode(parent.get_plugin_name()), 'class':parent.plugin_type, 'desc':unicode(parent.get_short_description()), 'url':unicode(reverse("admin:cms_page_edit_plugin", args=[parent.pk]))})
+        for parent in self.get_ancestors(False, True):
+            breadcrumb.append({'title':unicode(parent.get_plugin_name()), 'url':unicode(reverse("admin:cms_page_edit_plugin", args=[parent.pk]))})
+        print breadcrumb
         return breadcrumb
+
+    def get_breadcrumb_json(self):
+        result = simplejson.dumps(self.get_breadcrumb())
+        result = mark_safe(result)
+        print result
+        return result
 reversion_register(CMSPlugin)
 
 
