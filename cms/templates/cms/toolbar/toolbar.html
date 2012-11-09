@@ -52,10 +52,17 @@ CMS.$(document).ready(function () {
 			{% if not user.is_authenticated %}
 			<form class="cms_toolbar-item cms_form-login" method="post" action="?edit&cms-toolbar-login=1">
 				{% csrf_token %}
-				<!-- TODO: add class="cms_error" to label for error -->
-				<label{% if request.toolbar.login_form.username %} class="cms_error"{% endif %}>{% trans "Username" %} {{ request.toolbar.login_form.username }}</label>
-				<label{% if request.toolbar.login_form.password %} class="cms_error"{% endif %}>{% trans "Password" %} {{ request.toolbar.login_form.password }}</label>
+				<label{% if request.toolbar.login_form.username.errors %} class="cms_error"{% endif %}>{% trans "Username" %} {{ request.toolbar.login_form.username }}</label>
+				<label{% if request.toolbar.login_form.password.errors or request.toolbar.login_form.non_field_errors %} class="cms_error"{% endif %}>{% trans "Password" %} {{ request.toolbar.login_form.password }}</label>
 				<label><input type="submit" value="Login" /></label>
+				{% if request.toolbar.login_form.errors %}
+					<div class="clear"></div>
+					{# TODO: style the errors in a dialog or baloon or something #}
+					{# each of these will output an <ul class="errorlist"></ul> #}
+					{{ request.toolbar.login_form.non_field_errors }}
+					{% if request.toolbar.login_form.username.errors %}{% trans "Username" %}: {{ request.toolbar.login_form.username.errors }}{% endif %}
+					{% if request.toolbar.login_form.password.errors %}{% trans "Password" %}: {{ request.toolbar.login_form.password.errors }}{% endif %}
+				{% endif %}
 			</form>
 			{% endif %}
 

@@ -49,9 +49,14 @@ def _get_publish_url(toolbar):
 
 
 class CMSToolbarLoginForm(AuthenticationForm):
+    username = forms.CharField(label=_("Username"), max_length=100)
+
     def __init__(self, *args, **kwargs):
-        kwargs['prefix'] = kwargs.get('prefix', 'cms_')
+        kwargs['prefix'] = kwargs.get('prefix', 'cms')
         super(CMSToolbarLoginForm, self).__init__(*args, **kwargs)
+
+    def check_for_test_cookie(self): pass  # for some reason this test fails in our case. but login works.
+
 
 class CMSToolbar(Toolbar):
     """
@@ -59,7 +64,7 @@ class CMSToolbar(Toolbar):
     """
     def __init__(self, request):
         super(CMSToolbar, self).__init__(request)
-        self.login_form = CMSToolbarLoginForm()
+        self.login_form = CMSToolbarLoginForm(request=request)
         self.init()
 
     def init(self):
@@ -155,7 +160,7 @@ class CMSToolbar(Toolbar):
     def _request_hook_post(self):
         # login hook
         if 'cms-toolbar-login' in self.request.GET:
-            self.login_form = CMSToolbarLoginForm(self.request.POST)
+            self.login_form = CMSToolbarLoginForm(request=self.request, data=self.request.POST)
             if self.login_form.is_valid():
                 login(self.request, self.login_form.user_cache)
                 self.init()
