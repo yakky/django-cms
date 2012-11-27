@@ -364,7 +364,9 @@
 				this._setPluginMenu();
 
 				// update plugin position
-				this.container.bind('cms.placeholder.update', function () {
+				this.container.bind('cms.placeholder.update', function (e) {
+					e.stopPropagation();
+
 					that.movePlugin();
 				});
 			},
@@ -377,7 +379,8 @@
 				var speed = 200;
 
 				// attach events
-				draggable.find('> .cms_dragitem .cms_dragmenu').bind('click', function () {
+				draggable.find('> .cms_dragitem .cms_dragmenu').bind('click', function (e) {
+					e.stopPropagation();
 					(menu.is(':visible')) ? hide() : show();
 				}).bind('mouseleave', function (e) {
 						that.timer = setTimeout(hide, speed);
@@ -459,19 +462,16 @@
 				var plugin = $('#cms_placeholder-' + this.options.plugin_id);
 				var dragitem = $('#cms_dragholder-' + this.options.plugin_id);
 
-				// TODO the placement might be redone
 				// insert new position
 				var id = this._getId(dragitem.prev('.cms_dragholder-draggable'));
 				if(id) {
 					plugin.insertAfter($('#cms_placeholder-' + id));
 				} else {
-					//console.log(plugin.parent()[0]);
 					plugin.parent().prepend(plugin);
-					//dragitem.before(plugin);
 				}
 
 				// get new poisition data
-				var placeholder_id = this._getId(dragitem.closest('.cms_sortables').prevAll('.cms_placeholder-bar').first());
+				var placeholder_id = this._getId(dragitem.parents('.cms_sortables').last().prevAll('.cms_placeholder-bar').first());
 				var plugin_parent = this._getId(dragitem.parent().closest('.cms_dragholder'));
 				var plugin_order = this._getIds(dragitem.siblings('.cms_dragholder-draggable').andSelf());
 
@@ -490,9 +490,7 @@
 					'url': this.options.urls.move_plugin,
 					'data': data,
 					'success': function (response, status) {
-						if(response === 'success') {}
-						//console.log(data);
-						//console.log(response);
+						if(response === 'success') that._showSuccess(dragitem);
 					},
 					'error': function (jqXHR) {
 						var msg = 'An error occured during the update.';
@@ -521,6 +519,14 @@
 
 			_showError: function (msg) {
 				return CMS.API.Toolbar.showError(msg);
+			},
+
+			_showSuccess: function (el) {
+				var tpl = $('<div class="cms_dragitem-success"></div>');
+				el.append(tpl);
+				tpl.fadeOut(function () {
+					$(this).remove()
+				});
 			},
 
 			_delegate: function (el) {

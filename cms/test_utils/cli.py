@@ -68,6 +68,7 @@ def configure(**extra):
             'django.contrib.auth',
             'django.contrib.contenttypes',
             'django.contrib.sessions',
+            'djangocms_admin_style',
             'django.contrib.admin',
             'django.contrib.sites',
             'django.contrib.staticfiles',
@@ -164,21 +165,21 @@ def configure(**extra):
         CMS_PLACEHOLDER_CONF={
             'col_sidebar': {
                 'plugins': ('FilePlugin', 'FlashPlugin', 'LinkPlugin', 'PicturePlugin',
-                            'TextPlugin', 'SnippetPlugin', 'MultiColumnPlugin', 'StackPlugin'),
+                            'TextPlugin', 'SnippetPlugin', 'GoogleMapPlugin', 'MultiColumnPlugin', 'StackPlugin'),
 
                 'name': gettext("sidebar column")
             },
 
             'col_left': {
                 'plugins': ('FilePlugin', 'FlashPlugin', 'LinkPlugin', 'PicturePlugin',
-                            'TextPlugin', 'SnippetPlugin', 'GoogleMapPlugin', 'StackPlugin'),
+                            'TextPlugin', 'SnippetPlugin', 'GoogleMapPlugin', 'MultiColumnPlugin', 'StackPlugin'),
 
                 'name': gettext("left column")
             },
 
             'col_right': {
                 'plugins': ('FilePlugin', 'FlashPlugin', 'LinkPlugin', 'PicturePlugin',
-                            'TextPlugin', 'SnippetPlugin', 'GoogleMapPlugin', 'StackPlugin'),
+                            'TextPlugin', 'SnippetPlugin', 'GoogleMapPlugin', 'MultiColumnPlugin', 'StackPlugin'),
 
                 'name': gettext("right column")
             },
