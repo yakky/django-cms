@@ -26,6 +26,7 @@
 				this.dropareas = $('.cms_dragholder-droppable');
 
 				this.timer = function () {};
+				this.state = false;
 
 				this._events();
 				this._preventEvents();
@@ -187,7 +188,9 @@
 						if(bar.length) bounds = bar.data('settings').plugin_restriction;
 
 						// if restrictions is still empty, proceed
-						return ($.inArray(type, bounds) !== -1) ? true : false;
+						that.state = ($.inArray(type, bounds) !== -1) ? true : false;
+
+						return that.state;
 					},
 
 					'disableNestingClass': 'cms_draggable-disabled',
@@ -206,6 +209,7 @@
 
 
 					'stop': function (event, ui) {
+
 						// TODO this needs refactoring, first should be ALL placeholders than all dragitems within a list
 						// TODO otherwise this wont work
 						//var dragitem = ui.item;
@@ -223,6 +227,9 @@
 						 that.update(ui.item.attr('id').replace('cms_dragholder-', ''), ui.item);
 						 }, 100);
 						 */
+
+						// cancel if isAllowed returns false
+						if(!that.state) return false;
 
 						// we pass the id to the updater which checks within the backend the correct place
 						var id = ui.item.attr('id').replace('cms_dragholder-', '');
@@ -452,16 +459,19 @@
 				var plugin = $('#cms_placeholder-' + this.options.plugin_id);
 				var dragitem = $('#cms_dragholder-' + this.options.plugin_id);
 
+				// TODO the placement might be redone
 				// insert new position
 				var id = this._getId(dragitem.prev('.cms_dragholder-draggable'));
 				if(id) {
 					plugin.insertAfter($('#cms_placeholder-' + id));
 				} else {
-					dragitem.parent().prepend(plugin);
+					//console.log(plugin.parent()[0]);
+					plugin.parent().prepend(plugin);
+					//dragitem.before(plugin);
 				}
 
 				// get new poisition data
-				var placeholder_id = this._getId(dragitem.closest('.cms_sortarea').prevAll('.cms_placeholder-bar').first());
+				var placeholder_id = this._getId(dragitem.closest('.cms_sortables').prevAll('.cms_placeholder-bar').first());
 				var plugin_parent = this._getId(dragitem.parent().closest('.cms_dragholder'));
 				var plugin_order = this._getIds(dragitem.siblings('.cms_dragholder-draggable').andSelf());
 
