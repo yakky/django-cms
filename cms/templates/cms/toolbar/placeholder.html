@@ -2,13 +2,8 @@
 {% if edit %}
 	{{ toolbar }}
 	<div class="cms_reset cms_light cms_dragholder cms_dragholder-empty cms_dragholder-droppable"><div class="cms_dragitem">{% trans "Drop a plugin here" %}</div></div>
-
-	<div class="cms_sortarea">
-	<div class="cms_sortables">
-		{{ plugins }}
-		{{ dragables }}
-	</div>
-	</div>
+	<div class="cms_notsortables">{{ plugins }}</div>
+	<ul class="cms_sortables">{{ dragables }}</ul>
 {% else %}
 	{{ plugins }}
 {% endif %}

@@ -75,6 +75,12 @@
 					// add events to dragholder
 					(e.type === 'mouseover') ? that._showMenu($(this)) : that._hideMenu($(this));
 				});
+
+				// TODO we need to define the initial state and expanded behaviour
+				dragholder.find('> .cms_dragitem-collapsable').bind('click', function (e) {
+					$(this).toggleClass('cms_dragitem-collapsed')
+						.parent().find('> ul').toggle();
+				});
 			},
 
 			_showMenu: function (el) {
@@ -114,9 +120,13 @@
 				}, speed);
 			},
 
+			_collapse: function () {},
+
+			_expand: function () {},
+
 			getId: function (el) {
 				// cancel if no element is defined
-				if(el === undefined || el.length <= 0) return false;
+				if(el === undefined || el === null || el.length <= 0) return false;
 
 				var id = null;
 
@@ -137,22 +147,64 @@
 				// TODO successfull sorting should also update the position
 				//console.log(this.dragitems);
 
-				this.sortareas.sortable({
-					'items': this.dragitems,
-					'cursor': 'move',
-					'connectWith': this.sortareas,
+				var that = this;
+
+				// we need to loop over each draggable item and attach it individually
+				this.dragitems.each(function (index, item) {
+					//console.log(item);
+				});
+
+				this.sortareas.nestedSortable({
+					'items': '.cms_dragholder-draggable',
+					'handle': '.cms_dragitem',
+					'listType': 'ul',
+
+					'opacity': 0.2,
+
 					'tolerance': 'pointer',
+					'toleranceElement': '> div',
+
+					'cursor': 'move',
+					'connectWith': '.cms_sortables',
 					// creates a cline thats over everything else
 					'helper': 'clone',
 					'appendTo': 'body',
 					'dropOnEmpty': true,
+					'forcePlaceholderSize': true,
+
 					'placeholder': 'cms_reset cms_light cms_dragholder cms_dragholder-empty cms_dragholder-droppable ui-droppable',
 					'zIndex': 999999,
-					'start': function (event, ui) {
-						// remove with from helper
-						// TODO might be removed cause of handler pickup
-						ui.helper.css('width', 250);
+
+					'isAllowed': function(placeholder, placeholderParent, originalItem) {
+						// getting restriction array
+						var bounds = [];
+						var plugin = $('#cms_placeholder-' + that.getId(originalItem));
+						var bar = placeholder.parent().prevAll('.cms_placeholder-bar').first();
+						var type = plugin.data('settings').plugin_type;
+
+						// now set the correct bounds
+						if(plugin.length) bounds = plugin.data('settings').plugin_restriction;
+						if(bar.length) bounds = bar.data('settings').plugin_restriction;
+
+						// if restrictions is still empty, proceed
+						return ($.inArray(type, bounds) !== -1) ? true : false;
 					},
+
+					'disableNestingClass': 'cms_draggable-disabled',
+					'errorClass': 'cms_dragholder-disallowed',
+
+
+
+
+					branchClass: 'mjs-nestedSortable-branch',
+					collapsedClass: 'mjs-nestedSortable-collapsed',
+
+					expandedClass: 'cms_dragholder-disallowed',
+					hoveringClass: 'mjs-nestedSortable-hovering',
+					leafClass: 'mjs-nestedSortable-leaf',
+
+
+
 					'stop': function (event, ui) {
 						// TODO this needs refactoring, first should be ALL placeholders than all dragitems within a list
 						// TODO otherwise this wont work
@@ -175,9 +227,9 @@
 						// we pass the id to the updater which checks within the backend the correct place
 						var id = ui.item.attr('id').replace('cms_dragholder-', '');
 						var plugin = $('#cms_placeholder-' + id);
-						plugin.trigger('cms.placeholder.update');
+							plugin.trigger('cms.placeholder.update');
 					}
-				}).disableSelection();
+				});
 
 				// define which areas are droppable
 
@@ -263,6 +315,9 @@
 
 				// handler for specific static items
 				if(this.options.type === 'generic') this._setGeneric();
+
+				// bind data element to the container
+				this.container.data('settings', this.options);
 			},
 
 			_setBar: function () {
@@ -311,11 +366,11 @@
 				// DRAGGABLE
 				var that = this;
 				var draggable = $('#cms_dragholder-' + this.options.plugin_id);
-				var menu = draggable.find('> .cms_dragmenu-dropdown');
+				var menu = draggable.find('> .cms_dragitem .cms_dragmenu-dropdown');
 				var speed = 200;
 
 				// attach events
-				draggable.find('> .cms_dragmenu').bind('click', function () {
+				draggable.find('> .cms_dragitem .cms_dragmenu').bind('click', function () {
 					(menu.is(':visible')) ? hide() : show();
 				}).bind('mouseleave', function (e) {
 						that.timer = setTimeout(hide, speed);
