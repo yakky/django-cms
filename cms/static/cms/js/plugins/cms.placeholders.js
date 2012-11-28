@@ -143,39 +143,26 @@
 			},
 
 			_dragging: function () {
-				// sortable allows to rearrange items, it also enables draggable which is kinda weird
-				// TODO we need to connect to a list directly
-				// TODO successfull sorting should also update the position
-				//console.log(this.dragitems);
-
 				var that = this;
-
-				// we need to loop over each draggable item and attach it individually
-				this.dragitems.each(function (index, item) {
-					//console.log(item);
-				});
+				var dropped = false;
+				var droparea = null;
 
 				this.sortareas.nestedSortable({
 					'items': '.cms_dragholder-draggable',
 					'handle': '.cms_dragitem',
 					'listType': 'ul',
-
 					'opacity': 0.2,
-
 					'tolerance': 'pointer',
 					'toleranceElement': '> div',
-
 					'cursor': 'move',
-					'connectWith': '.cms_sortables',
+					'connectWith': this.sortareas,
 					// creates a cline thats over everything else
 					'helper': 'clone',
 					'appendTo': 'body',
 					'dropOnEmpty': true,
 					'forcePlaceholderSize': true,
-
 					'placeholder': 'cms_reset cms_light cms_dragholder cms_dragholder-empty cms_dragholder-droppable ui-droppable',
 					'zIndex': 999999,
-
 					'isAllowed': function(placeholder, placeholderParent, originalItem) {
 						// getting restriction array
 						var bounds = [];
@@ -192,61 +179,41 @@
 
 						return that.state;
 					},
-
-					'disableNestingClass': 'cms_draggable-disabled',
-					'errorClass': 'cms_dragholder-disallowed',
-
-
-
-
-					branchClass: 'mjs-nestedSortable-branch',
-					collapsedClass: 'mjs-nestedSortable-collapsed',
-
-					expandedClass: 'cms_dragholder-disallowed',
-					hoveringClass: 'mjs-nestedSortable-hovering',
-					leafClass: 'mjs-nestedSortable-leaf',
-
-
-
 					'stop': function (event, ui) {
-
-						// TODO this needs refactoring, first should be ALL placeholders than all dragitems within a list
-						// TODO otherwise this wont work
-						//var dragitem = ui.item;
-
-						//plugin.insertBefore(dragitem);
-
-						// TODO we need some ajax checking before actually replacing
-						// TODO we might also need some loading indication
-
-						/*
-						 ui.item.attr('style', '');
-						 // TODO we need to handle double sortings
-						 clearTimeout(that.timer);
-						 that.timer = setTimeout(function () {
-						 that.update(ui.item.attr('id').replace('cms_dragholder-', ''), ui.item);
-						 }, 100);
-						 */
-
 						// cancel if isAllowed returns false
 						if(!that.state) return false;
 
+						// handle dropped event
+						if(dropped) {
+							droparea.prepend(ui.item);
+							dropped = false;
+						}
 						// we pass the id to the updater which checks within the backend the correct place
 						var id = ui.item.attr('id').replace('cms_dragholder-', '');
 						var plugin = $('#cms_placeholder-' + id);
 							plugin.trigger('cms.placeholder.update');
-					}
+					},
+					'disableNestingClass': 'cms_draggable-disabled',
+					'errorClass': 'cms_dragholder-disallowed',
+					'hoveringClass': 'cms_draggable-hover'
+					// TODO not yet required
+					// branchClass: 'mjs-nestedSortable-branch',
+					// collapsedClass: 'mjs-nestedSortable-collapsed',
+					// expandedClass: 'cms_dragholder-disallowed',
+					// leafClass: 'mjs-nestedSortable-leaf',
 				});
 
-				// define which areas are droppable
-
+				// define droppable helpers
 				this.dropareas.droppable({
 					'greedy': true,
-					// todo, this is important to check if elements are allowed to be dropped here
 					'accept': '.cms_dragholder-draggable',
 					'tolerance': 'pointer',
 					'activeClass': 'cms_dragholder-allowed',
-					'hoverClass': 'cms_dragholder-hover-allowed'
+					'hoverClass': 'cms_dragholder-hover-allowed',
+					'drop': function (event, ui) {
+						dropped = true;
+						droparea = $(event.target).nextAll('.cms_sortables').first();
+					}
 				});
 			},
 
@@ -302,8 +269,7 @@
 				'urls': {
 					'add_plugin': '',
 					'edit_plugin': '',
-					'move_plugin': '',
-					'remove_plugin': '' // TODO this might be depricated cause url is directly on the plugin itself?
+					'move_plugin': ''
 				}
 			},
 
@@ -382,9 +348,9 @@
 				draggable.find('> .cms_dragitem .cms_dragmenu').bind('click', function (e) {
 					e.stopPropagation();
 					(menu.is(':visible')) ? hide() : show();
-				}).bind('mouseleave', function (e) {
-						that.timer = setTimeout(hide, speed);
-					});
+				}).bind('mouseleave', function () {
+					that.timer = setTimeout(hide, speed);
+				});
 				menu.bind('mouseleave.cms.draggable mouseenter.cms.draggable', function (e) {
 					clearTimeout(that.timer);
 					if(e.type === 'mouseleave') that.timer = setTimeout(hide, speed);
@@ -432,7 +398,6 @@
 					'plugin_type': type,
 					'plugin_parent': parent || '',
 					'plugin_language': this.options.plugin_language,
-					//'plugin_order': [], // TODO this is not implemented yet
 					'csrfmiddlewaretoken': this.csrf
 				};
 
@@ -524,6 +489,7 @@
 			_showSuccess: function (el) {
 				var tpl = $('<div class="cms_dragitem-success"></div>');
 				el.append(tpl);
+				// start animation
 				tpl.fadeOut(function () {
 					$(this).remove()
 				});
