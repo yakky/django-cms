@@ -427,15 +427,19 @@
 				var plugin = $('#cms_placeholder-' + this.options.plugin_id);
 				var dragitem = $('#cms_dragholder-' + this.options.plugin_id);
 
-				// insert new position
-				var id = this._getId(dragitem.prev('.cms_dragholder-draggable'));
-				if(id) {
-					plugin.insertAfter($('#cms_placeholder-' + id));
+				// SETTING POSITION
+				// after we insert the plugin onto its new place, we need to figure out whats above it
+				var parent_id = this._getId(dragitem.prev('.cms_dragholder-draggable'));
+
+				if(parent_id) {
+					// if we find a previous item, attach it afterwards
+					plugin.insertAfter($('#cms_placeholder-' + parent_id));
 				} else {
-					plugin.parent().prepend(plugin);
+					// if we dont find out, we need to figure out where it belongs and get the previous item
+					dragitem.parent().prev().prepend(plugin);
 				}
 
-				// get new poisition data
+				// SAVING POSITION
 				var placeholder_id = this._getId(dragitem.parents('.cms_sortables').last().prevAll('.cms_placeholder-bar').first());
 				var plugin_parent = this._getId(dragitem.parent().closest('.cms_dragholder'));
 				var plugin_order = this._getIds(dragitem.siblings('.cms_dragholder-draggable').andSelf());
