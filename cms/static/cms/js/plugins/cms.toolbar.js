@@ -26,7 +26,9 @@ $(document).ready(function () {
 			'modalWidth': 800,
 			'modalHeight': 400,
 			'urls': {
-				'settings': '' // url to save settings
+				'settings': '', // url to save settings
+				'css_dialogue': '/static/cms/css/plugins/cms.toolbar.dialogue.css',
+				'css_sideframe': '/static/cms/css/plugins/cms.toolbar.sideframe.css'
 			},
 			'lang': {
 				'confirm': 'Yes',
@@ -393,6 +395,10 @@ $(document).ready(function () {
 
 			// attach load event for iframe to prevent flicker effects
 			iframe.bind('load', function () {
+				// after iframe is loaded append css
+				iframe.contents().find('head').append($('<link rel="stylesheet" type="text/css" href="' + that.options.urls.css_dialogue + '" />'));
+
+				// than show
 				iframe.show();
 			});
 
