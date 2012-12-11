@@ -131,8 +131,6 @@ class PluginEditor(Widget):
         
     class Media:
         js = [cms_static_url(path) for path in (
-            'js/libs/jquery.ui.core.js',
-            'js/libs/jquery.ui.sortable.js',
             'js/plugin_editor.js',
         )]
         css = {

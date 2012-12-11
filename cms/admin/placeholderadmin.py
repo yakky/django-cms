@@ -30,11 +30,9 @@ class PlaceholderAdmin(ModelAdmin):
             )]
         }
         js = ['%sjs/jquery.min.js' % admin_static_url()] + [cms_static_url(path) for path in [
-                'js/plugins/admincompat.js',
                 'js/csrf.js',
-                'js/libs/jquery.query.js',
-                'js/libs/jquery.ui.core.js',
-                'js/libs/jquery.ui.dialog.js',
+                'js/plugins/jquery.query.js',
+                'js/plugins/jquery.ui.custom.js',
             ]
         ]
         

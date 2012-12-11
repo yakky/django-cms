@@ -4,81 +4,78 @@
 {% block bodyclass %}change-list{% endblock %}
 
 {% if not is_popup %}{% block breadcrumbs %}
-    <div class="breadcrumbs">
-    <a href="../../">{% trans "Home" %}</a> &rsaquo; 
-    <a href="../">{{ app_label|capfirst|escape }}</a> &rsaquo; {{ opts.verbose_name_plural|capfirst|escape }}
-    </div>
+<div class="breadcrumbs">
+<a href="../../">{% trans "Home" %}</a> &rsaquo;
+<a href="../">{{ app_label|capfirst|escape }}</a> &rsaquo; {{ opts.verbose_name_plural|capfirst|escape }}
+</div>
 {% endblock %}{% endif %}
 
 {% block coltype %}flex{% endblock %}
-{% block extrahead %}
+{% block extrastyle %}
+{{ block.super }}
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}cms/css/pages.css"/>
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}cms/jstree/tree_component.css" />
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}cms/css/cms.base.css" />
+{% if cl.is_filtered %}<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}cms/jstree/themes/default/style.css" />{% endif %}
+{% endblock extrastyle %}
 
+{% block extrahead %}
 {{ block.super }}
 <script type="text/javascript" src="{% admin_static_url %}js/jquery.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}cms/js/libs/class.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}cms/js/csrf.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}cms/js/libs/jquery.livequery.js"></script>
-
-<script type="text/javascript" src="{{ STATIC_URL }}cms/js/libs/jquery.ui.core.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}cms/js/libs/jquery.bind.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}cms/js/libs/jquery.ui.checkbox.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}cms/js/libs/jquery.ui.effects.core.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}cms/js/libs/jquery.ui.effects.highlight.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}cms/js/libs/jquery.form.js"></script>
+<!-- load jstree -->
 <script type="text/javascript" src="{{ STATIC_URL }}cms/jstree/_lib/_all.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}cms/jstree/tree_component.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}cms/js/libs/jquery.ui.dialog.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}cms/js/libs/jquery.functional.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}cms/js/libs/classy.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}cms/js/plugins/cms.setup.js"></script>
+<!-- load jquery plugins -->
+<script type="text/javascript" src="{{ STATIC_URL }}cms/js/plugins/jquery.ui.custom.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}cms/js/plugins/jquery.ui.checkbox.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}cms/js/plugins/jquery.bind.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}cms/js/plugins/jquery.functional.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}cms/js/plugins/jquery.livequery.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}cms/js/plugins/jquery.form.js"></script>
+<!-- load changelist -->
 <script type="text/javascript" src="{{ STATIC_URL }}cms/js/plugins/cms.base.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}cms/js/change_list.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}cms/js/plugins/cms.changelist.js"></script>
+<script type="text/javascript">
+	//<![CDATA[
+	(function namespacing($) {
+		$(document).ready(function() {
+			{% if not cl.is_filtered %}
+				initTree();
+			{% endif %}
+		});
 
+		showchangelistfilter = function(){
+			$("#changelist-filter").toggle();
+		}
+		moveSuccess = function(node){
+			var msg = $({% javascript_string %}<span class="success">{% trans "Successfully moved" %}</span>{% end_javascript_string %});
+			node.append(msg);
+			msg.fadeOut(3000);
+		}
+		moveError = function(node,message){
+			if(message && message!="error") {
+				var msg = $({% javascript_string %}<span class="success">{% end_javascript_string %}+message+{% javascript_string %}</span>{% end_javascript_string %});
+			}
+			else {
+				var msg = $({% javascript_string %}<span class="success">{% trans "An error occured. Please reload the page" %}</span>{% end_javascript_string %});
+			}
+			node.append(msg);
+		}
+		// some settings used by javascript functions
 
-{% if cl.is_filtered %}
-<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}cms/jstree/themes/default/style.css" />
-{% endif %}
-{% endblock %}
+		cmsSettings = {
+			cmsPermission: {{ CMS_PERMISSION|js }},
+			cmsModerator: {{ CMS_MODERATOR|js }},
+			debug: {{ DEBUG|js }}
+		};
+	})(window.CMS.$);
+	//]]>
+</script>
+{% endblock extrahead %}
 
 {% block content %}
-<script type="text/javascript">
-//<![CDATA[	
-(function namespacing($) {
-	$(document).ready(function() {
-		{% if not cl.is_filtered %}
-			initTree();
-		{% endif %}		
-	});
-	
-	showchangelistfilter = function(){
-		$("#changelist-filter").toggle();
-	}
-	moveSuccess = function(node){
-		var msg = $({% javascript_string %}<span class="success">{% trans "Successfully moved" %}</span>{% end_javascript_string %});
-		node.append(msg);
-	    msg.fadeOut(3000);
-	}
-	moveError = function(node,message){
-        if(message && message!="error") {
-            var msg = $({% javascript_string %}<span class="success">{% end_javascript_string %}+message+{% javascript_string %}</span>{% end_javascript_string %});
-        }
-        else {
-            var msg = $({% javascript_string %}<span class="success">{% trans "An error occured. Please reload the page" %}</span>{% end_javascript_string %});
-        }
-		node.append(msg);
-	}
-	// some settings used by javascript functions
-
-	cmsSettings = {
-		cmsPermission: {{ CMS_PERMISSION|js }},
-		cmsModerator: {{ CMS_MODERATOR|js }},
-		debug: {{ DEBUG|js }}
-	};
-})(window.CMS.$);
-//]]>
-</script>
 
 
 <div id="content-main"{% if cl.is_filtered %} class="activ-filter"{% endif %}>
