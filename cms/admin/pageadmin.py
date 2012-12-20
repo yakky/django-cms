@@ -152,8 +152,8 @@ class PageAdmin(ModelAdmin):
     form = PageForm
     # TODO: add the new equivalent of 'cmsplugin__text__body' to search_fields'
     search_fields = ('title_set__slug', 'title_set__title', 'reverse_id')
-    revision_form_template = "admin/cms/page/revision_form.html"
-    recover_form_template = "admin/cms/page/recover_form.html"
+    revision_form_template = "admin/cms/page/history/revision-header.html"
+    recover_form_template = "admin/cms/page/history/recover-header.html"
 
     exclude = []
     mandatory_placeholders = ('title', 'slug', 'parent', 'site', 'meta_description', 'meta_keywords', 'page_title', 'menu_title')
