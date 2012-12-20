@@ -1285,7 +1285,7 @@ class PageAdmin(ModelAdmin):
                 context.update({
                     "deleted":True,
                 })
-            return render_to_response('admin/cms/page/plugin_forms_ok.html', context, RequestContext(request))
+            return render_to_response('admin/cms/page/plugin/form-confirm.html', context, RequestContext(request))
 
         if not instance:
             # instance doesn't exist, call add view
@@ -1322,7 +1322,7 @@ class PageAdmin(ModelAdmin):
                 'icon': force_escape(saved_object.get_instance_icon_src()),
                 'alt': force_escape(saved_object.get_instance_icon_alt()),
             }
-            return render_to_response('admin/cms/page/plugin_forms_ok.html', context, RequestContext(request))
+            return render_to_response('admin/cms/page/plugin/form-confirm.html', context, RequestContext(request))
 
         return response
 
@@ -1547,9 +1547,9 @@ class PageAdmin(ModelAdmin):
             context.update({
                 'cancel': True,
             })
-            return render_to_response('admin/cms/page/plugin_forms_ok.html', context, RequestContext(request))
+            return render_to_response('admin/cms/page/plugin/form-confirm.html', context, RequestContext(request))
         if not cancel_clicked and request.method == 'POST' and saved_successfully:
-            return render_to_response('admin/cms/page/plugin_forms_ok.html', context, RequestContext(request))
+            return render_to_response('admin/cms/page/plugin/form-confirm.html', context, RequestContext(request))
         return render_to_response('admin/cms/page/page_attribute_change_form.html', context, RequestContext(request))
 
 
