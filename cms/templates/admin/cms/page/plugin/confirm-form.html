@@ -5,6 +5,7 @@
 {% endcomment %}
 
 {% block extrahead %}
+{{ block.super }}
 <script type="text/javascript" src="{% admin_static_url %}js/jquery.min.js"></script>
 {{ media }}
 {% endblock %}
@@ -22,18 +23,19 @@ jQuery(document).ready(function ($) {
 	// TODO: context should be passed through the backend
 	var context = {
 		'window': window,
+		'timeout': {{ window_close_timeout|default:0 }},
 		'plugin_id': '{{ plugin_id }}', // used for everything
 		'plugin_type': {{ type }}, // used for hide_iframe
 		'plugin_name': {{ name }}, // used for hide_iframe
 		'plugin_icon': '{{ icon }}', // used for wysiwyg
 		'plugin_desc': '{{ alt }}', // used for wysiwyg
-		'timeout': {{ window_close_timeout|default:0 }},
 		'message': '{% if cancel %}{% trans "Your changes to this plugin have not been saved." %}{% else %}{% trans "Plugin saved successfully." %}{% endif %}'
 	};
 
 	// determing if we are inside the current window or in a popup
-	if(window.CMS) CMS.API.Helpers.Save(type, context);
-	if(window.parent.CMS) window.parent.CMS.API.Helpers.Save(type, context);
+	if(window.CMS) CMS.API.Helpers.savePlugin(type, context);
+	if(window.parent.CMS) window.parent.CMS.API.Helpers.savePlugin(type, context);
+	// todo we might need to check how it works on a popup
 });
 </script>
 {% endblock %}
