@@ -158,7 +158,7 @@ class PageAdmin(ModelAdmin):
     exclude = []
     mandatory_placeholders = ('title', 'slug', 'parent', 'site', 'meta_description', 'meta_keywords', 'page_title', 'menu_title')
     add_general_fields = ['title', 'slug', 'language', 'template']
-    change_list_template = "admin/cms/page/change_list.html"
+    change_list_template = "admin/cms/page/tree/base.html"
 
     # take care with changing fieldsets, get_fieldsets() method removes some
     # fields depending on permissions, but its very static!!
@@ -706,9 +706,9 @@ class PageAdmin(ModelAdmin):
             context['has_change_permission'] = self.has_change_permission(request)
         context.update(extra_context or {})
         return render_to_response(self.change_list_template or [
-            'admin/%s/%s/change_list.html' % (app_label, opts.object_name.lower()),
-            'admin/%s/change_list.html' % app_label,
-            'admin/change_list.html'
+            'admin/%s/%s/base.html' % (app_label, opts.object_name.lower()),
+            'admin/%s/base.html' % app_label,
+            'admin/base.html'
         ], context, context_instance=RequestContext(request))
 
 

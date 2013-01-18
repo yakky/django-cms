@@ -1,5 +1,9 @@
 {% extends "admin/change_list.html" %}
 {% load adminmedia admin_list i18n cms_admin cms_js_tags %}
+{% comment %}
+- This template is used within the pagetree as the main template
+{% endcomment %}
+
 {% block title %}{% trans "List of pages" %}{% endblock %}
 {% block bodyclass %}change-list{% endblock %}
 
@@ -115,7 +119,6 @@
 {% block filters %}
 {% if cl.has_filters %}
 
-
 <a href="javascript:showchangelistfilter();" id="changelist-filter-button">{% trans "Filter:" %} {% if cl.is_filtered %}{% trans "on" %}{% else %}{% trans "off" %}{% endif %}</a>
 <div id="changelist-filter" style="display:none;">
 <h2>{% trans 'Filter' %}</h2>
@@ -126,7 +129,7 @@
 {% endif %}
 {% endblock %}
 
-{% include "admin/cms/page/change_list_tree.html" %}
+{% include "admin/cms/page/tree/base_header.html" %}
 
 </div>
 </div>
