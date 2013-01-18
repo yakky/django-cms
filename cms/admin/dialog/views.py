@@ -37,4 +37,4 @@ def get_copy_dialog(request, page_id):
         'form': _form_class_selector()(), # class needs to be instanciated
         'callback': request.REQUEST['callback'],
     }
-    return render_to_response("admin/cms/page/dialog/copy.html", context)
+    return render_to_response("admin/cms/page/tree/copy_premissions.html", context)
