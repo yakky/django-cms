@@ -62,7 +62,7 @@ class ToolbarTests(SettingsOverrideTestCase, ToolbarUserMixin):
         # check the login form is there
         login = items[1]
         self.assertTrue(isinstance(login, TemplateHTML))
-        self.assertEqual(login.template, 'cms/toolbar/items/login.html')
+        self.assertEqual(login.template, 'cms/toolbar/menu/login.html')
 
     def test_toolbar_no_page_staff(self):
         request = self.request_factory.get('/')
@@ -141,7 +141,7 @@ class ToolbarTests(SettingsOverrideTestCase, ToolbarUserMixin):
         # check the login form is there
         login = items[1]
         self.assertTrue(isinstance(login, TemplateHTML))
-        self.assertEqual(login.template, 'cms/toolbar/items/login.html')
+        self.assertEqual(login.template, 'cms/toolbar/menu/login.html')
 
     def test_toolbar_staff(self):
         page = create_page('test', 'nav_playground.html', 'en', published=True)

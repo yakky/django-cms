@@ -9,7 +9,7 @@ class BaseItem(object):
         return {}
 
 class List(BaseItem):
-    template = "cms/toolbar/items/list.html"
+    template = "cms/toolbar/menu/list.html"
     def __init__(self, url, name):
         self.items = []
         self.url = url
@@ -19,7 +19,7 @@ class List(BaseItem):
         return {'items':self.items, 'url':self.url, 'title':self.name}
 
 class Item(BaseItem):
-    template = "cms/toolbar/items/item.html"
+    template = "cms/toolbar/menu/item.html"
 
     def __init__(self, url, title, load_side_frame=False, ajax=False, active=False, question=""):
         if load_side_frame and ajax:
@@ -44,10 +44,10 @@ class Item(BaseItem):
 
 
 class Break(BaseItem):
-    template = "cms/toolbar/items/break.html"
+    template = "cms/toolbar/menu/break.html"
 
 class Dialog(BaseItem):
-    template = "cms/toolbar/items/dialog.html"
+    template = "cms/toolbar/menu/dialog.html"
 
     def __init__(self, url, title, question):
         self.url = url
