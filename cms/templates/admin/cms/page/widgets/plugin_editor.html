@@ -1,4 +1,6 @@
 {% load i18n %}
+{% comment %}
+// TODO: DEPRICATED
 {% if not add %}
 <div class="plugin-list-holder" id="placeholder-{{ placeholder.pk }}">
 	<ul class="plugin-list" id="plugin-list-{{ placeholder.pk }}">
@@ -25,3 +27,4 @@ placeholder_element.data('id', {{ placeholder.pk }});
 placeholder_element.data('name', '{{ placeholder.slot }}');
 });
 </script>
+{% endcomment %}
