@@ -1550,7 +1550,7 @@ class PageAdmin(ModelAdmin):
             return render_to_response('admin/cms/page/plugin/confirm_form.html', context, RequestContext(request))
         if not cancel_clicked and request.method == 'POST' and saved_successfully:
             return render_to_response('admin/cms/page/plugin/confirm_form.html', context, RequestContext(request))
-        return render_to_response('admin/cms/page/page_attribute_change_form.html', context, RequestContext(request))
+        return render_to_response('admin/cms/page/plugin/change_form.html', context, RequestContext(request))
 
 
 contribute_fieldsets(PageAdmin)
