@@ -27,7 +27,7 @@ $(document).ready(function () {
 			'modalHeight': 400,
 			'urls': {
 				'settings': '', // url to save settings
-				'css_dialogue': '/static/cms/css/plugins/cms.toolbar.dialogue.css',
+				'css_dialogue': '/static/cms/css/plugins/cms.toolbar.dialog.css',
 				'css_sideframe': '/static/cms/css/plugins/cms.toolbar.sideframe.css'
 			},
 			'lang': {
