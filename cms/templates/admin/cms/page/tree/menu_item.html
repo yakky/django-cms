@@ -1,4 +1,8 @@
 {% load cms_admin i18n adminmedia %}
+{% comment %}
+- This template is used within the pagetree as the menu-items for the menu
+{% endcomment %}
+
 <div class="cont{% if CMS_MODERATOR %} moderatorstate{{ page_moderator_state.state }}{% endif %}">
 	<div class="col1">
 		{% if has_change_permission %}
@@ -22,15 +26,21 @@
 
 		{% if page.soft_root or page.is_home %}<div class="col-softroot"><span class="icon softroot-icon" title="{% if page.soft_root %}{% trans 'softroot' %}{% else %}{% trans 'home' %}{% endif %}"></span></div>{% endif %}
 
-		<div class="col-language">{% for lang in page.get_languages|in_filtered:site_languages %}
-			{% if has_change_permission %}<a href="{{ url }}{{ page.id }}/?language={{ lang }}" title="{% blocktrans with lang|upper as language %}Edit this page in {{ language }} {% endblocktrans %}">{{ lang }}</a>
-			{% else %}{{ lang|upper }}
+		<div class="col-language">
+		{% for lang in page.get_languages|in_filtered:site_languages %}
+			{% if has_change_permission %}
+				<a href="{{ url }}{{ page.id }}/?language={{ lang }}" title="{% blocktrans with lang|upper as language %}Edit this page in {{ language }} {% endblocktrans %}">{{ lang }}</a>
+			{% else %}
+				{{ lang|upper }}
 			{% endif %}
 			{% if not forloop.last %} | {% endif %}
-		{% endfor %}</div>
+		{% endfor %}
+		</div>
 
-		<div class="col-actions">{% if not filtered %}
-			{% if has_move_page_permission %}<a href="#" class="move" title="{% trans "Cut" %}" id="move-link-{{ page.id }}"><span>{% trans "cut" %}</span></a>{% endif %}{% endif %}
+		<div class="col-actions">
+			{% if not filtered %}
+				{% if has_move_page_permission %}<a href="#" class="move" title="{% trans "Cut" %}" id="move-link-{{ page.id }}"><span>{% trans "cut" %}</span></a>{% endif %}
+			{% endif %}
 			{% if has_change_permission %}<a href="#" class="copy" title="{% trans "Copy" %}" id="copy-link-{{ page.id }}"><span>{% trans "copy" %}</span></a>{% endif %}
 
 			{% if has_add_page_permission and has_add_on_same_level_permission %}
@@ -51,22 +61,27 @@
 			</label>
 		</div>
 
-		{% if CMS_MODERATOR %}<div class="col-moderator">
-			{% if has_moderate_permission %}{% for value, title, active, css_class in page|moderator_choices:user %}<input type="checkbox" class="moderator-checkbox hidden copy-{{ css_class }}"{% if active %} checked="checked"{% endif %} value="{{ value }}" title="{{ title }}"/>
-			{% endfor %}{% endif %}
-		</div>{% endif %}
-
-
-		{% if CMS_MODERATOR %}<div class="col-draft">
+		{% if CMS_MODERATOR %}
+		<div class="col-moderator">
+			{% if has_moderate_permission %}
+				{% for value, title, active, css_class in page|moderator_choices:user %}
+					<input type="checkbox" class="moderator-checkbox hidden copy-{{ css_class }}"{% if active %} checked="checked"{% endif %} value="{{ value }}" title="{{ title }}"/>
+				{% endfor %}
+			{% endif %}
+		</div>
+		<div class="col-draft">
 			{% if moderator_should_approve %}<a href="./{{ page.id }}/approve/" class="icon approve" title="{% trans 'Approve directly' %}"></a>{% endif %}
 			<span class="state">{{ page_moderator_state.label }}</span>
 			<a href="./{{ page.id }}/preview/" class="icon selector-add viewpage" id="view-page-{{page.id}}"><span>{% trans "view" %}</span></a>
-		</div>{% endif %}
+		</div>
+		{% endif %}
 
 		<div class="col-published">
 			{% if has_publish_permission %}
-				{% if page.published %}<input type="checkbox" class="publish-checkbox" name="status-{{ page.id }}" checked="checked" value="1" title="{% trans 'Unpublish' %}"/>
-				{% else %}<input type="checkbox" class="publish-checkbox" name="status-{{ page.id }}" value="0" title="{% trans 'Publish' %}"/>
+				{% if page.published %}
+					<input type="checkbox" class="publish-checkbox" name="status-{{ page.id }}" checked="checked" value="1" title="{% trans 'Unpublish' %}"/>
+				{% else %}
+					<input type="checkbox" class="publish-checkbox" name="status-{{ page.id }}" value="0" title="{% trans 'Publish' %}"/>
 				{% endif %}
 			{% endif %}
 
@@ -82,13 +97,13 @@
 		<div class="col-published">{{ page.publication_end_date|date:"Y-m-d" }}</div>
 		<div class="col-view-perms">{{ page|is_restricted:request }}</div>
 
-
-		{% if CMS_MODERATOR %}<div class="col-lastchange">
-			{% for state in page.last_page_states %}<span class="icon state-icon {{ state.css_class }}" title="{{ state.get_action_display }}"></span>
-			{% endfor %}
-
-
-		</div>{% endif %}
+		{% if CMS_MODERATOR %}
+		<div class="col-lastchange">
+		{% for state in page.last_page_states %}
+			<span class="icon state-icon {{ state.css_class }}" title="{{ state.get_action_display }}"></span>
+		{% endfor %}
+		</div>
+		{% endif %}
 
 		<div class="col-creator">{{ page.changed_by }}</div>
 	</div>

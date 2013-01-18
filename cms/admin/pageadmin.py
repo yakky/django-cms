@@ -1093,7 +1093,7 @@ class PageAdmin(ModelAdmin):
         """
         page = get_object_or_404(Page, pk=page_id)
         return admin_utils.render_admin_menu_item(request, page,
-                template="admin/cms/page/lazy_menu.html")
+                template="admin/cms/page/tree/lazy_menu.html")
 
     @create_on_success
     def add_plugin(self, request):
