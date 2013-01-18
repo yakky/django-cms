@@ -1,14 +1,16 @@
 {% load i18n admin_modify adminmedia cms_js_tags cms_admin %}
-<html>
+<!doctype html>
+<html lang="en" >
 	<head>
+		<title>{% trans "Successfully saved." %}</title>
 		<script type="text/javascript" src="{% admin_static_url %}js/jquery.min.js"></script>
 		<script type="text/javascript">
-			//<![CDATA[
-			setTimeout(function () { window.parent.CMS.API.Helpers.reloadBrowser(); }, 10);
-			//]]>
+		jQuery().ready(function ($) {
+			window.parent.CMS.API.Helpers.reloadBrowser();
+		});
 		</script>
 	</head>
 	<body>
-		ok
+		{% trans "Successfully saved." %}
 	</body>
 </html>
