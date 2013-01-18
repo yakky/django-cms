@@ -189,7 +189,7 @@ register.tag(RenderPlugin)
 
 class PageSubmitRow(InclusionTag):
     name = 'page_submit_row'
-    template = 'admin/cms/page/submit-row.html'
+    template = 'admin/cms/page/submit_row.html'
     
     def get_context(self, context):
         opts = context['opts']

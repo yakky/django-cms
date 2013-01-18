@@ -220,7 +220,7 @@ class PlaceholderAdmin(ModelAdmin):
                 context.update({
                     "deleted":True,
                 })
-            return render_to_response('admin/cms/page/plugin/confirm-form.html', context, RequestContext(request))
+            return render_to_response('admin/cms/page/plugin/confirm_form.html', context, RequestContext(request))
 
         if not instance:
             # instance doesn't exist, call add view
@@ -247,7 +247,7 @@ class PlaceholderAdmin(ModelAdmin):
                 'icon': force_escape(saved_object.get_instance_icon_src()),
                 'alt': force_escape(escapejs(saved_object.get_instance_icon_alt())),
             }
-            return render_to_response('admin/cms/page/plugin/confirm-form.html', context, RequestContext(request))
+            return render_to_response('admin/cms/page/plugin/confirm_form.html', context, RequestContext(request))
             
         return response
 

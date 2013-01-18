@@ -152,8 +152,8 @@ class PageAdmin(ModelAdmin):
     form = PageForm
     # TODO: add the new equivalent of 'cmsplugin__text__body' to search_fields'
     search_fields = ('title_set__slug', 'title_set__title', 'reverse_id')
-    revision_form_template = "admin/cms/page/history/revision-header.html"
-    recover_form_template = "admin/cms/page/history/recover-header.html"
+    revision_form_template = "admin/cms/page/history/revision_header.html"
+    recover_form_template = "admin/cms/page/history/recover_header.html"
 
     exclude = []
     mandatory_placeholders = ('title', 'slug', 'parent', 'site', 'meta_description', 'meta_keywords', 'page_title', 'menu_title')
@@ -1285,7 +1285,7 @@ class PageAdmin(ModelAdmin):
                 context.update({
                     "deleted":True,
                 })
-            return render_to_response('admin/cms/page/plugin/confirm-form.html', context, RequestContext(request))
+            return render_to_response('admin/cms/page/plugin/confirm_form.html', context, RequestContext(request))
 
         if not instance:
             # instance doesn't exist, call add view
@@ -1322,7 +1322,7 @@ class PageAdmin(ModelAdmin):
                 'icon': force_escape(saved_object.get_instance_icon_src()),
                 'alt': force_escape(saved_object.get_instance_icon_alt()),
             }
-            return render_to_response('admin/cms/page/plugin/confirm-form.html', context, RequestContext(request))
+            return render_to_response('admin/cms/page/plugin/confirm_form.html', context, RequestContext(request))
 
         return response
 
@@ -1547,9 +1547,9 @@ class PageAdmin(ModelAdmin):
             context.update({
                 'cancel': True,
             })
-            return render_to_response('admin/cms/page/plugin/confirm-form.html', context, RequestContext(request))
+            return render_to_response('admin/cms/page/plugin/confirm_form.html', context, RequestContext(request))
         if not cancel_clicked and request.method == 'POST' and saved_successfully:
-            return render_to_response('admin/cms/page/plugin/confirm-form.html', context, RequestContext(request))
+            return render_to_response('admin/cms/page/plugin/confirm_form.html', context, RequestContext(request))
         return render_to_response('admin/cms/page/page_attribute_change_form.html', context, RequestContext(request))
 
 
