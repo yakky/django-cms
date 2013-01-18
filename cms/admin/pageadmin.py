@@ -858,7 +858,7 @@ class PageAdmin(ModelAdmin):
         context = {
             'page': page,
         }
-        return render_to_response('admin/cms/page/moderation_messages.html', context)
+        return render_to_response('admin/cms/page/moderation_states.html', context)
 
     @transaction.commit_on_success
     def approve_page(self, request, page_id):
