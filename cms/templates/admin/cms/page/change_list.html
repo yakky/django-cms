@@ -90,8 +90,8 @@
 		<li><a href="add/{% if is_popup %}?_popup=1{% endif %}" class="addlink">{% blocktrans with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}</a></li>
 		{% endif %}
 	</ul>
-	
-	{% include "admin/cms/page/loading.html" %}
+
+	<div id="loader-message">{% trans "Loading..." %}</div>
 
 {% endblock %}
 <div class="module{% if cl.has_filters %} filtered{% endif %}" id="changelist">
