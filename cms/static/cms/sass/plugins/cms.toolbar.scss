@@ -3,11 +3,11 @@
  * @copyright:	https://github.com/divio/django-cms
  */
 
-//##################################################
+//######################################################################################################################
 // #IMPORT SETTINGS#
 @import "partials/settings";
 
-//##################################################
+//######################################################################################################################
 // #RESET#
 .cms_reset {
 	div, p, a, a:hover, a:active, a:focus, ul, li,
@@ -20,7 +20,7 @@
 // end of reset
 }
 
-//##################################################
+//######################################################################################################################
 // #TOOLBAR#
 #cms_toolbar { position:absolute; left:0; top:0; z-index:9999999; width:100%; }
 #cms_toolbar {
@@ -183,9 +183,9 @@
 	// #TOOLBAR/pmenu#
 	.cms_placeholders-menu {
 		display:none; position:absolute; left:0; top:0;
-		width:26px; height:26px; padding:0; margin:0 0 0 -31px; cursor:pointer;
+		width:28px; height:28px; padding:0; margin:0 0 0 -29px; cursor:pointer;
 		font-size:11px; line-height:11px; text-align:center; overflow:hidden;
-		@include border-radius(3px);
+		@include border-radius(3px 0px 0px 3px);
 	}
 
 	// end of toolbar
@@ -198,7 +198,7 @@
 	.cms_toolbar-item_switch { display:none; }
 }
 
-//##################################################
+//######################################################################################################################
 // #LIGHT THEME#
 .cms_light {
 	.cms_toolbar { border-bottom:1px solid #e1e1e1 !important; background-color:#fcfcfc; // old browsers
@@ -302,7 +302,7 @@
 	.cms_modal-loader { background:#fff url('/static/cms/img/loader.gif') no-repeat center center !important; }
 
 	// #TOOLBAR/sidebar#
-	.cms_sideframe-resize { background:#efefef; }
+	.cms_sideframe-resize { background:#494949; }
 	.cms_sideframe-knob { background:#444; }
 
 	// #TOOLBAR/dialogue#
@@ -359,26 +359,26 @@
 
 	// #TOOLBAR/pmenu#
 	.cms_placeholders-menu {
-		color:#888; border:1px solid #dadada;
-		background:#f5f5f5 url('/static/cms/img/toolbar/sprite_toolbar.png') no-repeat left -202px;
+		color:#888; border:1px solid #fbfbfb;
+		background:#fbfbfb url('/static/cms/img/toolbar/sprite_toolbar.png') no-repeat left -202px;
 		@include border-radius(3px);
 	}
-	.cms_placeholders-menu:hover { border:1px solid #333; background-position:-27px -202px; }
+	.cms_placeholders-menu:hover { background-position:-27px -202px; }
 
-	.cms_placeholders-menu-layout { background-position:-52px -202px; }
-	.cms_placeholders-menu-layout:hover { background-position:-78px -202px; }
+	.cms_placeholders-menu-alternate { border-right:1px solid #494949; background-position:-52px -202px; }
+	.cms_placeholders-menu-alternate:hover { background-position:-78px -202px; }
 
 // end of light theme
 }
 
-//##################################################
+//######################################################################################################################
 // #DARK THEME#
 .cms_dark {
 
 // end of dark theme
 }
 
-//##################################################
+//######################################################################################################################
 // #RETINA#
 @media only screen and (-webkit-min-device-pixel-ratio:1.5),
 only screen and (-o-min-device-pixel-ratio:3/2),

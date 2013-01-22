@@ -33,7 +33,7 @@ CMS.$(document).ready(function () {
 	});
 
 	// global accessor for placeholders
-	CMS.API.Placeholders = new CMS.Placeholders('.cms_placeholder');
+	CMS.API.Placeholders = new CMS.Placeholders('.cms_placeholder', '.cms_plugin');
 
 	{% if request.toolbar.login_form.errors %}
 	CMS.API.Toolbar.showError('{{ request.toolbar.login_form.non_field_errors }}{% if request.toolbar.login_form.username.errors %}{% trans "Username" %}: {{ request.toolbar.login_form.username.errors }}{% endif %}{% if request.toolbar.login_form.password.errors %}{% trans "Password" %}: {{ request.toolbar.login_form.password.errors }}{% endif %}');

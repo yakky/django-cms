@@ -151,6 +151,10 @@ CMS.$(document).ready(function ($) {
 			uri = getUrlObj.protocol + '://' + getUrlObj.authority + getUrlObj.directory + getUrlObj.file + addition + serialized + anchor;
 
 			return uri;
+		},
+
+		savePlugin: function (type, context) {
+			console.log(type);
 		}
 
 	};

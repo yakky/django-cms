@@ -279,7 +279,7 @@ register.tag(RenderPlugin)
 
 
 class PluginChildClasses(InclusionTag):
-    template = "cms/toolbar/plugin_dragholder-menu.html"
+    template = "cms/toolbar/draggable_menu.html"
     name = "plugin_child_classes"
     options = Options(
         Argument('plugin')
@@ -500,8 +500,8 @@ register.tag(CMSToolbar)
 
 class CMSEditablePageTitle(InclusionTag):
     # TODO: make this more generic (not only for title)
-    template = 'cms/toolbar/placeholder_text_noedit.html'
-    edit_template = 'cms/toolbar/placeholder_text.html'
+    template = 'cms/toolbar/plugin_text_noedit.html'
+    edit_template = 'cms/toolbar/plugin_text.html'
     name = 'show_editable_page_title'
 
     def get_template(self, context, **kwargs):

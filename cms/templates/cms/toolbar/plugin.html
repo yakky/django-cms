@@ -2,7 +2,7 @@
 {% addtoblock "js" %}
 <script type="text/javascript">
 CMS.$(document).ready(function () {
-	new CMS.Placeholder('#cms_placeholder-{{ instance.pk }}', {
+	new CMS.PlaceholderItem('#cms_plugin-{{ instance.pk }}', {
 		'type': 'plugin',
 		'placeholder_id': '{{ instance.placeholder.id }}',
 		'plugin_type': '{{ instance.plugin_type }}',
@@ -24,4 +24,4 @@ CMS.$(document).ready(function () {
 </script>
 {% endaddtoblock %}
 
-<div id="cms_placeholder-{{ instance.pk }}" class="cms_placeholder">{{ rendered_content }}</div>
+<div id="cms_plugin-{{ instance.pk }}" class="cms_plugin">{{ rendered_content }}</div>

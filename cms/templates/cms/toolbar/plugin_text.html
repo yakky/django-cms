@@ -2,7 +2,7 @@
 {% addtoblock "js" %}
 <script type="text/javascript">
 CMS.$(document).ready(function () {
-	new CMS.Placeholder('#cms_placeholder-generic-{{ current_page.pk }}', {
+	new CMS.PlaceholderItem('#cms_placeholder-generic-{{ current_page.pk }}', {
 		'type': 'generic',
 		'plugin_name': 'Page Title',
 		'urls': {

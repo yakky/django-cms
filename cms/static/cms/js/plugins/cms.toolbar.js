@@ -53,14 +53,15 @@ $(document).ready(function () {
 			this.body = $('html');
 			this.sideframe = this.container.find('.cms_sideframe');
 			this.dialogue = this.container.find('.cms_dialogue');
-			this.lockToolbar = false;
 			this.modal = this.container.find('.cms_modal');
-
 			this.tooltip = this.container.find('.cms_placeholders-tooltip');
 			this.menu = this.container.find('.cms_placeholders-menu');
 			this.bars = $('.cms_placeholder-bar');
-			this.plugins = $('.cms_placeholder');
-			this.dragholders = $('.cms_dragholder');
+
+			this.plugins = $('.cms_plugin');
+			this.placeholders = $('.cms_placeholder');
+
+			this.lockToolbar = false;
 
 			// setup initial stuff
 			this._setup();
@@ -168,12 +169,13 @@ $(document).ready(function () {
 
 			// event for switching between edit and layout mode
 			this.menu.bind('click', function (e) {
-				($(this).hasClass('cms_placeholders-menu-layout')) ? that._enableEditMode(300) : that._enableDragMode(300);
+				($(this).hasClass('cms_placeholders-menu-alternate')) ? that._enableEditMode(300) : that._enableDragMode(300);
 				// reset dragholders
-				that.dragholders.removeClass('cms_dragholder-selected');
+				// TODO this is new placeholders
+				$('.cms_draggable').removeClass('cms_draggable-selected');
 				// attach active class to current element
 				var id = $(this).data('id');
-				$('#cms_dragholder-' + id).addClass('cms_dragholder-selected');
+				$('#cms_draggable-' + id).addClass('cms_draggable-selected');
 			});
 			this.toolbar.find('.cms_toolbar-item_buttons li a').eq(0).bind('click', function (e) {
 				e.preventDefault();
@@ -209,8 +211,8 @@ $(document).ready(function () {
 		_enableEditMode: function (speed, init) {
 			this.bars.hide();
 			this.plugins.fadeIn(speed);
-			this.dragholders.hide();
-			this.menu.hide().removeClass('cms_placeholders-menu-layout');
+			this.placeholders.hide();
+			this.menu.hide().removeClass('cms_placeholders-menu-alternate');
 
 			// set active item
 			this.toolbar.find('.cms_toolbar-item_buttons li').removeClass('active').eq(0).addClass('active');
@@ -222,8 +224,8 @@ $(document).ready(function () {
 		_enableDragMode: function (speed, init) {
 			this.bars.fadeIn(speed);
 			this.plugins.hide();
-			this.dragholders.fadeIn(speed);
-			this.menu.hide().removeClass('cms_placeholders-menu-layout');
+			this.placeholders.fadeIn(speed);
+			this.menu.hide().removeClass('cms_placeholders-menu-alternate');
 
 			// set active item
 			this.toolbar.find('.cms_toolbar-item_buttons li').removeClass('active').eq(1).addClass('active');

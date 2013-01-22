@@ -10,37 +10,62 @@
 		 */
 		CMS.Placeholders = new CMS.Class({
 
-			initialize: function (container, options) {
-				this.containers = $(container);
+			initialize: function (placeholers, plugins, options) {
+				this.placeholders = $(placeholers);
+				this.plugins = $(plugins);
 				this.options = $.extend(true, {}, this.options, options);
 
 				this.toolbar = $('#cms_toolbar');
 				this.tooltip = this.toolbar.find('.cms_placeholders-tooltip');
 				this.menu = this.toolbar.find('.cms_placeholders-menu');
+				this.bars = this.placeholders.find('.cms_placeholder-bar');
+				this.sortables = this.placeholders.find('.cms_draggables');
 
-				this.bars = $('.cms_placeholder-bar');
-				this.sortareas = $('.cms_sortables');
-				this.dragholders = $('.cms_dragholder');
-
-				this.dragitems = $('.cms_dragholder-draggable');
-				this.dropareas = $('.cms_dragholder-droppable');
+				this.dragitems = $('.cms_draggable');
+				this.dropareas = $('.cms_droppable');
 
 				this.timer = function () {};
 				this.state = false;
+
+				// handle all draggables one time initialization
+				this._setupPlaceholders(this.placeholders);
+				this._setupPlugins(this.plugins);
 
 				this._events();
 				this._preventEvents();
 				this._dragging();
 			},
 
-			_events: function () {
+			_setupPlaceholders: function (placeholders) {
+				var that = this;
+				var draggables = placeholders.find('.cms_draggable');
+
+				draggables.bind('mouseover.cms.placeholder mouseout.cms.placeholder', function (e) {
+					e.stopPropagation();
+					// add events to dragholder
+					(e.type === 'mouseover') ? that._showMenu($(this)) : that._hideMenu($(this));
+				});
+
+				// TODO we need to define the initial state and expanded behaviour
+				draggables.find('> .cms_dragitem-collapsable').bind('click', function (e) {
+					$(this).toggleClass('cms_dragitem-collapsed')
+						.parent().find('> ul').toggle();
+				});
+			},
+
+			_setupPlugins: function (plugins) {
 				var that = this;
 
-				// handling placeholder and dragholders one-time initialization
-				this.containers.each(function () {
-					that._setupPlaceholder($(this));
-					that._setupDragholder($('#cms_dragholder-' + that.getId($(this))));
+				plugins.bind('mouseover.cms.placeholder mouseout.cms.placeholder', function (e) {
+					e.stopPropagation();
+					// add events to placeholder
+					(e.type === 'mouseover') ? that.tooltip.show() : that.tooltip.hide();
+					(e.type === 'mouseover') ? that._showMenu($(this)) : that._hideMenu($(this));
 				});
+			},
+
+			_events: function () {
+				var that = this;
 
 				// this sets the correct position for the edit tooltip
 				$(document.body).bind('mousemove.cms.placeholder', function (e) {
@@ -57,41 +82,15 @@
 				});
 			},
 
-			_setupPlaceholder: function (placeholder) {
-				var that = this;
-
-				placeholder.bind('mouseover.cms.placeholder mouseout.cms.placeholder', function (e) {
-					e.stopPropagation();
-					// add events to placeholder
-					(e.type === 'mouseover') ? that.tooltip.show() : that.tooltip.hide();
-					(e.type === 'mouseover') ? that._showMenu($(this)) : that._hideMenu($(this));
-				});
-			},
-
-			_setupDragholder: function (dragholder) {
-				var that = this;
-
-				dragholder.bind('mouseover.cms.placeholder mouseout.cms.placeholder', function (e) {
-					e.stopPropagation();
-					// add events to dragholder
-					(e.type === 'mouseover') ? that._showMenu($(this)) : that._hideMenu($(this));
-				});
-
-				// TODO we need to define the initial state and expanded behaviour
-				dragholder.find('> .cms_dragitem-collapsable').bind('click', function (e) {
-					$(this).toggleClass('cms_dragitem-collapsed')
-						.parent().find('> ul').toggle();
-				});
-			},
-
 			_showMenu: function (el) {
 				var that = this;
 				var speed = 50;
+				var timeout = 100;
 
 				clearTimeout(this.timer);
 
 				// handle class handling
-				if(el.hasClass('cms_dragholder')) this.menu.addClass('cms_placeholders-menu-layout');
+				if(el.hasClass('cms_draggable')) this.menu.addClass('cms_placeholders-menu-alternate');
 
 				// sets the timer to switch elements
 				this.timer = setTimeout(function () {
@@ -104,21 +103,22 @@
 						// show element and attach id to CMS.Toolbar
 						that.menu.fadeIn(speed).data('id', that.getId(el));
 					}
-				}, speed);
+				}, timeout);
 			},
 
 			_hideMenu: function (el) {
 				var that = this;
 				var speed = 50;
+				var timeout = 100;
 
 				clearTimeout(this.timer);
 
 				// sets the timer for closing
 				this.timer = setTimeout(function () {
 					that.menu.fadeOut(speed, function () {
-						that.menu.removeClass('cms_placeholders-menu-layout');
+						that.menu.removeClass('cms_placeholders-menu-alternate');
 					});
-				}, speed);
+				}, timeout);
 			},
 
 			_collapse: function () {},
@@ -131,10 +131,10 @@
 
 				var id = null;
 
-				if(el.hasClass('cms_placeholder')) {
-					id = el.attr('id').replace('cms_placeholder-', '');
-				} else if(el.hasClass('cms_dragholder')) {
-					id = el.attr('id').replace('cms_dragholder-', '');
+				if(el.hasClass('cms_plugin')) {
+					id = el.attr('id').replace('cms_plugin-', '');
+				} else if(el.hasClass('cms_draggable')) {
+					id = el.attr('id').replace('cms_draggable-', '');
 				} else {
 					id = el.attr('id').replace('cms_placeholder-bar-', '');
 				}
@@ -147,26 +147,26 @@
 				var dropped = false;
 				var droparea = null;
 
-				this.sortareas.nestedSortable({
-					'items': '.cms_dragholder-draggable',
+				this.sortables.nestedSortable({
+					'items': '.cms_draggable',
 					'handle': '.cms_dragitem',
 					'listType': 'ul',
 					'opacity': 0.2,
 					'tolerance': 'pointer',
 					'toleranceElement': '> div',
 					'cursor': 'move',
-					'connectWith': this.sortareas,
+					'connectWith': this.sortables,
 					// creates a cline thats over everything else
 					'helper': 'clone',
 					'appendTo': 'body',
 					'dropOnEmpty': true,
 					'forcePlaceholderSize': true,
-					'placeholder': 'cms_reset cms_light cms_dragholder cms_dragholder-empty cms_dragholder-droppable ui-droppable',
+					'placeholder': 'cms_droppable',
 					'zIndex': 999999,
 					'isAllowed': function(placeholder, placeholderParent, originalItem) {
 						// getting restriction array
 						var bounds = [];
-						var plugin = $('#cms_placeholder-' + that.getId(originalItem));
+						var plugin = $('#cms_plugin-' + that.getId(originalItem));
 						var bar = placeholder.parent().prevAll('.cms_placeholder-bar').first();
 						var type = plugin.data('settings').plugin_type;
 
@@ -189,30 +189,30 @@
 							dropped = false;
 						}
 						// we pass the id to the updater which checks within the backend the correct place
-						var id = ui.item.attr('id').replace('cms_dragholder-', '');
-						var plugin = $('#cms_placeholder-' + id);
+						var id = ui.item.attr('id').replace('cms_draggable-', '');
+						var plugin = $('#cms_plugin-' + id);
 							plugin.trigger('cms.placeholder.update');
 					},
 					'disableNestingClass': 'cms_draggable-disabled',
-					'errorClass': 'cms_dragholder-disallowed',
+					'errorClass': 'cms_draggable-disallowed',
 					'hoveringClass': 'cms_draggable-hover'
 					// TODO not yet required
 					// branchClass: 'mjs-nestedSortable-branch',
 					// collapsedClass: 'mjs-nestedSortable-collapsed',
-					// expandedClass: 'cms_dragholder-disallowed',
+					// expandedClass: 'cms_draggable-disallowed',
 					// leafClass: 'mjs-nestedSortable-leaf',
 				});
 
 				// define droppable helpers
 				this.dropareas.droppable({
 					'greedy': true,
-					'accept': '.cms_dragholder-draggable',
+					'accept': '.cms_draggable',
 					'tolerance': 'pointer',
-					'activeClass': 'cms_dragholder-allowed',
-					'hoverClass': 'cms_dragholder-hover-allowed',
+					'activeClass': 'cms_draggable-allowed',
+					'hoverClass': 'cms_draggable-hover-allowed',
 					'drop': function (event, ui) {
 						dropped = true;
-						droparea = $(event.target).nextAll('.cms_sortables').first();
+						droparea = $(event.target).nextAll('.cms_draggables').first();
 					}
 				});
 			},
@@ -224,7 +224,7 @@
 				var prevent = true;
 
 				// unbind click event if already initialized
-				this.containers.find('a, button, input[type="submit"], input[type="button"]').bind('click', function (e) {
+				this.plugins.find('a, button, input[type="submit"], input[type="button"]').bind('click', function (e) {
 					if(prevent) {
 						e.preventDefault();
 
@@ -250,11 +250,11 @@
 		});
 
 		/*!
-		 * Placeholder
+		 * PlaceholderItem
 		 * @version: 2.0.0
 		 * @description: Adds individual handling
 		 */
-		CMS.Placeholder = new CMS.Class({
+		CMS.PlaceholderItem = new CMS.Class({
 
 			options: {
 				'type': '', // bar, plugin or generic
@@ -327,6 +327,7 @@
 					that.editPlugin(that.options.urls.edit_plugin, that.options.plugin_name, that.options.plugin_breadcrumb);
 				});
 
+				// setup dragmenu
 				this._setPluginMenu();
 
 				// update plugin position
@@ -340,7 +341,7 @@
 			_setPluginMenu: function () {
 				// DRAGGABLE
 				var that = this;
-				var draggable = $('#cms_dragholder-' + this.options.plugin_id);
+				var draggable = $('#cms_draggable-' + this.options.plugin_id);
 				var menu = draggable.find('> .cms_dragitem .cms_dragmenu-dropdown');
 				var speed = 200;
 
@@ -371,7 +372,7 @@
 					var el = $(this);
 
 					if(el.attr('rel') === 'custom') {
-						that.addPlugin(el.attr('href').replace('#', ''), el.text(), that._getId(el.closest('.cms_dragholder')))
+						that.addPlugin(el.attr('href').replace('#', ''), el.text(), that._getId(el.closest('.cms_draggable')))
 					} else {
 						that._delegate(el);
 					}
@@ -424,25 +425,26 @@
 			movePlugin: function () {
 				var that = this;
 
-				var plugin = $('#cms_placeholder-' + this.options.plugin_id);
-				var dragitem = $('#cms_dragholder-' + this.options.plugin_id);
+				var plugin = $('#cms_plugin-' + this.options.plugin_id);
+				var dragitem = $('#cms_draggable-' + this.options.plugin_id);
 
 				// SETTING POSITION
 				// after we insert the plugin onto its new place, we need to figure out whats above it
-				var parent_id = this._getId(dragitem.prev('.cms_dragholder-draggable'));
+				var parent_id = this._getId(dragitem.prev('.cms_draggable'));
 
 				if(parent_id) {
 					// if we find a previous item, attach it afterwards
-					plugin.insertAfter($('#cms_placeholder-' + parent_id));
+					plugin.insertAfter($('#cms_plugin-' + parent_id));
 				} else {
 					// if we dont find out, we need to figure out where it belongs and get the previous item
-					dragitem.parent().prev().prepend(plugin);
+					console.log(dragitem.parent().parent().next());
+					dragitem.parent().parent().next().prepend(plugin);
 				}
 
 				// SAVING POSITION
-				var placeholder_id = this._getId(dragitem.parents('.cms_sortables').last().prevAll('.cms_placeholder-bar').first());
-				var plugin_parent = this._getId(dragitem.parent().closest('.cms_dragholder'));
-				var plugin_order = this._getIds(dragitem.siblings('.cms_dragholder-draggable').andSelf());
+				var placeholder_id = this._getId(dragitem.parents('.cms_draggables').last().prevAll('.cms_placeholder-bar').first());
+				var plugin_parent = this._getId(dragitem.parent().closest('.cms_draggable'));
+				var plugin_order = this._getIds(dragitem.siblings('.cms_draggable').andSelf());
 
 				// gather the data for ajax request
 				var data = {
