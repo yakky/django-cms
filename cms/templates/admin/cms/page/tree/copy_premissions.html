@@ -15,17 +15,19 @@
 <script type="text/javascript">
 jQuery(document).ready(function($) {
 	// change submit states, open dialog
-	$('#{{ dialog_id }}').dialog({
-		bgiframe: true,
-		autoOpen: true,
-		height: 200,
-		width: 400,
-		modal: true,
-		buttons: {
-			Cancel: function() {
+	var dialog = '#{{ dialog_id }}';
+
+	$(dialog).dialog({
+		'bgiframe': true,
+		'autoOpen': true,
+		'height': 200,
+		'width': 400,
+		'modal': true,
+		'buttons': {
+			'Cancel': function() {
 				$(this).dialog('close');
 			},
-			OK: function() {
+			'OK': function() {
 				formData = {};
 				$.each($('#{{ dialog_id }}-form').formToArray(), function(i, item){
 					formData[item.name] = item.value;

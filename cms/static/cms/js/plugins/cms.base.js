@@ -154,7 +154,11 @@ CMS.$(document).ready(function ($) {
 		},
 
 		savePlugin: function (type, context) {
-			console.log(type);
+
+			// lets reload the browser
+			setTimeout(function () {
+				CMS.API.Helpers.reloadBrowser();
+			}, context.timeout || 0);
 		}
 
 	};
