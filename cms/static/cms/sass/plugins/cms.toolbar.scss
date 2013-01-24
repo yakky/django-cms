@@ -177,6 +177,7 @@
 		.cms_modal-breadcrumb a:nth-child(10) { z-index:1; }
 
 		// buttons
+		.cms_modal-buttons { float:right; }
 		.cms_modal-save,
 		.cms_modal-cancel { float:right; font-size:12px; cursor:pointer; padding:2px 10px; margin:3px 25px 3px 0;
 			@include border-radius(3px); }

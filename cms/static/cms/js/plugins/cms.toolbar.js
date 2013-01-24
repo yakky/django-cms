@@ -593,19 +593,31 @@ $(document).ready(function () {
 			var container = this.modal.find('.cms_modal-body');
 			var width = container.width();
 			var height = container.height();
+			var modalLeft = this.modal.position().left;
+			var modalTop = this.modal.position().top;
 
 			this.modal.find('.cms_modal-shim').show();
 
 			$(document).bind('mousemove.cms', function (e) {
-				var w = width - (initial.pageX - e.pageX);
-				var h = height - (initial.pageY - e.pageY);
-				var b = that.modal.find('.cms_modal-breadcrumb').outerWidth(true);
+				var mvX = initial.pageX - e.pageX;
+				var mvY = initial.pageY - e.pageY;
+
+				var w = width - (mvX * 2);
+				var h = height - (mvY * 2);
+				var max = that.modal.find('.cms_modal-breadcrumb').outerWidth(true) + that.modal.find('.cms_modal-buttons').outerWidth(true);
 
 				// add some limits
-				if(w <= b) w = b;
-				if(h <= 100) h = 100;
+				if(w <= max || h <= 100) return false;
 
-				container.css({'width': w, 'height': h });
+				// set centered animation
+				container.css({
+					'width': width - (mvX * 2),
+					'height': height - (mvY * 2)
+				});
+				that.modal.css({
+					'left': modalLeft + mvX,
+					'top': modalTop + mvY
+				});
 			});
 		},
 
