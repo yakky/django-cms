@@ -116,8 +116,8 @@
 
 	// #TOOLBAR/sidebar#
 	.cms_sideframe { display:none; position:fixed; left:0; top:0; z-index:1; width:0; height:100%; overflow:visible !important; }
-	.cms_sideframe-frame { position:relative; z-index:10; width:100%; height:100%; overflow:hidden; background:#fff; }
-	.cms_sideframe iframe { height:100%; width:100%; border:none; background:#fff; overflow:auto; }
+	.cms_sideframe-frame { position:relative; z-index:10; width:100%; height:100%; overflow:hidden; background:$color-white; }
+	.cms_sideframe iframe { height:100%; width:100%; border:none; background:$color-white; overflow:auto; }
 	.cms_sideframe-resize { position:absolute; right:-2px; top:0; z-index:30; width:2px; height:100%; cursor:col-resize; }
 	.cms_sideframe-shim { position:absolute; left:0; top:0; z-index:1; width:100%; height:100%;
 		background:transparent; }
@@ -137,7 +137,9 @@
 	.cms_dialogue-confirm { margin:0 15px 0 0; }
 
 	// #TOOLBAR/modal#
-	.cms_modal { display:none; position:fixed; left:50%; top:50%; z-index:999999; overflow:hidden; @include border-radius(5px); }
+	.cms_modal { display:none; position:fixed; left:50%; top:50%; z-index:999999; overflow:hidden;
+		@include border-radius(5px);
+		@include box-shadow(0 0 15px rgba(0, 0, 0, 0.2)); }
 	.cms_modal {
 		.cms_modal-title { display:block; font-size:13px; font-weight:bold; text-align:center; cursor:move;
 			padding:3px 75px 4px; @include border-radius(5px 5px 0px 0px); }
@@ -153,12 +155,12 @@
 
 		.cms_modal-resize { position:absolute; right:0; bottom:0; width:20px; height:20px; cursor:nw-resize; }
 
-		.cms_modal-breadcrumb { float:left; font-size:12px; line-height:12px; height:24px; min-width:225px; padding-right:25px; }
+		.cms_modal-breadcrumb { float:left; font-size:12px; line-height:12px; height:32px; min-width:225px; padding-right:25px; }
 		.cms_modal-breadcrumb a { float:left; font-size:12px; line-height:12px; margin-left:-10px; position:relative; z-index:100; padding-right:10px; }
 		.cms_modal-breadcrumb a span,
-		.cms_modal-breadcrumb-title { float:left; padding:6px 15px; position:relative; z-index:120; }
+		.cms_modal-breadcrumb-title { float:left; padding:10px 15px; position:relative; z-index:120; }
 		.cms_modal-breadcrumb-title { @include border-radius(0px 0px 0px 5px); }
-		.cms_modal-breadcrumb a span { float:left; padding:6px 15px 6px 25px; }
+		.cms_modal-breadcrumb a span { float:left; padding:10px 15px 10px 25px; }
 
 		.cms_modal-breadcrumb-last { cursor:default; }
 
@@ -173,6 +175,12 @@
 		.cms_modal-breadcrumb a:nth-child(8) { z-index:20; }
 		.cms_modal-breadcrumb a:nth-child(9) { z-index:10; }
 		.cms_modal-breadcrumb a:nth-child(10) { z-index:1; }
+
+		// buttons
+		.cms_modal-save,
+		.cms_modal-cancel { float:right; font-size:12px; cursor:pointer; padding:2px 10px; margin:3px 25px 3px 0;
+			@include border-radius(3px); }
+		.cms_modal-cancel { margin-right:5px; }
 	}
 
 	// #TOOLBAR/tooltip#
@@ -183,9 +191,9 @@
 	// #TOOLBAR/pmenu#
 	.cms_placeholders-menu {
 		display:none; position:absolute; left:0; top:0;
-		width:28px; height:28px; padding:0; margin:0 0 0 -29px; cursor:pointer;
+		width:28px; height:28px; padding:0; margin:0 0 0 -31px; cursor:pointer;
 		font-size:11px; line-height:11px; text-align:center; overflow:hidden;
-		@include border-radius(3px 0px 0px 3px);
+		@include border-radius(3px);
 	}
 
 	// end of toolbar
@@ -201,9 +209,8 @@
 //######################################################################################################################
 // #LIGHT THEME#
 .cms_light {
-	.cms_toolbar { border-bottom:1px solid #e1e1e1 !important; background-color:#fcfcfc; // old browsers
-		@include background-image(linear-gradient(top, #fcfcfc 0%, #fefefe 50%, #fcfcfc 100%));
-		@include box-shadow(0 0 15px rgba(0, 0, 0, 0.2)); }
+	.cms_toolbar { border-bottom:1px solid $color-grey-10 !important; background:$color-grey-5;
+		@include background-image($gradient-toolbar); @include box-shadow(0 0 15px rgba(0, 0, 0, 0.2)); }
 
 	// #TOOLBAR/logo#
 	.cms_toolbar-item_logo a { background:url('/static/cms/img/toolbar/sprite_toolbar.png') no-repeat left top;
@@ -212,120 +219,130 @@
 
 	// #TOOLBAR/login#
 	.cms_form-login {
-		input[type="text"], input[type="password"] { border:1px solid #ddd; @include box-shadow(0px 1px 0px #fff); }
-		input[type="submit"] { color:#fff; border:1px solid #434343;
-			@include box-shadow(inset 0 1px 0 #888);
-			@include background-image(linear-gradient(top, #666, #444));
-			&:hover { background:#666; }
-			&:active, &:focus { background:#444; @include box-shadow(inset 0 1px 0 #444); }
+		input[type="text"], input[type="password"] { color:$color-grey;
+			border:1px solid lighten($color-grey, 45%);
+			@include box-shadow(0px 1px 0px $color-white);
+			&:focus { border-color:$color-blue;
+				@include box-shadow(inset 0px 0px 2px $color-grey-10);
+				@include single-transition(outline 0.2s);
+			}
 		}
-		.cms_error { color:#f00; }
-		.cms_error input { border:1px solid #f00; }
+		input[type="submit"] { color:$color-white; border:1px solid darken($color-grey, 20%);
+			@include box-shadow(inset 0 1px 0 lighten($color-grey, 20%));
+			@include background-image($gradient-dark);
+			&:hover, &:active, &:focus { background:$color-grey-70; @include box-shadow(none); }
+			&:active, &:focus { background:darken($color-grey-70, 50%); }
+		}
+		.cms_error { color:$color-red; }
+		.cms_error input { border:1px solid $color-red; }
 	}
 
 	// #TOOLBAR/navigation#
 	.cms_toolbar-item_navigation {
-		li span { color:#efefef; @include text-shadow(0 1px 0 #fff); }
+		li span { color:$color-grey-5; @include text-shadow(0 1px 0 $color-white); }
 		// activation effect
 		li:hover, li:active, li:focus {
-			ul { border:1px solid #e1e1e1; background:#fff;
-				@include box-shadow(0 2px 2px #e1e1e1); }
-			ul li a:hover, ul li a:active, ul li a:focus { color:#fff; }
-			ul .active a { color:#222 !important; }
-			ul .active a:hover { color:#fff !important; background:#0a84e4 !important;
-				@include background-image(linear-gradient(#0eaaec, #0a84e4) !important); }
+			ul { border:1px solid $color-grey-10; background:$color-white;
+				@include box-shadow(0 2px 2px $color-grey-10); }
+			ul li a:hover, ul li a:active, ul li a:focus { color:$color-white; }
+			ul .active a { color:$color-black; }
+			ul .active a:hover { background:adjust-hue($color-blue, 15deg) !important;
+				@include background-image($gradient-blue !important); }
 		}
 
-		li a:hover, li a:active, li a:focus, .active > a { color:#fff; background:#0a84e4;
-			@include background-image(linear-gradient(#0eaaec, #0a84e4)); }
-		li a:hover strong, li a:active strong, li a:focus strong, .active > a strong { color:#fff !important; }
+		li a:hover, li a:active, li a:focus, .active > a { color:$color-white;
+			background:adjust-hue($color-blue, 15deg);
+			@include background-image($gradient-blue); }
+		li a:hover strong, li a:active strong, li a:focus strong, .active > a strong { color:$color-white !important; }
 
-		.cms_toolbar-item_navigation-break { border-bottom:1px solid #ddd; }
+		.cms_toolbar-item_navigation-break { border-bottom:1px solid $color-grey-10; }
 
 		.cms_toolbar-item_navigation-disabled {
-			a { color:#efefef; @include text-shadow(0 1px 0 #fff);
-				&:hover, &:active, &:focus { color:#efefef; }
+			a { @include opacity(0.2);
+				&:hover, &:active, &:focus { color:$color-black; }
 			}
 		}
 	}
 
 	// #TOOLBAR/switch#
-	.cms_toolbar-item_switch { border-top:1px solid #dadada; background:#f5f5f5;
-		@include box-shadow(inset #ebebeb 0px 1px 0px);
-		&:hover, &:active, &:focus { background-color:#ebebeb; }
+	.cms_toolbar-item_switch { border-top:1px solid $color-grey-10; background:darken($color-grey-5, 5%);
+		@include box-shadow(inset $color-grey-10 0px 1px 0px);
+		&:hover, &:active, &:focus { background-color:$color-grey-10; }
 	}
 	.cms_toolbar-item_switch {
-		a {	color:#000; @include text-shadow(0 1px 0 #fff); }
+		a {	color:$color-black; @include text-shadow(0 1px 0 $color-white); }
 		.cms_toolbar-item_switch-knob {
-			border:1px solid #000; background:#444;
-			@include box-shadow(inset 0 1px 0 #888);
-			@include background-image(linear-gradient(top, #666 0%, #444 50%, #222 100%));
+			border:1px solid $color-black; background:$color-grey-70;
+			@include box-shadow(inset 0 1px 0 lighten($color-grey, 20%));
+			@include background-image($gradient-dark);
 		}
 	}
 
 	.cms_toolbar-item_switch-active {
-		a {	color:#693; }
+		a {	color:$color-green; }
 		.cms_toolbar-item_switch-knob {
-			border:1px solid #9ebf58; background:#bce18a;
-			@include box-shadow(inset 0 1px 0 #d1f0a7);
-			@include background-image(linear-gradient(top, #bce18a 0%, #b6d76f 50%, #9ebf58 100%)); }
+			border:1px solid lighten($color-green, 10%); background:lighten($color-green, 10%);;
+			@include box-shadow(inset 0 1px 0 lighten($color-green, 45%));
+			@include background-image($gradient-green); }
 	}
 
 	// #TOOLBAR/buttons#
-	.cms_toolbar-item_buttons { @include box-shadow(inset #ebebeb 0px 1px 0px); }
-	.cms_toolbar-item_buttons {
-		li a { color:#222; border-right:1px solid #dadada; border-top:1px solid #dadada; background:#f5f5f5;
-			@include box-shadow(inset #ebebeb 0px 1px 0px);
-			&:hover, &:active, &:focus { background-color:#ececec; }
+	.cms_toolbar-item_buttons { @include box-shadow(inset $color-grey-10 0px 1px 0px); }
+	.cms_toolbar-item_buttons { color:$color-black;
+		li a { border-right:1px solid darken($color-grey-10, 10%); border-top:1px solid darken($color-grey-10, 10%);
+			background:darken($color-grey-5, 5%);
+			@include box-shadow(inset 0px 1px 0px $color-grey-10);
+			&:hover, &:active, &:focus { background-color:$color-grey-10; }
 		}
-		.active a { color:#fff; border:1px solid #434343 !important;
-			@include box-shadow(inset 0 1px 0 #888);
-			@include background-image(linear-gradient(top, #666, #444) !important);
-			&:hover { background:#666 !important; }
-			&:active, &:focus { background:#444 !important; @include box-shadow(inset 0 1px 0 #444); }
+		li.active a { color:$color-white; border:1px solid darken($color-grey, 20%) !important;
+			@include box-shadow(inset 0 1px 0 lighten($color-grey, 20%));
+			@include background-image($gradient-dark);
+			&:hover, &:active, &:focus { background:$color-grey-70; @include box-shadow(none); }
+			&:active, &:focus { background:darken($color-grey-70, 50%); }
 		}
 
-		li:first-child a { border-left:1px solid #dadada; }
+		li:first-child a { border-left:1px solid darken($color-grey-10, 10%); }
 	}
 
 	// #TOOLBAR/handle#
-	.cms_toolbar-trigger { border-left:1px solid #e3e3e3; border-bottom:1px solid #e1e1e1; }
-	.cms_toolbar-trigger a { color:#444 !important; border-left:1px solid #ececec; border-top:1px solid #ececec;
-		background:#f5f5f5 url('/static/cms/img/toolbar/sprite_toolbar.png') no-repeat -60px -40px;
-		&:hover, &:active, &:focus { background-position:-90px -40px; background-color:#ececec; }
+	.cms_toolbar-trigger { border-left:1px solid $color-grey-10;
+		border-bottom:1px solid $color-grey-10; }
+	.cms_toolbar-trigger a { color:$color-grey-70;
+		border-left:1px solid $color-white; border-top:1px solid $color-white;
+		background:$color-grey-5 url('/static/cms/img/toolbar/sprite_toolbar.png') no-repeat -60px -40px;
+		&:hover, &:active, &:focus { background-position:-90px -40px; background-color:$color-white; }
 	}
 	.cms_toolbar-trigger-expanded a { background-position:0 -40px;
 		&:hover, &:active, &:focus { background-position:-30px -40px; }
 	}
 
 	// #TOOLBAR/helpers#
-	.cms_modal-loader { background:#fff url('/static/cms/img/loader.gif') no-repeat center center !important; }
+	.cms_modal-loader { background:$color-white url('/static/cms/img/loader.gif') no-repeat center center !important; }
 
 	// #TOOLBAR/sidebar#
-	.cms_sideframe-resize { background:#494949; }
-	.cms_sideframe-knob { background:#444; }
+	.cms_sideframe-resize { background:$color-grey-70; }
+	.cms_sideframe-knob { background:$color-black; }
 
 	// #TOOLBAR/dialogue#
-	.cms_dialogue { background:#fff; }
-	.cms_dialogue-title { color:#fff; background:#fcfcfc; @include background-image(linear-gradient(top, #666, #444)); }
-	.cms_dialogue-inner { border:1px solid #e1e1e1; @include box-shadow(0 0 5px rgba(0, 0, 0, 0.2)); }
-	.cms_dialogue-text { border-bottom:1px solid #e1e1e1; @include text-shadow(0px 1px 0px #fff); }
-	.cms_dialogue-buttons { border-top:1px solid #fff; }
-	.cms_dialogue-buttons a { color:#fff; border:1px solid #434343;
-		@include box-shadow(inset 0 1px 0 #888);
-		@include background-image(linear-gradient(top, #666, #444));
-		&:hover { background:#666; }
-		&:active, &:focus { background:#444; @include box-shadow(inset 0 1px 0 #444); }
+	.cms_dialogue { background:$color-white; }
+	.cms_dialogue-title { color:$color-white; background:$color-grey-70; @include background-image($gradient-dark); }
+	.cms_dialogue-inner { border:1px solid $color-grey-10; @include box-shadow(0 0 5px rgba(0, 0, 0, 0.2)); }
+	.cms_dialogue-text { border-bottom:1px solid $color-grey-10; @include text-shadow(0px 1px 0px $color-white); }
+	.cms_dialogue-buttons { border-top:1px solid $color-white; }
+
+	.cms_dialogue-buttons a { color:$color-white; border:1px solid darken($color-grey, 20%);
+		@include box-shadow(inset 0 1px 0 lighten($color-grey, 20%));
+		@include background-image($gradient-dark);
+		&:hover, &:active, &:focus { background:$color-grey-70; @include box-shadow(none); }
+		&:active, &:focus { background:darken($color-grey-70, 50%); }
 	}
 
 	// #TOOLBAR/modal#
-	.cms_modal { display:none; position:fixed; left:50%; top:50%; z-index:999999; overflow:hidden;
-		@include border-radius(5px);
-		@include box-shadow(0 0 15px rgba(0, 0, 0, 0.2)); background:#fff; }
+	.cms_modal { background:$color-white; }
 	.cms_modal {
-		.cms_modal-title { color:#444; background:#f9f9f9; }
-		.cms_modal-body { border-top:1px solid #e4e4e4; border-bottom:1px solid #e4e4e4; }
-		.cms_modal-foot { background:#f9f9f9; }
+		.cms_modal-title { color:$color-grey-70; background:$color-grey-5; }
+		.cms_modal-body { border-top:1px solid $color-grey-10; border-bottom:1px solid $color-grey-10; }
+		.cms_modal-foot { background:$color-grey-5; }
 		.cms_modal-collapse, .cms_modal-close {
 			background:url('/static/cms/img/toolbar/sprite_toolbar.png') no-repeat left top; }
 		.cms_modal-collapse { background-position:0 -70px; }
@@ -339,33 +356,47 @@
 		.cms_modal-resize { background:url('/static/cms/img/toolbar/sprite_toolbar.png') no-repeat -117px -67px; }
 		.cms_modal-resize:hover { background-position:-137px -67px; }
 
-		.cms_modal-breadcrumb a { color:#666; background:url('/static/cms/img/toolbar/sprite_toolbar.png') no-repeat right -90px; }
-		.cms_modal-breadcrumb a span, .cms_modal-breadcrumb-title { color:#999; }
-		.cms_modal-breadcrumb-title { border-right:1px solid #e4e4e4; background:#fff; }
-		.cms_modal-breadcrumb a span { color:#000; }
+		.cms_modal-breadcrumb a { color:$color-grey; background:url('/static/cms/img/toolbar/sprite_toolbar.png') no-repeat right -228px; }
+		.cms_modal-breadcrumb a span, .cms_modal-breadcrumb-title { color:$color-grey; }
+		.cms_modal-breadcrumb-title { border-right:1px solid $color-grey-10; background:$color-white; }
+		.cms_modal-breadcrumb a span { color:$color-black; }
 
 		.cms_modal-breadcrumb a:hover,
-		.cms_modal-breadcrumb-last { color:#000; background-position:right -114px !important; }
+		.cms_modal-breadcrumb-last { color:$color-black; background-position:right -260px !important; }
 		.cms_modal-breadcrumb a:hover span,
-		.cms_modal-breadcrumb-last span { color:#000; background-color:#fff; }
-		.cms_modal-breadcrumb-last span { color:#4ea8ee !important; }
+		.cms_modal-breadcrumb-last span { color:$color-black; background-color:$color-white; }
+		.cms_modal-breadcrumb-last span { color:$color-blue !important; }
+
+		.cms_modal-save { color:$color-white; border:1px solid adjust-hue($color-blue, 15deg);
+			background:$color-blue; @include background-image($gradient-blue);
+			@include box-shadow(inset lighten($color-blue, 10%) 0px 1px 0px);
+			&:hover, &:active, &:focus { background:adjust-hue($color-blue, 15deg); @include box-shadow(none); }
+			&:active, &:focus { background:darken(adjust-hue($color-blue, 15deg), 10%); }
+		}
+
+		.cms_modal-cancel { color:$color-grey; border:1px solid $color-grey-10;
+			background:$color-grey-10; @include background-image($gradient-light);
+			@include box-shadow(inset lighten($color-grey-10, 5%) 0px 1px 0px);
+			&:hover, &:active, &:focus { background:$color-grey-10; border:1px solid $color-grey-10; @include box-shadow(none); }
+			&:active, &:focus { border:1px solid darken($color-grey-10, 10%); background:darken($color-grey-10, 10%); }
+		}
 	}
 
 	// #TOOLBAR/tooltip#
-	.cms_placeholders-tooltip { color:#444;
+	.cms_placeholders-tooltip { color:$color-grey-70;
 		background:url('/static/cms/img/toolbar/sprite_toolbar.png') no-repeat left -138px;
-		@include text-shadow(#fff 0 0 3px);
+		@include text-shadow($color-white 0 0 3px);
 	}
 
 	// #TOOLBAR/pmenu#
 	.cms_placeholders-menu {
-		color:#888; border:1px solid #fbfbfb;
-		background:#fbfbfb url('/static/cms/img/toolbar/sprite_toolbar.png') no-repeat left -202px;
+		color:$color-grey; border:1px solid $color-grey-70;
+		background:$color-grey-70 url('/static/cms/img/toolbar/sprite_toolbar.png') no-repeat left -202px;
 		@include border-radius(3px);
 	}
 	.cms_placeholders-menu:hover { background-position:-27px -202px; }
 
-	.cms_placeholders-menu-alternate { border-right:1px solid #494949; background-position:-52px -202px; }
+	.cms_placeholders-menu-alternate { background-position:-52px -202px; }
 	.cms_placeholders-menu-alternate:hover { background-position:-78px -202px; }
 
 // end of light theme

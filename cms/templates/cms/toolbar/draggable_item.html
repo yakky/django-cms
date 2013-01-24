@@ -1,6 +1,6 @@
 {% load cms_tags i18n  %}
 
-<li id="cms_draggable-{{ plugin.pk }}" class="cms_draggable{% if not plugin.child_plugins_instances %} cms_draggable-disabled{% endif %}">
+<li id="cms_draggable-{{ plugin.pk }}" class="cms_draggable cms_reset{% if not plugin.child_plugins_instances %} cms_draggable-disabled{% endif %}">
 	<div class="cms_dragitem cms_dragitem-handler{% if plugin.child_plugins_instances %} cms_dragitem-collapsable{% endif %}">
 		<div class="cms_dragmenu">
 			<div class="cms_dragmenu-dropdown">

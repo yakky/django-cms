@@ -42,7 +42,7 @@
 
 //######################################################################################################################
 // #DRAGGABLES#
-.cms_draggables { list-style-type:none; padding:0; margin:0; }
+.cms_draggables { list-style-type:none; padding:0; margin:0; min-height:25px; }
 
 .cms_draggable, .cms_droppable {
 	position:relative; left:0; top:0; z-index:99; @include border-radius(3px);
@@ -52,7 +52,7 @@
 	.cms_draggable { position:relative; z-index:99; white-space:nowrap; }
 
 	// dragmenu
-	.cms_dragmenu { float:right; width:20px; height:20px; cursor:pointer; }
+	.cms_dragmenu { display:none; float:right; width:20px; height:20px; cursor:pointer; }
 	.cms_dragmenu-dropdown {
 		display:none; zoom:1; position:absolute; right:-1px; top:26px; z-index:999; min-width:140px;
 		max-height:230px; overflow:auto; @include border-radius(0 0 3px 3px);
@@ -111,12 +111,15 @@
 		.cms_dragmenu-dropdown a:hover { color:#0eaaec; background:#f9f9f9; }
 		.cms_dragmenu-dropdown span { color:#0eaaec; border-bottom:1px dotted #e1e1e1;  }
 	}
-	.cms_droppable { color:#d1d1d1; border:1px dashed #c4c4c4; background:#494949; }
+	.cms_droppable { color:#d1d1d1; border:1px dashed #c4c4c4; }
 
 	.cms_draggable-selected .cms_dragitem,
 	.cms_draggable-selected .cms_dragitem strong { color:#fff; }
 
 
+
+	.cms_draggable:hover { @include box-shadow(inset 0px 0px 3px #ddd); border-color:#ccc; }
+	.cms_draggable:hover .cms_dragmenu { display:block; }
 
 	.cms_draggable-selected { border:1px solid #0a84e4 !important; background:#0a84e4 !important;
 		@include background-image(linear-gradient(#0eaaec, #0a84e4) !important); }
@@ -130,11 +133,10 @@
 	.cms_draggable-hover-allowed, .cms_draggable-placeholder { color:#fff; background:#565a52; }
 
 	.cms_draggable-disallowed, .cms_draggable-hover-disallowed {
-		color:#eaa !important; border:1px dashed #eaa !important; background:#6a5c5c !important; }
+		color:#eaa; border:1px dashed #eaa; background:rgba(238, 170, 170, 0.2); }
 
 // end of light theme
 }
-
 
 
 

@@ -151,7 +151,7 @@
 					'items': '.cms_draggable',
 					'handle': '.cms_dragitem',
 					'listType': 'ul',
-					'opacity': 0.2,
+					'opacity': 0.4,
 					'tolerance': 'pointer',
 					'toleranceElement': '> div',
 					'cursor': 'move',
@@ -167,6 +167,7 @@
 						// getting restriction array
 						var bounds = [];
 						var plugin = $('#cms_plugin-' + that.getId(originalItem));
+
 						var bar = placeholder.parent().prevAll('.cms_placeholder-bar').first();
 						var type = plugin.data('settings').plugin_type;
 
@@ -437,7 +438,6 @@
 					plugin.insertAfter($('#cms_plugin-' + parent_id));
 				} else {
 					// if we dont find out, we need to figure out where it belongs and get the previous item
-					console.log(dragitem.parent().parent().next());
 					dragitem.parent().parent().next().prepend(plugin);
 				}
 

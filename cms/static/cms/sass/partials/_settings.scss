@@ -1,7 +1,26 @@
 //##################################################
 // #SETTINGS#
 
-// importing compass mixins
+// #IMPORTS#
 @import "compass/css3";
 @import "compass/utilities";
 @import "compass/typography/text/ellipsis";
+
+// #COLORS#
+$color-white: #fff;
+$color-black: #000;
+
+$color-grey: #666;
+$color-blue: #0eaaec;
+$color-green: #669933;
+$color-red: #f00;
+
+$color-grey-5: #fafafa;
+$color-grey-10: #e5e5e5;
+$color-grey-70: #454545;
+
+$gradient-toolbar: linear-gradient(top, #fcfcfc 0%, #fefefe 50%, #fcfcfc 100%);
+$gradient-light: linear-gradient(top, lighten($color-grey-10, 5%), $color-grey-10);
+$gradient-dark: linear-gradient(top, $color-grey, darken($color-grey, 20%));
+$gradient-blue: linear-gradient(top, $color-blue, adjust-hue($color-blue, 15deg));
+$gradient-green: linear-gradient(top, #bce18a 0%, #b6d76f 50%, #9ebf58 100%);

@@ -115,50 +115,10 @@ $(document).ready(function () {
 				});
 			});
 
-			// attach event to the sidebar
-			this.sideframe.bind('dblclick', function () {
-				that._hideSideframe();
-			});
-			this.sideframe.find('.cms_sideframe-resize').bind('mousedown', function (e) {
-				e.preventDefault();
-				that._startSideframeResize();
-			});
-
-			// attach events to the dialogue window
-			this.dialogue.find('.cms_dialogue-confirm').bind('click', function (e) {
-				e.preventDefault();
-				that.openAjax(that.dialogue.data('url'));
-			});
-			this.dialogue.find('.cms_dialogue-cancel').bind('click', function (e) {
-				e.preventDefault();
-				that._hideDialogue();
-			});
-			this.dialogue.find('.cms_dialogue-accept').bind('click', function (e) {
-				e.preventDefault();
-				that._hideDialogue();
-			});
-
-			// attach events to window
-			this.modal.find('.cms_modal-close').bind('click', function (e) {
-				e.preventDefault();
-				that._hideModal(100);
-			});
-			this.modal.find('.cms_modal-collapse').bind('click', function (e) {
-				e.preventDefault();
-				that._minimizeModal();
-			});
-			this.modal.find('.cms_modal-title').bind('mousedown.cms', function (e) {
-				e.preventDefault();
-				that._startModalMove(e);
-			});
-			this.modal.find('.cms_modal-resize').bind('mousedown.cms', function (e) {
-				e.preventDefault();
-				that._startModalResize(e);
-			});
-			this.modal.find('.cms_modal-breadcrumb-items a').live('click', function (e) {
-				e.preventDefault();
-				that._changeModalContent($(this));
-			});
+			// module events
+			this._eventsSidebar();
+			this._eventsDialog();
+			this._eventsModal();
 
 			// stopper events
 			$(document).bind('mouseup.cms', function (e) {
@@ -184,6 +144,69 @@ $(document).ready(function () {
 			this.toolbar.find('.cms_toolbar-item_buttons li a').eq(1).bind('click', function (e) {
 				e.preventDefault();
 				that._enableDragMode(300);
+			});
+		},
+
+		_eventsDialog: function () {
+			// attach events to the dialogue window
+			this.dialogue.find('.cms_dialogue-confirm').bind('click', function (e) {
+				e.preventDefault();
+				that.openAjax(that.dialogue.data('url'));
+			});
+			this.dialogue.find('.cms_dialogue-cancel').bind('click', function (e) {
+				e.preventDefault();
+				that._hideDialogue();
+			});
+			this.dialogue.find('.cms_dialogue-accept').bind('click', function (e) {
+				e.preventDefault();
+				that._hideDialogue();
+			});
+		},
+
+		_eventsSidebar: function () {
+			var that = this;
+
+			// attach event to the sidebar
+			this.sideframe.bind('dblclick', function () {
+				that._hideSideframe();
+			});
+			this.sideframe.find('.cms_sideframe-resize').bind('mousedown', function (e) {
+				e.preventDefault();
+				that._startSideframeResize();
+			});
+		},
+
+		_eventsModal: function () {
+			var that = this;
+
+			// attach events to window
+			this.modal.find('.cms_modal-close').bind('click', function (e) {
+				e.preventDefault();
+				that._hideModal(100);
+			});
+			this.modal.find('.cms_modal-collapse').bind('click', function (e) {
+				e.preventDefault();
+				that._minimizeModal();
+			});
+			this.modal.find('.cms_modal-title').bind('mousedown.cms', function (e) {
+				e.preventDefault();
+				that._startModalMove(e);
+			});
+			this.modal.find('.cms_modal-resize').bind('mousedown.cms', function (e) {
+				e.preventDefault();
+				that._startModalResize(e);
+			});
+			this.modal.find('.cms_modal-breadcrumb-items a').live('click', function (e) {
+				e.preventDefault();
+				that._changeModalContent($(this));
+			});
+			this.modal.find('.cms_modal-cancel').bind('click', function (e) {
+				e.preventDefault();
+				that._hideModal(100);
+			});
+			this.modal.find('.cms_modal-save').bind('click', function (e) {
+				e.preventDefault();
+				that._saveModal();
 			});
 		},
 
@@ -590,6 +613,10 @@ $(document).ready(function () {
 			this.modal.find('.cms_modal-shim').hide();
 
 			$(document).unbind('mousemove.cms');
+		},
+
+		_saveModal: function () {
+			this.modal.find('iframe').contents().find('form').submit();
 		},
 
 		_changeModalContent: function (el) {
