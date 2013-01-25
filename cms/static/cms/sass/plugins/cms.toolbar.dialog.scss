@@ -17,3 +17,10 @@
 #container { padding-top:0; }
 
 #footer { display:none; }
+
+#cke_id_body {
+	border:1px solid #e5e5e5 !important;
+
+	.cke_top, .cke_bottom { background:#fafafa !important; border-color:#e5e5e5 !important;
+		@include box-shadow(none !important); }
+}

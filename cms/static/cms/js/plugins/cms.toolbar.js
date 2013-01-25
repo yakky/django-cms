@@ -62,6 +62,7 @@ $(document).ready(function () {
 			this.placeholders = $('.cms_placeholder');
 
 			this.lockToolbar = false;
+			this.maximized = false;
 
 			// setup initial stuff
 			this._setup();
@@ -148,6 +149,8 @@ $(document).ready(function () {
 		},
 
 		_eventsDialog: function () {
+			var that = this;
+
 			// attach events to the dialogue window
 			this.dialogue.find('.cms_dialogue-confirm').bind('click', function (e) {
 				e.preventDefault();
@@ -195,6 +198,10 @@ $(document).ready(function () {
 			this.modal.find('.cms_modal-resize').bind('mousedown.cms', function (e) {
 				e.preventDefault();
 				that._startModalResize(e);
+			});
+			this.modal.find('.cms_modal-maximize').bind('click', function (e) {
+				e.preventDefault();
+				that._maximizeModal();
 			});
 			this.modal.find('.cms_modal-breadcrumb-items a').live('click', function (e) {
 				e.preventDefault();
@@ -452,6 +459,8 @@ $(document).ready(function () {
 				'height': this.options.modalHeight
 			});
 			this.modal.find('.cms_modal-body').removeClass('cms_modal-loader');
+			this.modal.find('.cms_modal-maximize').removeClass('cms_modal-maximize-active');
+			this.maximized = false;
 
 			// we need to render the breadcrumb
 			var crumb = '';
@@ -565,7 +574,62 @@ $(document).ready(function () {
 				contents.toggle();
 		},
 
+		_maximizeModal: function () {
+			var container = this.modal.find('.cms_modal-body');
+			var trigger = this.modal.find('.cms_modal-maximize');
+			var btnCk = this.modal.find('iframe').contents().find('.cke_button__maximize');
+
+			if(this.maximized === false) {
+				// maximize
+				this.maximized = true;
+				trigger.addClass('cms_modal-maximize-active');
+
+				this.modal.data('css', {
+					'left': this.modal.css('left'),
+					'top': this.modal.css('top'),
+					'margin': this.modal.css('margin')
+				});
+				container.data('css', {
+					'width': container.width(),
+					'height': container.height()
+				});
+
+				// reset
+				this.modal.css({
+					'left': 0,
+					'top': 0,
+					'margin': 0
+				});
+				// bind resize event
+				$(window).bind('resize.cms.modal', function () {
+					container.css({
+						'width': $(window).width(),
+						'height': $(window).height() - 60
+					});
+				});
+				$(window).trigger('resize.cms.modal');
+
+				// trigger wysiwyg fullscreen
+				if(btnCk.hasClass('cke_button_off')) btnCk.trigger('click');
+			} else {
+				// minimize
+				this.maximized = false;
+				trigger.removeClass('cms_modal-maximize-active');
+
+				$(window).unbind('resize.cms.modal');
+
+				this.modal.css(this.modal.data('css'));
+				container.css(container.data('css'));
+
+				// trigger wysiwyg fullscreen
+				if(btnCk.hasClass('cke_button_on')) btnCk.trigger('click');
+			}
+		},
+
 		_startModalMove: function (initial) {
+			// cancel if maximized
+			if(this.maximized) return false;
+
 			var that = this;
 			var position = that.modal.position();
 
@@ -632,6 +696,8 @@ $(document).ready(function () {
 		},
 
 		_changeModalContent: function (el) {
+			var that = this;
+
 			if(el.hasClass('cms_modal-breadcrumb-last')) return false;
 
 			var parents = el.parent().find('a');
@@ -641,8 +707,23 @@ $(document).ready(function () {
 
 			// now refresh the content
 			var iframe = $('<iframe src="'+el.attr('href')+'" class="" frameborder="0" />');
+				iframe.hide();
 			var holder = this.modal.find('.cms_modal-frame');
-				holder.html(iframe);
+
+			// insure previous iframe is hidden
+			holder.find('iframe').hide();
+
+			// attach load event for iframe to prevent flicker effects
+			iframe.bind('load', function () {
+				// after iframe is loaded append css
+				iframe.contents().find('head').append($('<link rel="stylesheet" type="text/css" href="' + that.options.urls.css_dialogue + '" />'));
+
+				// than show
+				iframe.show();
+			});
+
+			// inject
+			holder.html(iframe);
 
 			// update title
 			this.modal.find('.cms_modal-title').text(el.text());

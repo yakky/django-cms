@@ -149,9 +149,10 @@
 		.cms_modal-frame iframe { width:100%; height:100%; }
 		.cms_modal-foot { position:relative; @include border-radius(0px 0px 5px 5px); clar:both; overflow:hidden; }
 
-		.cms_modal-collapse, .cms_modal-close { display:block; position:absolute; right:3px; top:3px;
+		.cms_modal-collapse, .cms_modal-close, .cms_modal-maximize { display:block; position:absolute; right:3px; top:3px;
 			@include hide-text(); cursor:pointer; width:20px; height:20px; }
-		.cms_modal-collapse { right:22px; }
+		.cms_modal-maximize { right:22px; }
+		.cms_modal-collapse { right:40px; }
 
 		.cms_modal-resize { position:absolute; right:0; bottom:0; width:20px; height:20px; cursor:nw-resize; }
 
@@ -185,8 +186,8 @@
 	}
 
 	// #TOOLBAR/tooltip#
-	.cms_placeholders-tooltip { display:none; position:absolute; left:0; top:0;
-		font-size:11px; font-weight:bold; white-space:nowrap; padding:2px 2px 2px 22px; margin:0;
+	.cms_placeholders-tooltip { display:none; position:absolute; left:0; top:0; @include border-radius(3px);
+		font-size:11px; line-height:11px; font-weight:bold; white-space:nowrap; padding:5px 7px 7px 24px; margin:0;
 	}
 
 	// #TOOLBAR/pmenu#
@@ -344,15 +345,19 @@
 		.cms_modal-title { color:$color-grey-70; background:$color-grey-5; }
 		.cms_modal-body { border-top:1px solid $color-grey-10; border-bottom:1px solid $color-grey-10; }
 		.cms_modal-foot { background:$color-grey-5; }
-		.cms_modal-collapse, .cms_modal-close {
+		.cms_modal-collapse, .cms_modal-close, .cms_modal-maximize {
 			background:url('/static/cms/img/toolbar/sprite_toolbar.png') no-repeat left top; }
 		.cms_modal-collapse { background-position:0 -70px; }
 		.cms_modal-collapse:hover, .cms_modal-collapse:active, .cms_modal-collapse:focus { background-position:-20px -70px; }
+		.cms_modal-collapsed { background-position:-80px -70px; }
+		.cms_modal-collapsed:hover, .cms_modal-collapsed:active, .cms_modal-collapsed:focus { background-position:-100px -70px; }
+
 		.cms_modal-close { background-position:-40px -70px; }
 		.cms_modal-close:hover, .cms_modal-close:active, .cms_modal-close:focus { background-position:-60px -70px; }
 
-		.cms_modal-collapsed { background-position:-80px -70px; }
-		.cms_modal-collapsed:hover, .cms_modal-collapsed:active, .cms_modal-collapsed:focus { background-position:-100px -70px; }
+		.cms_modal-maximize { background-position:0 -90px; }
+		.cms_modal-maximize:hover, .cms_modal-maximize:active, .cms_modal-maximize:focus { background-position:-20px -90px; }
+		.cms_modal-maximize-active { background-position:-20px -90px !important; }
 
 		.cms_modal-resize { background:url('/static/cms/img/toolbar/sprite_toolbar.png') no-repeat -117px -67px; }
 		.cms_modal-resize:hover { background-position:-137px -67px; }
@@ -384,9 +389,8 @@
 	}
 
 	// #TOOLBAR/tooltip#
-	.cms_placeholders-tooltip { color:$color-grey-70;
-		background:url('/static/cms/img/toolbar/sprite_toolbar.png') no-repeat left -138px;
-		@include text-shadow($color-white 0 0 3px);
+	.cms_placeholders-tooltip { color:$color-grey-10;
+		background:$color-grey-70 url('/static/cms/img/toolbar/sprite_toolbar.png') no-repeat left -138px;
 	}
 
 	// #TOOLBAR/pmenu#
