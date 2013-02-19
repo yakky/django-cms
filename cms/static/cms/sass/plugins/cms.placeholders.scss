@@ -42,7 +42,8 @@
 
 //######################################################################################################################
 // #DRAGGABLES#
-.cms_draggables { list-style-type:none; padding:0; margin:0; min-height:25px; }
+.cms_draggables { list-style-type:none; padding:0; margin:0; }
+.cms_draggables .cms_draggables { min-height:25px; }
 
 .cms_draggable, .cms_droppable {
 	position:relative; left:0; top:0; z-index:99; @include border-radius(3px);
@@ -62,7 +63,10 @@
 		span { font-weight:bold; }
 		*:last-child { border:none !important; }
 	}
+
+	&:hover .cms_dragmenu { display:block; }
 }
+
 .cms_draggable { cursor:move; z-index:100; }
 .cms_droppable { @include border-radius(3px); }
 .cms_droppable-empty { margin-bottom:5px !important; }
@@ -107,11 +111,13 @@
 
 		.cms_dragmenu { background:url('/static/cms/img/toolbar/sprite_toolbar.png') no-repeat 3px -181px; }
 		.cms_dragmenu:hover { background-position:-17px -181px; }
+
 		.cms_dragmenu-dropdown { border:1px solid $color-grey-10; background:$color-white;
 			@include box-shadow(0 2px 2px $color-grey-10); }
-		.cms_dragmenu-dropdown a { border-bottom:1px dotted $color-grey-10; }
-		.cms_dragmenu-dropdown a:hover { color:$color-blue; background:$color-grey-5; }
-		.cms_dragmenu-dropdown span { color:$color-blue; border-bottom:1px dotted $color-grey-10;  }
+		.cms_dragmenu-dropdown a { color:$color-black; }
+		.cms_dragmenu-dropdown a:hover { color:$color-white; background:adjust-hue($color-blue, 15deg);
+			@include background-image($gradient-blue); }
+		.cms_dragmenu-dropdown span { color:$color-black; border-bottom:1px solid $color-grey-10; }
 	}
 	.cms_droppable { color:darken($color-grey-10, 15%); border:1px dashed darken($color-grey-10, 15%); }
 
@@ -125,7 +131,7 @@
 	.cms_draggable:hover { @include box-shadow(inset 0px 0px 3px $color-grey-10); border-color:$color-grey-10; }
 
 	.cms_draggable-selected { border:1px solid adjust-hue($color-blue, 15deg) !important;
-		background:adjust-hue($color-blue, 15deg); @include background-image($gradient-blue); }
+		background:adjust-hue($color-blue, 15deg) !important; @include background-image($gradient-blue !important); }
 
 	.cms_draggable-allowed, .cms_draggable-hover-allowed, .cms_draggable-placeholder {
 		color:lighten($color-green, 40%); border-color:lighten($color-green, 40%); }
