@@ -80,7 +80,7 @@ CMS.$(document).ready(function () {
 			{% if request.toolbar.edit_mode %}
 			<ul class="cms_toolbar-item cms_toolbar-item_buttons">
 				<li{% if request.toolbar.edit_mode %} class="active"{% endif %}><a href="?edit">{% trans "Edit" %}</a></li>
-				<li><a href="?layout=true">{% trans "Layout" %}</a></li>
+				<li><a href="?build=true">{% trans "Build" %}</a></li>
 				<!--<li{% if not request.toolbar.edit_mode %} class="active"{% endif %}><a href="?edit-off">{% trans "View" %}</a></li>-->
 			</ul>
 			{% endif %}
