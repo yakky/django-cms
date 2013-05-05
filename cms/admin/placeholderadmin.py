@@ -152,12 +152,12 @@ class PlaceholderAdmin(ModelAdmin):
         
         # check the limits defined in CMS_PLACEHOLDER_CONF for this placeholder
         limits = settings.CMS_PLACEHOLDER_CONF.get(placeholder.slot, {}).get('limits', None)
+        position = placeholder.cmsplugin_set.count()
         if limits:
-            count = placeholder.cmsplugin_set.count()
             global_limit = limits.get("global", None)
             type_limit = limits.get(plugin_type, None)
             # check the global limit first
-            if global_limit and count >= global_limit:
+            if global_limit and position >= global_limit:
                 return HttpResponseBadRequest(
                     "This placeholder already has the maximum number of plugins."
                 )
