@@ -271,7 +271,6 @@ class PlaceholderTestCase(CMSTestCase):
             add_plugin(placeholder_de, TextPlugin, 'de', body='de body')
             content_de = render_placeholder(placeholder_de, context_de)
             self.assertRegexpMatches(content_de,"^de body$")
->>>>>>> 36e2ac4... Added test for language_fallback behaviour
 
 
 class PlaceholderActionTests(FakemlngFixtures, CMSTestCase):

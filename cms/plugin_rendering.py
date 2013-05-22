@@ -4,7 +4,7 @@ from cms.plugin_processors import (plugin_meta_context_processor, mark_safe_plug
 from cms.utils import get_language_from_request
 from cms.utils.conf import get_cms_setting
 from cms.utils.django_load import iterload_objects
-from cms.utils.placeholder import get_placeholder_conf
+from cms.utils.placeholder import get_placeholder_conf, get_page_from_placeholder_if_exists
 from cms.utils.i18n import get_fallback_languages, get_default_language
 from django.template import Template, Context
 from django.template.defaultfilters import title
@@ -97,9 +97,8 @@ def render_placeholder(placeholder, context_to_copy, name_fallback="Placeholder"
     context = context_to_copy
     context.push()
     request = context['request']
-    plugins = [plugin for plugin in get_plugins(request, placeholder)]
     lang = get_language_from_request(request)
-    page = get_page_from_placeholder_if_exists(placeholder)
+    page = placeholder.page if placeholder else None
     if page:
         template = page.template
     else:
