@@ -175,6 +175,7 @@ def configure(db_url, **extra):
         },
         CMS_TEMPLATES=(
             ('col_two.html', gettext('two columns')),
+            ('col_twob.html', gettext('two-b columns')),
             ('col_three.html', gettext('three columns')),
             ('nav_playground.html', gettext('navigation examples')),
             ('simple.html', 'simple'),
