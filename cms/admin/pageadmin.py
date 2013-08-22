@@ -1305,6 +1305,7 @@ class PageAdmin(ModelAdmin):
             # we actually have the instance here, but since i won't override
             # change_view method, is better if it will be loaded again, so
             # just pass id to plugin_admin
+            print type(plugin_admin)
             response = plugin_admin.change_view(request, str(plugin_id))
         if request.method == "POST" and plugin_admin.object_successfully_changed:
             moderator.page_changed(page,

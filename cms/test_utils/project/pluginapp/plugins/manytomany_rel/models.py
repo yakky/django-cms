@@ -14,3 +14,14 @@ class ArticlePluginModel(CMSPlugin):
     
     def copy_relations(self, oldinstance):
         self.sections = oldinstance.sections.all()
+
+
+class TestPluginModel(models.Model):
+    title = models.CharField(max_length=50)
+    article_plugin = models.ForeignKey(ArticlePluginModel)
+
+    def __unicode__(self):
+        return self.title
+
+    def copy_relations(self, oldinstance):
+        self.article_plugin = oldinstance.article_plugin.all()

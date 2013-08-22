@@ -179,7 +179,7 @@ def configure(db_url, **extra):
             },
 
             'col_left': {
-                'plugins': ('FilePlugin', 'FlashPlugin', 'LinkPlugin', 'PicturePlugin',
+                'plugins': ('FilePlugin', 'FlashPlugin', 'LinkPlugin', 'PicturePlugin', 'ArticlePlugin',
                             'TextPlugin', 'SnippetPlugin', 'GoogleMapPlugin', 'MultiColumnPlugin'),
                 'name': gettext("left column")
             },
