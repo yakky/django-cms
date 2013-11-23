@@ -5,7 +5,7 @@ from cms.utils.compat.dj import force_unicode
 import re
 
 # checks validity of absolute / relative url
-any_path_re = re.compile('^/?[a-zA-Z0-9_.-]+(/[a-zA-Z0-9_.-]+)*/?$') 
+any_path_re = re.compile(ur'(?u)^/?[\w.-]+(/[\w.-]+)*/?$')
 
 def levelize_path(path):
     """Splits given path to list of paths removing latest level in each step.
