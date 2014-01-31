@@ -345,9 +345,10 @@ class LanguageChooser(InclusionTag):
     options = Options(
         Argument('template', default=NOT_PROVIDED, required=False),
         Argument('i18n_mode', default='raw', required=False),
+        Argument('native_language_name', default=True, required=False),
     )
 
-    def get_context(self, context, template, i18n_mode):
+    def get_context(self, context, template, i18n_mode, native_language_name):
         if template in MARKERS:
             _tmp = template
             if i18n_mode not in MARKERS:
@@ -373,6 +374,7 @@ class LanguageChooser(InclusionTag):
             'languages': languages,
             'current_language': current_lang,
             'template': template,
+            'native_language_name': native_language_name,
         })
         return context
 
