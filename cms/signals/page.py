@@ -4,6 +4,7 @@ from cms.exceptions import NoHomeFound
 from cms.signals.apphook import apphook_post_delete_page_checker, apphook_post_page_checker
 from cms.signals.title import update_title, update_title_paths
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import signals
 
 from cms.models import Page
 from menus.menu_pool import menu_pool
@@ -20,6 +21,7 @@ def pre_save_page(instance, **kwargs):
 
 
 def post_save_page(instance, **kwargs):
+    signals.post_save.disconnect(post_save_page, sender=Page)
     if not kwargs.get('raw'):
         instance.rescan_placeholders()
     update_home(instance)
@@ -43,7 +45,7 @@ def post_save_page(instance, **kwargs):
                 pass
         elif not instance.publisher_is_draft:
             apphook_post_page_checker(instance)
-
+    signals.post_save.connect(post_save_page, sender=Page)
 
 def pre_delete_page(instance, **kwargs):
     menu_pool.clear(instance.site_id)
