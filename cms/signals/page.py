@@ -21,7 +21,7 @@ def pre_save_page(instance, **kwargs):
 
 
 def post_save_page(instance, **kwargs):
-    signals.post_save.disconnect(post_save_page, sender=Page)
+    signals.post_save.disconnect(post_save_page, sender=Page, dispatch_uid='cms_post_save_page')
     if not kwargs.get('raw'):
         instance.rescan_placeholders()
     update_home(instance)
@@ -45,7 +45,7 @@ def post_save_page(instance, **kwargs):
                 pass
         elif not instance.publisher_is_draft:
             apphook_post_page_checker(instance)
-    signals.post_save.connect(post_save_page, sender=Page)
+    signals.post_save.connect(post_save_page, sender=Page, dispatch_uid='cms_post_save_page')
 
 def pre_delete_page(instance, **kwargs):
     menu_pool.clear(instance.site_id)
