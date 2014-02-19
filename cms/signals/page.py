@@ -21,10 +21,15 @@ def pre_save_page(instance, **kwargs):
 
 
 def post_save_page(instance, **kwargs):
-    signals.post_save.disconnect(post_save_page, sender=Page, dispatch_uid='cms_post_save_page')
-    if not kwargs.get('raw'):
+    # raw attribute is set during load data.
+    # Disconnecting signal allow to avoid side-effects and multiple signal firing
+    if kwargs.get('raw'):
+        signals.post_save.disconnect(post_save_page, sender=Page, dispatch_uid='cms_post_save_page')
+    else:
         instance.rescan_placeholders()
-    update_home(instance)
+        update_home(instance)
+    if kwargs.get('raw'):
+        signals.post_save.connect(post_save_page, sender=Page, dispatch_uid='cms_post_save_page')
     if instance.old_page is None or instance.old_page.parent_id != instance.parent_id or instance.is_home != instance.old_page.is_home:
         for page in instance.get_descendants(include_self=True):
             for title in page.title_set.all().select_related('page'):
@@ -45,7 +50,6 @@ def post_save_page(instance, **kwargs):
                 pass
         elif not instance.publisher_is_draft:
             apphook_post_page_checker(instance)
-    signals.post_save.connect(post_save_page, sender=Page, dispatch_uid='cms_post_save_page')
 
 def pre_delete_page(instance, **kwargs):
     menu_pool.clear(instance.site_id)
@@ -107,5 +111,3 @@ def update_home(instance, **kwargs):
         page._publisher_keep_state = True
         page._home_checked = True
         page.save()
-
-
