@@ -8,10 +8,14 @@ def cms_settings(request):
     """
     Adds media-related context variables to the context.
     """
-    if getattr(request, 'current_page', None):
-        template = SimpleLazyObject(lambda: request.current_page.get_template())
-    else:
-        template = ''
+    template = ''
+    try:
+        #template = SimpleLazyObject(lambda: request.current_page.get_template())
+        template = request.current_page.get_template()
+    except Exception as e:
+        print e
+        pass
+    print template
     return {
         'CMS_MEDIA_URL': get_cms_setting('MEDIA_URL'),
         'CMS_PAGE_TEMPLATE': template,
