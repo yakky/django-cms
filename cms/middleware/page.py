@@ -6,7 +6,6 @@ from django.utils.functional import SimpleLazyObject
 def get_page(request):
     from cms.utils.page_resolver import get_page_from_request
 
-    print "trigger"
     if not hasattr(request, '_current_page_cache'):
         request._current_page_cache = get_page_from_request(request)
         if not request._current_page_cache:
