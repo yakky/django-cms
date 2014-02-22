@@ -346,12 +346,12 @@ in 3.0 and will display a deprecation warning with the old and new table name. I
 south for migrations create a new empty schemamigration and rename the table by hand.
 
 
-CMS_PAGE_TEMPLATE context variable
+CMS_TEMPLATE context variable
 ==================================
 
-A new ``CMS_PAGE_TEMPLATE`` is available: it's available in pages and apphook-ed
+A new ``CMS_TEMPLATE`` is available: it's available in pages and apphook-ed
 applications, and it contains the path to the current page template.
-See :ref:`CMS_PAGE_TEMPLATE reference <page_template>` for details.
+See :ref:`CMS_TEMPLATE reference <page_template>` for details.
 
 
 ********************
