@@ -17,6 +17,8 @@ from django.template.context import Context, RequestContext
 from django.test import TestCase
 from django.utils.numberformat import format
 from djangocms_link.cms_plugins import LinkPlugin
+from cms.test_utils.project.placeholderapp.templatetags.example import \
+    placeholder_truncate_words
 from djangocms_text_ckeditor.cms_plugins import TextPlugin
 from djangocms_text_ckeditor.models import Text
 
@@ -760,6 +762,21 @@ class PlaceholderModelTests(CMSTestCase):
         add_plugin(ph, TextPlugin, 'en', body='en body')
         result = [f.name for f in list(ph._get_attached_fields())]
         self.assertEqual(result, ['placeholder']) # Simple PH - still one placeholder field name
+
+    def test_placeholderadminmixin_templatetag(self):
+        ex = Example1(
+            char_1='one',
+            char_2='two',
+            char_3='tree',
+            char_4='four',
+        )
+        ex.save()
+        ph = ex.placeholder
+        add_plugin(ph, TextPlugin, 'en', body='en body longer than three words')
+
+        context = self.get_context('/')
+        text = placeholder_truncate_words(context, ph, words=3)
+        self.assertEqual(text, 'en body longer...')
 
 
 class PlaceholderAdminTestBase(CMSTestCase):
