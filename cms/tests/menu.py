@@ -384,6 +384,32 @@ class FixturesMenuTests(MenusFixture, BaseMenuTest):
             for lang in context['languages']:
                 self.assertEqual(*lang)
 
+    def test_language_chooser_native(self):
+
+        CMS_LANGUAGES = {
+            1: [{
+                    'code': 'it',
+                    'name': 'Italiano',
+                    'fallbacks': ['de'],
+                    'public': True,
+                },
+                {
+                    'code': 'de',
+                    'name': 'Deutsch',
+                    'fallbacks': ['it'],
+                    'public': True,
+                },
+            ]
+        }
+        with SettingsOverride(CMS_LANGUAGES=CMS_LANGUAGES):
+            context = self.get_context(path=self.get_page(3).get_absolute_url())
+            tpl = Template("{% load menu_tags %}{% language_chooser %}")
+            tpl.render(context)
+            tpl = Template("{% load menu_tags %}{% language_chooser 'menu/test_language_chooser.html' 'short'  %}")
+            tpl.render(context)
+            print context['languages']
+
+
     def test_page_language_url(self):
         path = self.get_page(3).get_absolute_url()
         context = self.get_context(path=path)

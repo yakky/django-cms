@@ -1021,6 +1021,9 @@ msgstr "has URL overwrite"
 msgid "redirect"
 msgstr ""
 
+msgid "Italiano"
+msgstr "italian"
+
 #: models/titlemodels.py:31
 msgid "is published"
 msgstr ""

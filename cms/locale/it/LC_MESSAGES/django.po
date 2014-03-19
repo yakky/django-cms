@@ -32,6 +32,8 @@ msgstr ""
 "X-Poedit-Language: English\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
+msgid "Italiano"
+msgstr "italiano"
 #: cms_plugins.py:9
 msgid "Placeholder"
 msgstr "Segnaposto"

@@ -319,6 +319,7 @@ def _native_language_marker(language, lang_code):
 
 
 def _current_language_marker(language, lang_code):
+    print lang_code
     return force_unicode(ugettext(language))
 
 
