@@ -200,6 +200,7 @@ def configure(db_url, **extra):
             ('nav_playground.html', gettext('navigation examples')),
             ('simple.html', 'simple'),
             ('static.html', 'static placeholders'),
+            ('dynamic.html', 'dynamic template'),
         ),
         CMS_PLACEHOLDER_CONF={
             'col_sidebar': {

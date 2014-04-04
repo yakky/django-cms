@@ -1,0 +1,7 @@
+{% extends request.is_ajax|yesno:"base.html,static.html" %}
+{% load i18n cms_tags %}
+
+{% block content %}
+	{{ block.super }}
+	sds! {{ request.is_ajax }} {{ request.is_ajax|yesno:"static.html,base.html"  }}
+{% endblock %}
