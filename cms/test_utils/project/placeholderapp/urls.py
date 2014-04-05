@@ -1,8 +1,9 @@
 from django.conf.urls import patterns, url
-from .views import ClassDetail
+from .views import ClassDetail, ClassList
 
 urlpatterns = patterns('cms.test_utils.project.placeholderapp.views',
     url(r'^detail/(?P<pk>[0-9]+)/$', 'detail_view', name="example_detail"),
+    url(r'^class/$', ClassList.as_view(), name="example_class_list"),
     url(r'^detail/class/(?P<pk>[0-9]+)/$', ClassDetail.as_view(), name="example_class_detail"),
     url(r'^$', 'list_view', name="example_list"),
 )

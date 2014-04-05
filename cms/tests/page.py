@@ -56,6 +56,9 @@ class PagesTestCase(CMSTestCase):
             response = self.client.get(URL_CMS_PAGE_ADD)
             self.assertEqual(response.status_code, 200)
 
+    def test_dynamic_extend(self):
+        page = create_page('test', 'dynamic.html', 'en')
+
     def test_create_page_admin(self):
         """
         Test that a page can be created via the admin
