@@ -9,12 +9,13 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import ugettext_lazy as _
 import os
 import warnings
+from cms.utils.django_load import load_object
 
 
 __all__ = ['get_cms_setting']
 
 
-class VERIFIED: pass # need a unique identifier for CMS_LANGUAGES
+class VERIFIED:  pass  # need a unique identifier for CMS_LANGUAGES
 
 
 def default(name):
@@ -77,9 +78,21 @@ def get_media_url():
     return urljoin(settings.MEDIA_URL, get_cms_setting('MEDIA_PATH'))
 
 
+def get_templates_dir():
+    from cms import constants
+    if constants.CACHED_TEMPLATES_DIR:
+        return constants.CACHED_TEMPLATES_DIR
+    loader_string = getattr(settings, 'CMS_TEMPLATES_LOADER', False)
+    if not loader_string:
+        return getattr(settings, 'CMS_TEMPLATES_DIR', False)
+    loader = load_object(loader_string)
+    constants.CACHED_TEMPLATES_DIR = loader()
+    return constants.CACHED_TEMPLATES_DIR
+
+
 def get_templates():
-    if getattr(settings, 'CMS_TEMPLATES_DIR', False):
-        tpldir = getattr(settings, 'CMS_TEMPLATES_DIR', False)
+    tpldir = get_cms_setting('TEMPLATES_DIR')
+    if tpldir:
         if os.path.exists(os.path.join(tpldir, 'templates.conf')):
             tpl_conf = open(os.path.join(tpldir, 'templates.conf')).readlines()
             templates = [conf.split(":") for conf in tpl_conf if len(conf) > 0]
@@ -236,6 +249,7 @@ COMPLEX = {
     'MEDIA_URL': get_media_url,
     # complex because not prefixed by CMS_
     'TEMPLATES': get_templates,
+    'TEMPLATES_DIR': get_templates_dir,
     'LANGUAGES': get_languages,
     'UNIHANDECODE_HOST': get_unihandecode_host,
 }

@@ -10,6 +10,10 @@ from cms.test_utils.testcases import CMSTestCase
 from cms.utils import get_cms_setting
 
 
+def dynamic_template_dir():
+    return "%s/dynamic_templates" % settings.PROJECT_PATH
+
+
 class TemplatesConfig(CMSTestCase):
 
     def test_templates(self):
@@ -40,3 +44,32 @@ class TemplatesConfig(CMSTestCase):
             original_files.append(constants.TEMPLATE_INHERITANCE_MAGIC)
         self.assertEqual(set(labels), set(original_labels))
         self.assertEqual(set(files), set(original_files))
+
+    def test_dynamic_template_dir(self):
+        from cms import constants
+        # Check that no template dir is defined here
+        self.assertFalse(get_cms_setting('TEMPLATES_DIR'))
+
+        # What if we define CMS_TEMPLATES_DIR in settings?
+        with self.settings(CMS_TEMPLATES_DIR="%s/custom_templates" % settings.PROJECT_PATH):
+            self.assertEqual(get_cms_setting('TEMPLATES_DIR'), "%s/custom_templates" % settings.PROJECT_PATH)
+
+        # Define a function to check value at runtime
+        with self.settings(CMS_TEMPLATES_LOADER="cms.tests.templates.dynamic_template_dir"):
+            self.assertEqual(get_cms_setting('TEMPLATES_DIR'), "%s/dynamic_templates" % settings.PROJECT_PATH)
+
+        # CACHED_TEMPLATES_DIR still in action here
+        self.assertEqual(get_cms_setting('TEMPLATES_DIR'), "%s/dynamic_templates" % settings.PROJECT_PATH)
+        constants.CACHED_TEMPLATES_DIR = None
+
+    def test_cached_templates_dir(self):
+        from cms import constants
+        # Check that no template dir is defined here
+        self.assertFalse(get_cms_setting('TEMPLATES_DIR'))
+
+        # Push a value into local cache
+        constants.CACHED_TEMPLATES_DIR = '/fake/dir'
+        self.assertEqual(get_cms_setting('TEMPLATES_DIR'), '/fake/dir')
+        # Reset the cache and check we're safe now
+        constants.CACHED_TEMPLATES_DIR = None
+        self.assertFalse(get_cms_setting('TEMPLATES_DIR'))
