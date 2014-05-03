@@ -1,14 +1,20 @@
 # -*- coding: utf-8 -*-
+try:
+    from configparser import ConfigParser
+except ImportError:
+    from ConfigParser import SafeConfigParser as ConfigParser
 from functools import update_wrapper
+import os
 import pprint
-from cms.utils.compat.urls import urljoin
-from cms import constants
-from cms.exceptions import CMSDeprecationWarning
+import warnings
+
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import ugettext_lazy as _
-import os
-import warnings
+
+from cms import constants
+from cms.exceptions import CMSDeprecationWarning
+from cms.utils.compat.urls import urljoin
 from cms.utils.django_load import load_object
 
 
@@ -80,6 +86,7 @@ def get_media_url():
 
 def get_templates_dir():
     from cms import constants
+    print "cached", constants.CACHED_TEMPLATES_DIR
     if constants.CACHED_TEMPLATES_DIR:
         return constants.CACHED_TEMPLATES_DIR
     loader_string = getattr(settings, 'CMS_TEMPLATES_LOADER', False)
@@ -92,11 +99,14 @@ def get_templates_dir():
 
 def get_templates():
     tpldir = get_cms_setting('TEMPLATES_DIR')
+    print "tpldir", tpldir
     if tpldir:
         if os.path.exists(os.path.join(tpldir, 'templates.conf')):
-            tpl_conf = open(os.path.join(tpldir, 'templates.conf')).readlines()
-            templates = [conf.split(":") for conf in tpl_conf if len(conf) > 0]
+            config = ConfigParser()
+            config.read(os.path.join(tpldir, 'templates.conf'))
+            templates = [tpl for tpl in config.items('templates') if len(tpl) > 0]
             templates = [(data[0].strip(), _(data[1].strip())) for data in templates]
+            print "templates", templates
         else:
             templates = list((tpl, tpl) for tpl in os.listdir(tpldir))
     else:
