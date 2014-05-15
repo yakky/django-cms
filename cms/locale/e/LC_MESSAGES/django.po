@@ -3,22 +3,19 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: django-cms\n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-05-15 22:57+0200\n"
-"PO-Revision-Date: 2009-11-10 22:37+0100\n"
-"Last-Translator: Benjamin Wohlwend <piquadrat@gmail.com>\n"
-"Language-Team: divio.ch <developers@divio.ch>\n"
+"POT-Creation-Date: 2014-05-15 22:55+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-Language: English\n"
-"X-Poedit-Country: SWITZERLAND\n"
-"X-Poedit-SourceCharset: utf-8\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
 #: cms_plugins.py:9
 msgid "Placeholder"
@@ -68,14 +65,12 @@ msgid "Language"
 msgstr ""
 
 #: cms_toolbar.py:234
-#, fuzzy
 msgid "Publish changes"
-msgstr "publish request"
+msgstr ""
 
 #: cms_toolbar.py:236
-#, fuzzy
 msgid "Publish page now"
-msgstr "publish request"
+msgstr ""
 
 #: cms_toolbar.py:258 cms_toolbar.py:367
 msgid "Page settings"
@@ -142,9 +137,8 @@ msgid "Permissions"
 msgstr ""
 
 #: cms_toolbar.py:397 admin/pageadmin.py:330
-#, fuzzy
 msgid "Publishing dates"
-msgstr "publish request"
+msgstr ""
 
 #: cms_toolbar.py:402
 msgid "Hide in navigation"
@@ -155,19 +149,16 @@ msgid "Display in navigation"
 msgstr ""
 
 #: cms_toolbar.py:410
-#, fuzzy
 msgid "Unpublish page"
-msgstr "unpublish request"
+msgstr ""
 
 #: cms_toolbar.py:413
-#, fuzzy
 msgid "Publish page"
-msgstr "publish request"
+msgstr ""
 
 #: cms_toolbar.py:435
-#, fuzzy
 msgid "Delete page"
-msgstr "deletion request"
+msgstr ""
 
 #: cms_toolbar.py:439
 msgid "Save as Page Type"
@@ -254,9 +245,8 @@ msgid "Description meta tag"
 msgstr ""
 
 #: admin/forms.py:77
-#, fuzzy
 msgid "A description of the page used by search engines."
-msgstr "A list of comma separated keywords sometimes used by search engines."
+msgstr ""
 
 #: admin/forms.py:134
 msgid "Another page with this slug already exists"
@@ -928,7 +918,7 @@ msgstr ""
 
 #: models/pluginmodel.py:76
 msgid "plugin_name"
-msgstr "plugin name"
+msgstr ""
 
 #: models/pluginmodel.py:77 models/titlemodels.py:28
 msgid "creation date"
@@ -1025,7 +1015,7 @@ msgstr ""
 
 #: models/titlemodels.py:25
 msgid "has url overwrite"
-msgstr "has URL overwrite"
+msgstr ""
 
 #: models/titlemodels.py:26
 msgid "redirect"
@@ -1201,7 +1191,7 @@ msgstr ""
 
 #: templates/admin/cms/page/tree/base.html:56
 msgid "An error occured. Please reload the page"
-msgstr "An error occurred. Please reload the page"
+msgstr ""
 
 #: templates/admin/cms/page/tree/base.html:57
 #, python-format
@@ -1311,14 +1301,12 @@ msgid "Pick an action:"
 msgstr ""
 
 #: templates/admin/cms/page/tree/menu_item.html:33
-#, fuzzy
 msgid "Unpublish"
-msgstr "unpublish request"
+msgstr ""
 
 #: templates/admin/cms/page/tree/menu_item.html:34
-#, fuzzy
 msgid "Publish"
-msgstr "publish request"
+msgstr ""
 
 #: templates/admin/cms/page/tree/menu_item.html:42
 msgid "in menu"
@@ -1377,9 +1365,8 @@ msgid "is restricted"
 msgstr ""
 
 #: templates/admin/cms/page/tree/menu_item.html:76
-#, fuzzy
 msgid "last change by"
-msgstr "publish request"
+msgstr ""
 
 #: templates/cms/toolbar/clipboard.html:24
 msgid "Empty Clipboard"
@@ -1495,23 +1482,20 @@ msgid "django CMS"
 msgstr ""
 
 #: templatetags/cms_admin.py:68
-#, fuzzy
 msgid "unpublished changes"
-msgstr "publish request"
+msgstr ""
 
 #: templatetags/cms_admin.py:71
 msgid "published"
 msgstr ""
 
 #: templatetags/cms_admin.py:80
-#, fuzzy
 msgid "unpublished parent"
-msgstr "unpublish request"
+msgstr ""
 
 #: templatetags/cms_admin.py:83
-#, fuzzy
 msgid "unpublished"
-msgstr "unpublish request"
+msgstr ""
 
 #: templatetags/cms_admin.py:86
 msgid "no content"
@@ -1569,23 +1553,20 @@ msgid "navigation examples"
 msgstr ""
 
 #: test_utils/cli.py:214
-#, fuzzy
 msgid "sidebar column"
-msgstr "background color"
+msgstr ""
 
 #: test_utils/cli.py:219
-#, fuzzy
 msgid "left column"
-msgstr "background color"
+msgstr ""
 
 #: test_utils/cli.py:224
 msgid "Add a link"
 msgstr ""
 
 #: test_utils/cli.py:230
-#, fuzzy
 msgid "right column"
-msgstr "background color"
+msgstr ""
 
 #: test_utils/project/custom_templates/templates.txt:2
 msgid "Custom 1"
@@ -1712,58 +1693,3 @@ msgid ""
 "This placeholder already has the maximum number (%(limit)s) of allowed "
 "%(plugin_name)s plugins."
 msgstr ""
-
-#~ msgid "Inherit the template of the nearest ancestor"
-#~ msgstr "Inherit from the parent page"
-
-#, fuzzy
-#~ msgid "Email"
-#~ msgstr "email address"
-
-#, fuzzy
-#~ msgid "last name"
-#~ msgstr "publish request"
-
-#, fuzzy
-#~ msgid "Use latitude & longitude to fine tune the map position."
-#~ msgstr "Use latitude & longitude to fine tune the map position."
-
-#~ msgid "An email adress has priority over a text link."
-#~ msgstr "An email address has priority over a text link."
-
-#~ msgid ""
-#~ "Page <a href=\"%(admin_url)s\">%(page)s</a> may require approvement by "
-#~ "you."
-#~ msgstr ""
-#~ "Page <a href=\"%(admin_url)s\">%(page)s</a> may require approval by you."
-
-#~ msgid "No Plugin selected. Selected one on the left side"
-#~ msgstr "No Plugin selected. Select one on the left side"
-
-#~ msgid "move req."
-#~ msgstr "move request"
-
-#~ msgid "url overwrite"
-#~ msgstr "URL overwrite"
-
-#~ msgid "req. app."
-#~ msgstr "approval required"
-
-#~ msgid "(requires approvement at %(moderation_level)s level)"
-#~ msgstr "(requires approval at %(moderation_level)s level)"
-
-#~ msgid "Request approvemet"
-#~ msgstr "Request approval"
-
-#~ msgid "CMS - Page %s requires approvement."
-#~ msgstr "CMS - Page %s requires approval."
-
-#, fuzzy
-#~ msgid "move"
-#~ msgstr "move request"
-
-#~ msgid "fgcolor"
-#~ msgstr "foreground color"
-
-#~ msgid "Wanted language has not been translated yet."
-#~ msgstr "Requested language has not been translated yet."
