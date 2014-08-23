@@ -86,7 +86,7 @@ class CMSToolbar(ToolbarAPIMixin):
         app_key = ''
         for key in toolbars:
             app_name = ".".join(key.split(".")[:-2])
-            if app_name == self.app_name and len(key) > len(app_key):
+            if self.app_name and app_name.endswith(self.app_name) and len(key) > len(app_key):
                 app_key = key
         for key in toolbars:
             toolbar = toolbars[key](self.request, self, key == app_key, app_key)
