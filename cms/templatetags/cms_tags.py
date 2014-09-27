@@ -273,8 +273,6 @@ class Placeholder(Tag):
 
     Keyword arguments:
     name -- the name of the placeholder
-    width -- additional width attribute (integer) which gets added to the plugin context
-    (deprecated, use `{% with 320 as width %}{% placeholder "foo"}{% endwith %}`)
     inherit -- optional argument which if given will result in inheriting
         the content of the placeholder with the same name on parent pages
     or -- optional argument which if given will make the template tag a block
@@ -291,24 +289,13 @@ class Placeholder(Tag):
 
     def render_tag(self, context, name, extra_bits, nodelist=None):
         validate_placeholder_name(name)
-        width = None
         inherit = False
         for bit in extra_bits:
             if bit == 'inherit':
                 inherit = True
-            elif bit.isdigit():
-                width = int(bit)
-                import warnings
-
-                warnings.warn(
-                    "The width parameter for the placeholder tag is deprecated.",
-                    DeprecationWarning
-                )
         if not 'request' in context:
             return ''
         request = context['request']
-        if width:
-            context.update({'width': width})
 
         page = request.current_page
         if not page or page == 'dummy':
