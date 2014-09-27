@@ -39,6 +39,10 @@ class PageSelectFormField(forms.MultiValueField):
             errors.update(kwargs['error_messages'])
         site_choices = SuperLazyIterator(get_site_choices)
         page_choices = SuperLazyIterator(get_page_choices)
+        # As this field is used on ForeignKey fields it will get  'limit_choices_to' kwargs from the calling methods
+        # but this field does not allow to specify custom queryset due to its neature, so we just remove and ignore
+        # it
+        kwargs.pop('limit_choices_to', False)
         kwargs['required'] = required
         fields = (
             LazyChoiceField(choices=site_choices, required=False, error_messages={'invalid': errors['invalid_site']}),
@@ -61,6 +65,7 @@ class PageSelectFormField(forms.MultiValueField):
         if isinstance(self.widget, RelatedFieldWidgetWrapper):
             self.widget.decompress = self.widget.widget.decompress
         return super(PageSelectFormField, self)._has_changed(initial, data)
+
 
 class PageSmartLinkField(forms.CharField):
     widget = PageSmartLinkWidget
