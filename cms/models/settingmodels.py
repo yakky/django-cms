@@ -6,10 +6,11 @@ from cms.utils.compat.dj import force_unicode, python_2_unicode_compatible
 
 user_model_label = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 
+
 @python_2_unicode_compatible
 class UserSettings(models.Model):
     user = models.ForeignKey(user_model_label, unique=True, editable=False, related_name='djangocms_usersettings')
-    language = models.CharField(_("Language"), max_length=10, choices=settings.LANGUAGES,
+    language = models.CharField(_("Language"), max_length=10, choices=[],
                                 help_text=_("The language for the admin interface and toolbar"))
     clipboard = models.ForeignKey('cms.Placeholder', blank=True, null=True, editable=False)
 
@@ -21,4 +22,6 @@ class UserSettings(models.Model):
     def __str__(self):
         return force_unicode(self.user)
 
-
+    def __init__(self, *args, **kwargs):
+        super(UserSettings, self).__init__(*args, **kwargs)
+        self._meta.get_field('language')._choices = settings.LANGUAGES

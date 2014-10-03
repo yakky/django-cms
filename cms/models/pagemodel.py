@@ -43,9 +43,7 @@ class Page(with_metaclass(PageMetaClass, MPTTModel)):
     X_FRAME_OPTIONS_INHERIT = 0
     X_FRAME_OPTIONS_DENY = 1
     X_FRAME_OPTIONS_SAMEORIGIN = 2
-    X_FRAME_OPTIONS_ALLOW= 3
-
-    template_choices = [(x, _(y)) for x, y in get_cms_setting('TEMPLATES')]   
+    X_FRAME_OPTIONS_ALLOW = 3
 
     created_by = models.CharField(_("created by"), max_length=70, editable=False)
     changed_by = models.CharField(_("changed by"), max_length=70, editable=False)
@@ -68,7 +66,7 @@ class Page(with_metaclass(PageMetaClass, MPTTModel)):
     reverse_id = models.CharField(_("id"), max_length=40, db_index=True, blank=True, null=True, help_text=_(
         "A unique identifier that is used with the page_url templatetag for linking to this page"))
     navigation_extenders = models.CharField(_("attached menu"), max_length=80, db_index=True, blank=True, null=True)
-    template = models.CharField(_("template"), max_length=100, choices=template_choices,
+    template = models.CharField(_("template"), max_length=100,
                                 help_text=_('The template used to render the content.'),
                                 default=TEMPLATE_DEFAULT)
     site = models.ForeignKey(Site, help_text=_('The site the page is accessible at.'), verbose_name=_("site"),
@@ -130,6 +128,10 @@ class Page(with_metaclass(PageMetaClass, MPTTModel)):
         exclude_fields_append = ['id', 'publisher_is_draft', 'publisher_public',
             'publisher_state', 'placeholders', 'lft', 'rght', 'tree_id',
             'parent']
+
+    def __init__(self, *args, **kwargs):
+        super(Page, self).__init__(*args, **kwargs)
+        self._meta.get_field('template')._choices = [(x, _(y)) for x, y in get_cms_setting('TEMPLATES')]
 
     def __str__(self):
         try:
