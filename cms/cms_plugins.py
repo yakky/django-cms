@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
+from django.contrib.sites.models import Site, get_current_site
 from cms.models import CMSPlugin, Placeholder
 from cms.models.aliaspluginmodel import AliasPluginModel
+from cms.models.blueprintpluginmodel import BlueprintPluginModel
 from cms.models.placeholderpluginmodel import PlaceholderReference
 from cms.plugin_base import CMSPluginBase, PluginMenuItem
 from cms.plugin_pool import plugin_pool
 from cms.plugin_rendering import render_placeholder
-from cms.utils.plugins import downcast_plugins, build_plugin_tree
+from cms.utils import get_language_list
+from cms.utils.conf import get_cms_setting, get_languages
+from cms.utils.copy_plugins import copy_plugins_to
+from cms.utils.plugins import downcast_plugins, build_plugin_tree, assign_plugins
 from cms.utils.urlutils import admin_reverse
 from django.conf.urls import patterns, url
 from django.http import HttpResponseForbidden, HttpResponseBadRequest, HttpResponse
@@ -109,3 +114,76 @@ class AliasPlugin(CMSPluginBase):
 
 
 plugin_pool.register_plugin(AliasPlugin)
+
+
+class BlueprintPlugin(CMSPluginBase):
+    name = _("Blueprint")
+    allow_children = True
+    model = BlueprintPluginModel
+    render_template = "cms/plugins/blueprint.html"
+    #parent_classes = [0]  # so you will not be able to add it something
+
+    def get_extra_global_plugin_menu_items(self, request, plugin):
+        return [
+            PluginMenuItem(
+                _("Create Blueprint"),
+                admin_reverse("cms_create_blueprint"),
+                data={'plugin_id': plugin.pk, 'csrfmiddlewaretoken': get_token(request)},
+            )
+        ]
+
+    def get_extra_placeholder_menu_items(self, request, placeholder):
+        return [
+            PluginMenuItem(
+                _("Create Blueprint"),
+                admin_reverse("cms_create_blueprint"),
+                data={'placeholder_id': placeholder.pk, 'csrfmiddlewaretoken': get_token(request)},
+            )
+        ]
+
+    def get_plugin_urls(self):
+        urlpatterns = [
+            url(r'^create_blueprint/$', self.create_blueprint, name='cms_create_blueprint'),
+        ]
+        urlpatterns = patterns('', *urlpatterns)
+        return urlpatterns
+
+    def create_blueprint(self, request):
+        if not request.user.is_staff:
+            return HttpResponseForbidden("not enough privileges")
+        if not 'plugin_id' in request.POST and not 'placeholder_id' in request.POST:
+            return HttpResponseBadRequest("plugin_id or placeholder_id POST parameter missing.")
+        plugins = []
+        # Get the current plugins
+        if 'plugin_id' in request.POST:
+            pk = request.POST['plugin_id']
+            try:
+                plugins = [CMSPlugin.objects.get(pk=pk)]
+            except CMSPlugin.DoesNotExist:
+                return HttpResponseBadRequest("plugin with id %s not found." % pk)
+        # Get the top level plugins in the current placeholder
+        if 'placeholder_id' in request.POST:
+            pk = request.POST['placeholder_id']
+            try:
+                plugins = Placeholder.objects.get(pk=pk).get_plugins().filter(level=0)
+            except Placeholder.DoesNotExist:
+                return HttpResponseBadRequest("placeholder with id %s not found." % pk)
+        placeholder, _ = Placeholder.objects.get_or_create(slot=get_cms_setting('BLUEPRINT_PLACEHOLDER'))
+        language = get_language_list(get_current_site(request))[0]
+        if plugins:
+            # Creating the container plugin
+            blueprint = BlueprintPluginModel(language=language, placeholder=placeholder, plugin_type="BlueprintPlugin")
+            blueprint.save()
+            # For every top level plugin all the children is selected
+            # and copied to the blueprint placeholder
+            # with the blueprint plugins as parent. In this way we
+            # recreate the plugin structure but with a blueprint top-level plugin
+            # that contains them all
+            for plugin in plugins:
+                children = plugin.get_descendants(include_self=True).order_by('placeholder', 'tree_id', 'level', 'position')
+                children = downcast_plugins(children)
+                copy_plugins_to(children, placeholder, language, parent_plugin_id=blueprint.pk)
+        return HttpResponse("ok")
+
+
+plugin_pool.register_plugin(BlueprintPlugin)

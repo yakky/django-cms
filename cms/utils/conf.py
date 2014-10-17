@@ -63,6 +63,7 @@ DEFAULTS = {
     'TOOLBAR_URL__EDIT_OFF': 'edit_off',
     'TOOLBAR_URL__BUILD': 'build',
     'ADMIN_NAMESPACE': 'admin',
+    'BLUEPRINT_PLACEHOLDER': 'blueprint'
 }
 
 

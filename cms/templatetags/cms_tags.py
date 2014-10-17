@@ -2,6 +2,7 @@
 from copy import copy
 from datetime import datetime
 from itertools import chain
+from django.utils.six import string_types
 import re
 from classytags.values import StringValue
 from cms.utils.urlutils import admin_reverse
@@ -1087,6 +1088,8 @@ class RenderPlaceholder(AsTag):
         placeholder = kwargs.get('placeholder')
         width = kwargs.get('width')
         language = kwargs.get('language')
+        if isinstance(placeholder, string_types):
+            placeholder = PlaceholderModel.objects.get(slot=placeholder)
 
         if not request:
             return ''
