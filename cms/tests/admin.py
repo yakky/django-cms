@@ -1430,7 +1430,7 @@ class AdminFormsTests(AdminTestsBase):
 
         user = self.get_superuser()
         with self.login_user_context(user):
-            with self.assertNumQueries(FuzzyInt(18, 33)):
+            with self.assertNumQueries(FuzzyInt(18, 39)):
                 force_unicode(self.client.get('/en/admin/cms/page/'))
 
     def test_smart_link_published_pages(self):

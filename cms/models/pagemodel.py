@@ -20,7 +20,7 @@ from cms.models.metaclasses import PageMetaClass
 from cms.models.placeholdermodel import Placeholder
 from cms.models.pluginmodel import CMSPlugin
 from cms.publisher.errors import MpttPublisherCantPublish
-from cms.utils import i18n, page as page_utils
+from cms.utils import i18n, page as page_utils, get_language_list, get_default_language
 from cms.utils.compat import DJANGO_1_5
 from cms.utils.compat.dj import force_unicode, python_2_unicode_compatible
 from cms.utils.compat.metaclasses import with_metaclass
@@ -794,6 +794,9 @@ class Page(with_metaclass(PageMetaClass, MPTTModel)):
 
     def get_admin_tree_title(self):
         language = get_language()
+        languages = get_language_list(self.site.pk)
+        if language not in languages:
+            language = get_default_language(site_id=self.site.pk)
         from cms.models.titlemodels import EmptyTitle
 
         def validate_title(title):

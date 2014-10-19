@@ -143,7 +143,10 @@ def get_default_language(language_code=None, site_id=None):
     language_code = language_code.split("-")[0]
 
     if not language_code in languages:
-        return settings.LANGUAGE_CODE
+        if settings.LANGUAGE_CODE in languages:
+            return settings.LANGUAGE_CODE
+        else:
+            return languages[0]
 
     return language_code
 
