@@ -1307,7 +1307,6 @@ class PluginManyToManyTestCase(PluginsTestBaseCase):
         self.assertEqual(u'Articles Plugin 1', articles_plugin.title)
         self.assertEqual(self.section_count, articles_plugin.sections.count())
 
-
         # check publish box
         page = api.publish_page(page, self.super_user, 'en')
 
@@ -1318,7 +1317,6 @@ class PluginManyToManyTestCase(PluginsTestBaseCase):
         db_counts = [plugin.sections.count() for plugin in ArticlePluginModel.objects.all()]
         expected = [self.section_count for i in range(len(db_counts))]
         self.assertEqual(expected, db_counts)
-
 
     def test_copy_plugin_with_m2m(self):
         page = api.create_page("page", "nav_playground.html", "en")
@@ -1562,4 +1560,3 @@ class BrokenPluginTests(TestCase):
             with SettingsOverride(INSTALLED_APPS=new_apps):
                 plugin_pool.discovered = False
                 self.assertRaises(ImportError, plugin_pool.discover_plugins)
-

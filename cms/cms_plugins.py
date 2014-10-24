@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.contrib.sites.models import Site, get_current_site
+from django.contrib.sites.models import get_current_site
 from cms.models import CMSPlugin, Placeholder
 from cms.models.aliaspluginmodel import AliasPluginModel
 from cms.models.blueprintpluginmodel import BlueprintPluginModel
@@ -8,9 +8,9 @@ from cms.plugin_base import CMSPluginBase, PluginMenuItem
 from cms.plugin_pool import plugin_pool
 from cms.plugin_rendering import render_placeholder
 from cms.utils import get_language_list
-from cms.utils.conf import get_cms_setting, get_languages
+from cms.utils.conf import get_cms_setting
 from cms.utils.copy_plugins import copy_plugins_to
-from cms.utils.plugins import downcast_plugins, build_plugin_tree, assign_plugins
+from cms.utils.plugins import downcast_plugins, build_plugin_tree
 from cms.utils.urlutils import admin_reverse
 from django.conf.urls import patterns, url
 from django.http import HttpResponseForbidden, HttpResponseBadRequest, HttpResponse

@@ -1,18 +1,23 @@
 # -*- coding: utf-8 -*-
 from __future__ import with_statement
 import json
+from cms.utils import get_cms_setting
+from cms.utils.plugins import downcast_plugins
+from django.http import QueryDict
 
 from djangocms_text_ckeditor.models import Text
 
 from cms.api import create_page, add_plugin
+from cms.cms_plugins import BlueprintPlugin
 from cms.constants import PLUGIN_MOVE_ACTION
 from cms.models import Page
 from cms.models.placeholdermodel import Placeholder
 from cms.models.pluginmodel import CMSPlugin
 from cms.tests.plugins import PluginsTestBaseCase
 from cms.test_utils.util.context_managers import SettingsOverride
-from cms.utils.copy_plugins import copy_plugins_to
 from cms.utils.compat.tests import UnittestCompatMixin
+from cms.utils.copy_plugins import copy_plugins_to
+from cms.utils.plugins import downcast_plugins
 
 
 URL_CMS_MOVE_PLUGIN = u'/en/admin/cms/page/%d/move-plugin/'
@@ -940,3 +945,130 @@ class NestedPluginsTestCase(PluginsTestBaseCase, UnittestCompatMixin):
         link_plugin = CMSPlugin.objects.get(parent_id=text_plugin_en.pk)
         self.assertEqual(link_plugin.parent_id, text_plugin_en.pk)
         self.assertEqual(link_plugin.path, '00010001')
+
+class BlueprintPluginTests(PluginsTestBaseCase, UnittestCompatMixin):
+
+    def create_plugin_structure(self):
+        placeholder = Placeholder(slot=u"some_slot")
+        placeholder.save()  # a good idea, if not strictly necessary
+
+        # plugin in placeholder
+        plugin_1 = add_plugin(placeholder, u"TextPlugin", u"en",
+                              body=u"01")
+        plugin_1.save()
+
+        # IMPORTANT: plugins must be reloaded, before they can be assigned
+        # as a parent. Otherwise, the MPTT structure doesn't seem to rebuild
+        # properly.
+
+        # child of plugin_1
+        plugin_2 = add_plugin(placeholder, u"TextPlugin", u"en",
+                              body=u"02",
+        )
+        plugin_1 = self.reload(plugin_1)
+        plugin_2.parent = plugin_1
+        plugin_2.save()
+
+        # create a second child of plugin_1
+        plugin_3 = add_plugin(placeholder, u"TextPlugin", u"en",
+                              body=u"03",
+        )
+        plugin_1 = self.reload(plugin_1)
+        plugin_3.parent = plugin_1
+        plugin_3.save()
+
+        # child of plugin_2
+        plugin_4 = add_plugin(placeholder, u"TextPlugin", u"en",
+                              body=u"04",
+        )
+        plugin_2 = self.reload(plugin_2)
+        plugin_4.parent = plugin_2
+        plugin_4.save()
+
+        # create a second root plugin
+        plugin_5 = add_plugin(placeholder, u"TextPlugin", u"en",
+                              # force this to first-child, to make the tree more challenging
+                              position='first-child',
+                              body=u"05",
+        )
+        plugin_5.save()
+
+        # child of plugin_5
+        plugin_6 = add_plugin(placeholder, u"TextPlugin", u"en",
+                              body=u"06",
+        )
+        plugin_5 = self.reload(plugin_5)
+        plugin_6.parent = plugin_5
+        plugin_6.save()
+
+        # child of plugin_6
+        plugin_7 = add_plugin(placeholder, u"TextPlugin", u"en",
+                              body=u"07",
+        )
+        plugin_5 = self.reload(plugin_5)
+        plugin_7.parent = plugin_5
+        plugin_7.save()
+
+        # create a third root plugin
+        plugin_8 = add_plugin(placeholder, u"TextPlugin", u"en",
+                              # force this to first-child, to make the tree more challenging
+                              position='first-child',
+                              body=u"08",
+        )
+        plugin_8.save()
+
+        return plugin_1, plugin_2, plugin_3, plugin_4, plugin_5, plugin_6, plugin_7, plugin_8
+
+    def test_blueprint_copy_one_plugin(self):
+        originals = self.create_plugin_structure()
+
+        request = self.get_request(path='/en/')
+        request.POST = QueryDict('plugin_id=%s' % originals[-1])
+        blueprint = BlueprintPlugin()
+        response = blueprint.create_blueprint(request)
+        self.assertContains(response, 'ok')
+        plugins = CMSPlugin.objects.all()
+        # 8 plugins + 1 blueprint + 1 copied
+        self.assertEqual(plugins.count(), len(originals) + 2)
+        concrete = downcast_plugins(plugins)
+        self.assertEqual(originals[-1].body, concrete[-1].body)
+        # copied plugins is one level deeper
+        self.assertEqual(originals[-1].level, concrete[-1].level - 1)
+
+    def test_blueprint_copy_root_plugin(self):
+        originals = self.create_plugin_structure()
+
+        request = self.get_request(path='/en/')
+        request.POST = QueryDict('plugin_id=%s' % originals[0])
+        blueprint = BlueprintPlugin()
+        response = blueprint.create_blueprint(request)
+        self.assertContains(response, 'ok')
+        plugins = CMSPlugin.objects.all()
+        # 8 plugins + 1 blueprint + 1 copied (+4 childrens)
+        self.assertEqual(plugins.count(), len(originals) + 5)
+        concrete = downcast_plugins(plugins)
+        self.assertEqual(originals[0].body, concrete[len(originals)+1].body)
+        # copied plugins is one level deeper
+        self.assertEqual(originals[0].level, concrete[len(originals)+1].level - 1)
+
+    def test_blueprint_copy_placeholder(self):
+        originals = self.create_plugin_structure()
+        placeholder = Placeholder.objects.get(slot=u"some_slot")
+
+        request = self.get_request(path='/en/')
+        request.POST = QueryDict('placeholder_id=%s' % placeholder.pk)
+        blueprint = BlueprintPlugin()
+        response = blueprint.create_blueprint(request)
+        self.assertContains(response, 'ok')
+        plugins = CMSPlugin.objects.all()
+        blueprint_placeholder = Placeholder.objects.get(slot=get_cms_setting('BLUEPRINT_PLACEHOLDER'))
+        blueprint_plugins = CMSPlugin.objects.filter(placeholder_id=blueprint_placeholder.pk)
+        # 8 plugins + 1 blueprint + 1 copied (+4 childrens)
+        self.assertEqual(plugins.count(), len(originals)*2 + 1)
+        self.assertEqual(blueprint_plugins.count(), len(originals) + 1)
+        print  blueprint_plugins
+        concrete = downcast_plugins(blueprint_plugins)
+        self.assertEqual(originals[0].body, concrete[1].body)
+        # copied plugins is one level deeper
+        self.assertEqual(originals[0].level, concrete[1].level - 1)
+
