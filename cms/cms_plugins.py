@@ -81,7 +81,7 @@ class AliasPlugin(CMSPluginBase):
     def create_alias(self, request):
         if not request.user.is_staff:
             return HttpResponseForbidden("not enough privileges")
-        if not 'plugin_id' in request.POST and not 'placeholder_id' in request.POST:
+        if 'plugin_id' not in request.POST and 'placeholder_id' not in request.POST:
             return HttpResponseBadRequest("plugin_id or placeholder_id POST parameter missing.")
         plugin = None
         placeholder = None
@@ -151,7 +151,7 @@ class BlueprintPlugin(CMSPluginBase):
     def create_blueprint(self, request):
         if not request.user.is_staff:
             return HttpResponseForbidden("not enough privileges")
-        if not 'plugin_id' in request.POST and not 'placeholder_id' in request.POST:
+        if 'plugin_id' not in request.POST and 'placeholder_id' not in request.POST:
             return HttpResponseBadRequest("plugin_id or placeholder_id POST parameter missing.")
         plugins = []
         # Get the current plugins
@@ -180,7 +180,7 @@ class BlueprintPlugin(CMSPluginBase):
             # recreate the plugin structure but with a blueprint top-level plugin
             # that contains them all
             for plugin in plugins:
-                children = plugin.get_descendants(include_self=True).order_by('placeholder', 'tree_id', 'level', 'position')
+                children = plugin.get_descendants(include_self=True)
                 children = downcast_plugins(children)
                 copy_plugins_to(children, placeholder, language, parent_plugin_id=blueprint.pk)
         return HttpResponse("ok")

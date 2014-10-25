@@ -1042,14 +1042,23 @@ class BlueprintPluginTests(PluginsTestBaseCase, UnittestCompatMixin):
         request.POST = QueryDict('plugin_id=%s' % originals[0])
         blueprint = BlueprintPlugin()
         response = blueprint.create_blueprint(request)
+        # blueprint created
         self.assertContains(response, 'ok')
-        plugins = CMSPlugin.objects.all()
-        # 8 plugins + 1 blueprint + 1 copied (+4 childrens)
-        self.assertEqual(plugins.count(), len(originals) + 5)
-        concrete = downcast_plugins(plugins)
-        self.assertEqual(originals[0].body, concrete[len(originals)+1].body)
-        # copied plugins is one level deeper
-        self.assertEqual(originals[0].level, concrete[len(originals)+1].level - 1)
+
+        # gather original and blueprint plugins, downcast to actual instances
+        blueprint_placeholder = Placeholder.objects.get(slot=get_cms_setting('BLUEPRINT_PLACEHOLDER'))
+        blueprint_plugins = CMSPlugin.objects.filter(placeholder_id=blueprint_placeholder.pk)
+        concrete = downcast_plugins(blueprint_plugins)
+        copied_plugins = originals[0].get_descendants(include_self=True)
+        copied_concrete = downcast_plugins(copied_plugins)
+
+        # original plugins + blueprint plugin
+        self.assertEqual(blueprint_plugins.count(), copied_plugins.count() + 1)
+        for index, plugin in enumerate(copied_concrete):
+            # same body (means same order)
+            self.assertEqual(plugin.body, concrete[index + 1].body)
+            # copied plugins is one level deeper
+            self.assertEqual(plugin.level, concrete[index + 1].level - 1)
 
     def test_blueprint_copy_placeholder(self):
         originals = self.create_plugin_structure()
@@ -1060,15 +1069,21 @@ class BlueprintPluginTests(PluginsTestBaseCase, UnittestCompatMixin):
         blueprint = BlueprintPlugin()
         response = blueprint.create_blueprint(request)
         self.assertContains(response, 'ok')
-        plugins = CMSPlugin.objects.all()
+
+        # gather original and blueprint plugins, downcast to actual instances
+        # plugins can't be ordered by tree, left and right as they are all in the
+        # same tree now. position and parent remains the same, though
         blueprint_placeholder = Placeholder.objects.get(slot=get_cms_setting('BLUEPRINT_PLACEHOLDER'))
-        blueprint_plugins = CMSPlugin.objects.filter(placeholder_id=blueprint_placeholder.pk)
-        # 8 plugins + 1 blueprint + 1 copied (+4 childrens)
-        self.assertEqual(plugins.count(), len(originals)*2 + 1)
-        self.assertEqual(blueprint_plugins.count(), len(originals) + 1)
-        print  blueprint_plugins
+        blueprint_plugins = CMSPlugin.objects.filter(placeholder_id=blueprint_placeholder.pk).order_by('position', 'parent')
         concrete = downcast_plugins(blueprint_plugins)
-        self.assertEqual(originals[0].body, concrete[1].body)
-        # copied plugins is one level deeper
-        self.assertEqual(originals[0].level, concrete[1].level - 1)
+        copied_plugins = CMSPlugin.objects.filter(placeholder_id=placeholder.pk).order_by('position', 'parent')
+        copied_concrete = downcast_plugins(copied_plugins)
+
+        # original plugins + blueprint plugin
+        self.assertEqual(blueprint_plugins.count(), len(copied_plugins) + 1)
+        for index, plugin in enumerate(copied_concrete):
+            # same body (means same order)
+            self.assertEqual(plugin.body, concrete[index + 1].body)
+            # copied plugins is one level deeper
+            self.assertEqual(plugin.level, concrete[index + 1].level - 1)
 
