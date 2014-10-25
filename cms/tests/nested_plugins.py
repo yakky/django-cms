@@ -1087,3 +1087,79 @@ class BlueprintPluginTests(PluginsTestBaseCase, UnittestCompatMixin):
             # copied plugins is one level deeper
             self.assertEqual(plugin.level, concrete[index + 1].level - 1)
 
+    def test_blueprint_apply_one_root(self):
+        originals = self.create_plugin_structure()
+
+        request = self.get_request(path='/en/')
+        request.POST = QueryDict('plugin_id=%s' % originals[-1])
+        blueprint = BlueprintPlugin()
+        response = blueprint.create_blueprint(request)
+
+        blueprint_placeholder = Placeholder.objects.get(slot=get_cms_setting('BLUEPRINT_PLACEHOLDER'))
+        target_placeholder, _ = Placeholder.objects.get_or_create(slot='whatever')
+        target_language = 'fr'
+        source_plugin = blueprint_placeholder.get_plugins().get(plugin_type='BlueprintPlugin')
+
+        post_data = {
+            'target_placeholder_id': target_placeholder.pk,
+            'target_language': target_language,
+            'source_plugin_id': source_plugin.pk,
+        }
+
+        request = self.get_request(path='/en/', post_data=post_data)
+        response = blueprint.apply_blueprint(request)
+
+        final_plugins = target_placeholder.get_plugins()
+        final_concrete = downcast_plugins(final_plugins)
+        for final in final_concrete:
+            final.save()
+
+        # only the contained plugin is copied back
+        self.assertEqual(final_plugins.count(), 1)
+        self.assertEqual(final_concrete[0].body, originals[-1].body)
+        # first plugin in the placeholder, so level is zero
+        self.assertEqual(final_concrete[0].level, 0)
+        # the last value of the tree
+        self.assertEqual(final_concrete[0].rght, 2)
+        self.assertEqual(final_concrete[0].language, 'fr')
+
+    def test_blueprint_apply_one_sub(self):
+        originals = self.create_plugin_structure()
+
+        request = self.get_request(path='/en/')
+        request.POST = QueryDict('plugin_id=%s' % originals[-1])
+        blueprint = BlueprintPlugin()
+        response = blueprint.create_blueprint(request)
+
+        blueprint_placeholder = Placeholder.objects.get(slot=get_cms_setting('BLUEPRINT_PLACEHOLDER'))
+        target_placeholder, _ = Placeholder.objects.get_or_create(slot='whatever')
+        target_language = 'fr'
+        source_plugin = blueprint_placeholder.get_plugins().get(plugin_type='BlueprintPlugin')
+        target_plugin = add_plugin(target_placeholder, u"TextPlugin",target_language,
+                                   body=u"target plugin")
+        target_plugin.save()
+
+        post_data = {
+            'target_placeholder_id': target_placeholder.pk,
+            'target_language': target_language,
+            'source_plugin_id': source_plugin.pk,
+            'target_plugin_id': target_plugin.pk,
+        }
+
+        request = self.get_request(path='/en/', post_data=post_data)
+        response = blueprint.apply_blueprint(request)
+
+        final_plugins = target_placeholder.get_plugins()
+        final_concrete = downcast_plugins(final_plugins)
+        for final in final_concrete:
+            final.save()
+
+        # the contained plugin is copied back and one existing
+        self.assertEqual(final_plugins.count(), 2)
+        self.assertEqual(final_concrete[1].body, originals[-1].body)
+        # the copied plugin is contained in another plugin
+        self.assertEqual(final_concrete[1].level, 1)
+        # the last value of the tree
+        self.assertEqual(final_concrete[0].rght, 4)
+        self.assertEqual(final_concrete[1].language, 'fr')
+
