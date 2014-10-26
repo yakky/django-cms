@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from cms.models import CMSPlugin
-from cms.models.fields import PlaceholderField
 from cms.utils.compat.dj import python_2_unicode_compatible
 from cms.utils.copy_plugins import copy_plugins_to
 from django.db import models

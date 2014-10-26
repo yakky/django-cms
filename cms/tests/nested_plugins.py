@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import with_statement
 import json
-from cms.utils import get_cms_setting
-from cms.utils.plugins import downcast_plugins
-from django.http import QueryDict
 
 from djangocms_text_ckeditor.models import Text
 
@@ -15,6 +12,7 @@ from cms.models.placeholdermodel import Placeholder
 from cms.models.pluginmodel import CMSPlugin
 from cms.tests.plugins import PluginsTestBaseCase
 from cms.test_utils.util.context_managers import SettingsOverride
+from cms.utils import get_cms_setting
 from cms.utils.compat.tests import UnittestCompatMixin
 from cms.utils.copy_plugins import copy_plugins_to
 from cms.utils.plugins import downcast_plugins
@@ -1019,14 +1017,43 @@ class BlueprintPluginTests(PluginsTestBaseCase, UnittestCompatMixin):
 
         return plugin_1, plugin_2, plugin_3, plugin_4, plugin_5, plugin_6, plugin_7, plugin_8
 
-    def test_blueprint_copy_one_plugin(self):
-        originals = self.create_plugin_structure()
-
-        request = self.get_request(path='/en/')
-        request.POST = QueryDict('plugin_id=%s' % originals[-1])
+    def _create_blueprint(self, plugin=None, placeholder=None):
+        if plugin:
+            post_data = {'plugin_id': plugin.pk}
+        if placeholder:
+            post_data = {'placeholder_id': placeholder.pk}
+        request = self.get_request(path='/en/', post_data=post_data)
         blueprint = BlueprintPlugin()
         response = blueprint.create_blueprint(request)
         self.assertContains(response, 'ok')
+        return blueprint
+
+    def _get_plugins(self, originals):
+        """
+        gather original and blueprint plugins, downcast to actual instances
+        plugins can't be ordered by tree, left and right as they are all in the
+        same tree now. position and parent remains the same, though
+        """
+        blueprint_placeholder = Placeholder.objects.get(slot=get_cms_setting('BLUEPRINT_PLACEHOLDER'))
+        blueprint_plugins = CMSPlugin.objects.filter(placeholder_id=blueprint_placeholder.pk).order_by('position', 'parent')
+        concrete = downcast_plugins(blueprint_plugins)
+        copied_plugins = originals.order_by('position', 'parent')
+        copied_concrete = downcast_plugins(copied_plugins)
+
+        return concrete, copied_concrete
+
+    def _get_target_data(self):
+        blueprint_placeholder = Placeholder.objects.get(slot=get_cms_setting('BLUEPRINT_PLACEHOLDER'))
+        target_placeholder, _ = Placeholder.objects.get_or_create(slot='whatever')
+        source_plugin = blueprint_placeholder.get_plugins().get(plugin_type='BlueprintPlugin')
+
+        return blueprint_placeholder, target_placeholder, source_plugin
+
+    def test_blueprint_copy_one_plugin(self):
+        originals = self.create_plugin_structure()
+
+        blueprint = self._create_blueprint(plugin=originals[-1])  # nopyflakes
+
         plugins = CMSPlugin.objects.all()
         # 8 plugins + 1 blueprint + 1 copied
         self.assertEqual(plugins.count(), len(originals) + 2)
@@ -1038,67 +1065,42 @@ class BlueprintPluginTests(PluginsTestBaseCase, UnittestCompatMixin):
     def test_blueprint_copy_root_plugin(self):
         originals = self.create_plugin_structure()
 
-        request = self.get_request(path='/en/')
-        request.POST = QueryDict('plugin_id=%s' % originals[0])
-        blueprint = BlueprintPlugin()
-        response = blueprint.create_blueprint(request)
-        # blueprint created
-        self.assertContains(response, 'ok')
+        blueprint = self._create_blueprint(plugin=originals[0])  # nopyflakes
 
-        # gather original and blueprint plugins, downcast to actual instances
-        blueprint_placeholder = Placeholder.objects.get(slot=get_cms_setting('BLUEPRINT_PLACEHOLDER'))
-        blueprint_plugins = CMSPlugin.objects.filter(placeholder_id=blueprint_placeholder.pk)
-        concrete = downcast_plugins(blueprint_plugins)
-        copied_plugins = originals[0].get_descendants(include_self=True)
-        copied_concrete = downcast_plugins(copied_plugins)
+        blueprint_plugins, copied_plugins = self._get_plugins(originals[0].get_descendants(include_self=True))
 
         # original plugins + blueprint plugin
-        self.assertEqual(blueprint_plugins.count(), copied_plugins.count() + 1)
-        for index, plugin in enumerate(copied_concrete):
+        self.assertEqual(len(blueprint_plugins), len(copied_plugins) + 1)
+        for index, plugin in enumerate(copied_plugins):
             # same body (means same order)
-            self.assertEqual(plugin.body, concrete[index + 1].body)
+            self.assertEqual(plugin.body, blueprint_plugins[index + 1].body)
             # copied plugins is one level deeper
-            self.assertEqual(plugin.level, concrete[index + 1].level - 1)
+            self.assertEqual(plugin.level, blueprint_plugins[index + 1].level - 1)
 
     def test_blueprint_copy_placeholder(self):
-        originals = self.create_plugin_structure()
+        originals = self.create_plugin_structure()  # nopyflakes
         placeholder = Placeholder.objects.get(slot=u"some_slot")
 
-        request = self.get_request(path='/en/')
-        request.POST = QueryDict('placeholder_id=%s' % placeholder.pk)
-        blueprint = BlueprintPlugin()
-        response = blueprint.create_blueprint(request)
-        self.assertContains(response, 'ok')
+        blueprint = self._create_blueprint(placeholder=placeholder)  # nopyflakes
 
-        # gather original and blueprint plugins, downcast to actual instances
-        # plugins can't be ordered by tree, left and right as they are all in the
-        # same tree now. position and parent remains the same, though
-        blueprint_placeholder = Placeholder.objects.get(slot=get_cms_setting('BLUEPRINT_PLACEHOLDER'))
-        blueprint_plugins = CMSPlugin.objects.filter(placeholder_id=blueprint_placeholder.pk).order_by('position', 'parent')
-        concrete = downcast_plugins(blueprint_plugins)
-        copied_plugins = CMSPlugin.objects.filter(placeholder_id=placeholder.pk).order_by('position', 'parent')
-        copied_concrete = downcast_plugins(copied_plugins)
+        blueprint_plugins, copied_plugins = self._get_plugins(CMSPlugin.objects.filter(placeholder_id=placeholder.pk))
 
         # original plugins + blueprint plugin
-        self.assertEqual(blueprint_plugins.count(), len(copied_plugins) + 1)
-        for index, plugin in enumerate(copied_concrete):
+        self.assertEqual(len(blueprint_plugins), len(copied_plugins) + 1)
+        for index, plugin in enumerate(copied_plugins):
             # same body (means same order)
-            self.assertEqual(plugin.body, concrete[index + 1].body)
+            self.assertEqual(plugin.body, blueprint_plugins[index + 1].body)
             # copied plugins is one level deeper
-            self.assertEqual(plugin.level, concrete[index + 1].level - 1)
+            self.assertEqual(plugin.level, blueprint_plugins[index + 1].level - 1)
 
     def test_blueprint_apply_one_root(self):
         originals = self.create_plugin_structure()
 
-        request = self.get_request(path='/en/')
-        request.POST = QueryDict('plugin_id=%s' % originals[-1])
-        blueprint = BlueprintPlugin()
-        response = blueprint.create_blueprint(request)
+        blueprint = self._create_blueprint(plugin=originals[-1])
 
-        blueprint_placeholder = Placeholder.objects.get(slot=get_cms_setting('BLUEPRINT_PLACEHOLDER'))
-        target_placeholder, _ = Placeholder.objects.get_or_create(slot='whatever')
+        blueprint_placeholder, target_placeholder, source_plugin = self._get_target_data()
+
         target_language = 'fr'
-        source_plugin = blueprint_placeholder.get_plugins().get(plugin_type='BlueprintPlugin')
 
         post_data = {
             'target_placeholder_id': target_placeholder.pk,
@@ -1107,36 +1109,28 @@ class BlueprintPluginTests(PluginsTestBaseCase, UnittestCompatMixin):
         }
 
         request = self.get_request(path='/en/', post_data=post_data)
-        response = blueprint.apply_blueprint(request)
+        response = blueprint.apply_blueprint(request)  # nopyflakes
 
-        final_plugins = target_placeholder.get_plugins()
-        final_concrete = downcast_plugins(final_plugins)
-        for final in final_concrete:
-            final.save()
+        blueprint_plugins, copied_plugins = self._get_plugins(target_placeholder.get_plugins())
 
         # only the contained plugin is copied back
-        self.assertEqual(final_plugins.count(), 1)
-        self.assertEqual(final_concrete[0].body, originals[-1].body)
+        self.assertEqual(len(copied_plugins), 1)
+        self.assertEqual(copied_plugins[0].body, originals[-1].body)
         # first plugin in the placeholder, so level is zero
-        self.assertEqual(final_concrete[0].level, 0)
+        self.assertEqual(copied_plugins[0].level, 0)
         # the last value of the tree
-        self.assertEqual(final_concrete[0].rght, 2)
-        self.assertEqual(final_concrete[0].language, 'fr')
+        self.assertEqual(copied_plugins[0].rght, 2)
+        self.assertEqual(copied_plugins[0].language, 'fr')
 
     def test_blueprint_apply_one_sub(self):
         originals = self.create_plugin_structure()
 
-        request = self.get_request(path='/en/')
-        request.POST = QueryDict('plugin_id=%s' % originals[-1])
-        blueprint = BlueprintPlugin()
-        response = blueprint.create_blueprint(request)
+        blueprint = self._create_blueprint(plugin=originals[-1])
 
-        blueprint_placeholder = Placeholder.objects.get(slot=get_cms_setting('BLUEPRINT_PLACEHOLDER'))
-        target_placeholder, _ = Placeholder.objects.get_or_create(slot='whatever')
+        blueprint_placeholder, target_placeholder, source_plugin = self._get_target_data()
         target_language = 'fr'
-        source_plugin = blueprint_placeholder.get_plugins().get(plugin_type='BlueprintPlugin')
-        target_plugin = add_plugin(target_placeholder, u"TextPlugin",target_language,
-                                   body=u"target plugin")
+        target_plugin = add_plugin(target_placeholder, u"TextPlugin",
+                                   target_language, body=u"target plugin")
         target_plugin.save()
 
         post_data = {
@@ -1147,19 +1141,49 @@ class BlueprintPluginTests(PluginsTestBaseCase, UnittestCompatMixin):
         }
 
         request = self.get_request(path='/en/', post_data=post_data)
-        response = blueprint.apply_blueprint(request)
+        response = blueprint.apply_blueprint(request)  # nopyflakes
 
-        final_plugins = target_placeholder.get_plugins()
-        final_concrete = downcast_plugins(final_plugins)
-        for final in final_concrete:
-            final.save()
+        blueprint_plugins, copied_plugins = self._get_plugins(target_placeholder.get_plugins())
 
-        # the contained plugin is copied back and one existing
-        self.assertEqual(final_plugins.count(), 2)
-        self.assertEqual(final_concrete[1].body, originals[-1].body)
+        # the contained plugin is copied back + one existing
+        self.assertEqual(len(copied_plugins), 2)
+        self.assertEqual(copied_plugins[1].body, originals[-1].body)
         # the copied plugin is contained in another plugin
-        self.assertEqual(final_concrete[1].level, 1)
+        self.assertEqual(copied_plugins[1].level, 1)
         # the last value of the tree
-        self.assertEqual(final_concrete[0].rght, 4)
-        self.assertEqual(final_concrete[1].language, 'fr')
+        self.assertEqual(copied_plugins[0].rght, 4)
+        self.assertEqual(copied_plugins[1].language, 'fr')
+
+    def test_blueprint_apply_tree(self):
+        originals = self.create_plugin_structure()
+
+        blueprint = self._create_blueprint(plugin=originals[0])
+
+        blueprint_placeholder, target_placeholder, source_plugin = self._get_target_data()
+        target_language = 'fr'
+        target_plugin = add_plugin(target_placeholder, u"TextPlugin",
+                                   target_language, body=u"target plugin")
+        target_plugin.save()
+
+        post_data = {
+            'target_placeholder_id': target_placeholder.pk,
+            'target_language': target_language,
+            'source_plugin_id': source_plugin.pk,
+            'target_plugin_id': target_plugin.pk,
+        }
+
+        request = self.get_request(path='/en/', post_data=post_data)
+        response = blueprint.apply_blueprint(request)  # nopyflakes
+
+        blueprint_plugins, copied_plugins = self._get_plugins(target_placeholder.get_plugins())
+
+        # the contained plugins (4) are copied back + one existing
+        self.assertEqual(len(copied_plugins), 5)
+        for index, plugin in enumerate(copied_plugins):
+            # skipping the first one which is different from the two sets
+            if index > 0:
+                # same body (means same order)
+                self.assertEqual(plugin.body, blueprint_plugins[index].body)
+                # copied plugins are at the same level
+                self.assertEqual(plugin.level, blueprint_plugins[index].level)
 

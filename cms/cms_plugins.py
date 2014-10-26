@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from cms.constants import PLUGIN_COPY_ACTION
 from django.contrib.sites.models import get_current_site
 from cms.models import CMSPlugin, Placeholder
 from cms.models.aliaspluginmodel import AliasPluginModel
@@ -11,8 +10,7 @@ from cms.plugin_rendering import render_placeholder
 from cms.utils import get_language_list
 from cms.utils.conf import get_cms_setting
 from cms.utils.copy_plugins import copy_plugins_to
-from cms.utils.plugins import downcast_plugins, build_plugin_tree, \
-    requires_reload
+from cms.utils.plugins import downcast_plugins, build_plugin_tree
 from cms.utils.urlutils import admin_reverse
 from django.conf.urls import patterns, url
 from django.http import HttpResponseForbidden, HttpResponseBadRequest, HttpResponse
@@ -124,7 +122,7 @@ class BlueprintPlugin(CMSPluginBase):
     allow_children = True
     model = BlueprintPluginModel
     render_template = "cms/plugins/blueprint.html"
-    #parent_classes = [0]  # so you will not be able to add it something
+    parent_classes = [0]  # so you will not be able to add it something
 
     def get_extra_global_plugin_menu_items(self, request, plugin):
         return [
@@ -209,7 +207,7 @@ class BlueprintPlugin(CMSPluginBase):
         except Placeholder.DoesNotExist:
             return HttpResponseBadRequest("placeholder with id %s not found." % target_placeholder_id)
         try:
-            blueprint_placeholder = Placeholder.objects.get(slot=get_cms_setting('BLUEPRINT_PLACEHOLDER'))
+            Placeholder.objects.get(slot=get_cms_setting('BLUEPRINT_PLACEHOLDER'))
         except Placeholder.DoesNotExist:
             return HttpResponseBadRequest("%s placeholder not found." % get_cms_setting('BLUEPRINT_PLACEHOLDER'))
         for root_plugin in plugin.get_descendants(include_self=False).filter(level=1):
