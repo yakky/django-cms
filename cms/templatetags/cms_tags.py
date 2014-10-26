@@ -1088,13 +1088,13 @@ class RenderPlaceholder(AsTag):
         placeholder = kwargs.get('placeholder')
         width = kwargs.get('width')
         language = kwargs.get('language')
-        if isinstance(placeholder, string_types):
-            placeholder = PlaceholderModel.objects.get(slot=placeholder)
-
         if not request:
             return ''
         if not placeholder:
             return ''
+
+        if isinstance(placeholder, string_types):
+            placeholder = PlaceholderModel.objects.get(slot=placeholder)
         if not hasattr(request, 'placeholders'):
             request.placeholders = []
         request.placeholders.append(placeholder)
