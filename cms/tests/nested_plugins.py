@@ -944,6 +944,7 @@ class NestedPluginsTestCase(PluginsTestBaseCase, UnittestCompatMixin):
         self.assertEqual(link_plugin.parent_id, text_plugin_en.pk)
         self.assertEqual(link_plugin.path, '00010001')
 
+
 class BlueprintPluginTests(PluginsTestBaseCase, UnittestCompatMixin):
 
     def create_plugin_structure(self):
@@ -961,26 +962,20 @@ class BlueprintPluginTests(PluginsTestBaseCase, UnittestCompatMixin):
 
         # child of plugin_1
         plugin_2 = add_plugin(placeholder, u"TextPlugin", u"en",
-                              body=u"02",
+                              body=u"02", target=plugin_1
         )
-        plugin_1 = self.reload(plugin_1)
-        plugin_2.parent = plugin_1
         plugin_2.save()
 
         # create a second child of plugin_1
         plugin_3 = add_plugin(placeholder, u"TextPlugin", u"en",
-                              body=u"03",
+                              body=u"03", target=plugin_1,
         )
-        plugin_1 = self.reload(plugin_1)
-        plugin_3.parent = plugin_1
         plugin_3.save()
 
         # child of plugin_2
         plugin_4 = add_plugin(placeholder, u"TextPlugin", u"en",
-                              body=u"04",
+                              body=u"04", target=plugin_2,
         )
-        plugin_2 = self.reload(plugin_2)
-        plugin_4.parent = plugin_2
         plugin_4.save()
 
         # create a second root plugin
@@ -993,18 +988,14 @@ class BlueprintPluginTests(PluginsTestBaseCase, UnittestCompatMixin):
 
         # child of plugin_5
         plugin_6 = add_plugin(placeholder, u"TextPlugin", u"en",
-                              body=u"06",
+                              body=u"06", target=plugin_5,
         )
-        plugin_5 = self.reload(plugin_5)
-        plugin_6.parent = plugin_5
         plugin_6.save()
 
         # child of plugin_6
         plugin_7 = add_plugin(placeholder, u"TextPlugin", u"en",
-                              body=u"07",
+                              body=u"07", target=plugin_5,
         )
-        plugin_5 = self.reload(plugin_5)
-        plugin_7.parent = plugin_5
         plugin_7.save()
 
         # create a third root plugin
@@ -1035,9 +1026,9 @@ class BlueprintPluginTests(PluginsTestBaseCase, UnittestCompatMixin):
         same tree now. position and parent remains the same, though
         """
         blueprint_placeholder = Placeholder.objects.get(slot=get_cms_setting('BLUEPRINT_PLACEHOLDER'))
-        blueprint_plugins = CMSPlugin.objects.filter(placeholder_id=blueprint_placeholder.pk).order_by('position', 'parent')
+        blueprint_plugins = CMSPlugin.objects.filter(placeholder_id=blueprint_placeholder.pk).order_by('path')
         concrete = downcast_plugins(blueprint_plugins)
-        copied_plugins = originals.order_by('position', 'parent')
+        copied_plugins = originals.order_by('path')
         copied_concrete = downcast_plugins(copied_plugins)
 
         return concrete, copied_concrete
@@ -1060,14 +1051,14 @@ class BlueprintPluginTests(PluginsTestBaseCase, UnittestCompatMixin):
         concrete = downcast_plugins(plugins)
         self.assertEqual(originals[-1].body, concrete[-1].body)
         # copied plugins is one level deeper
-        self.assertEqual(originals[-1].level, concrete[-1].level - 1)
+        self.assertEqual(originals[-1].depth, concrete[-1].depth - 1)
 
     def test_blueprint_copy_root_plugin(self):
         originals = self.create_plugin_structure()
 
         blueprint = self._create_blueprint(plugin=originals[0])  # nopyflakes
 
-        blueprint_plugins, copied_plugins = self._get_plugins(originals[0].get_descendants(include_self=True))
+        blueprint_plugins, copied_plugins = self._get_plugins(originals[0].get_tree(originals[0]))
 
         # original plugins + blueprint plugin
         self.assertEqual(len(blueprint_plugins), len(copied_plugins) + 1)
@@ -1075,7 +1066,7 @@ class BlueprintPluginTests(PluginsTestBaseCase, UnittestCompatMixin):
             # same body (means same order)
             self.assertEqual(plugin.body, blueprint_plugins[index + 1].body)
             # copied plugins is one level deeper
-            self.assertEqual(plugin.level, blueprint_plugins[index + 1].level - 1)
+            self.assertEqual(plugin.depth, blueprint_plugins[index + 1].depth - 1)
 
     def test_blueprint_copy_placeholder(self):
         originals = self.create_plugin_structure()  # nopyflakes
@@ -1091,7 +1082,7 @@ class BlueprintPluginTests(PluginsTestBaseCase, UnittestCompatMixin):
             # same body (means same order)
             self.assertEqual(plugin.body, blueprint_plugins[index + 1].body)
             # copied plugins is one level deeper
-            self.assertEqual(plugin.level, blueprint_plugins[index + 1].level - 1)
+            self.assertEqual(plugin.depth, blueprint_plugins[index + 1].depth - 1)
 
     def test_blueprint_apply_one_root(self):
         originals = self.create_plugin_structure()
@@ -1116,10 +1107,8 @@ class BlueprintPluginTests(PluginsTestBaseCase, UnittestCompatMixin):
         # only the contained plugin is copied back
         self.assertEqual(len(copied_plugins), 1)
         self.assertEqual(copied_plugins[0].body, originals[-1].body)
-        # first plugin in the placeholder, so level is zero
-        self.assertEqual(copied_plugins[0].level, 0)
-        # the last value of the tree
-        self.assertEqual(copied_plugins[0].rght, 2)
+        # first plugin in the placeholder, so depth is one
+        self.assertEqual(copied_plugins[0].depth, 1)
         self.assertEqual(copied_plugins[0].language, 'fr')
 
     def test_blueprint_apply_one_sub(self):
@@ -1149,9 +1138,7 @@ class BlueprintPluginTests(PluginsTestBaseCase, UnittestCompatMixin):
         self.assertEqual(len(copied_plugins), 2)
         self.assertEqual(copied_plugins[1].body, originals[-1].body)
         # the copied plugin is contained in another plugin
-        self.assertEqual(copied_plugins[1].level, 1)
-        # the last value of the tree
-        self.assertEqual(copied_plugins[0].rght, 4)
+        self.assertEqual(copied_plugins[1].depth, 2)
         self.assertEqual(copied_plugins[1].language, 'fr')
 
     def test_blueprint_apply_tree(self):
@@ -1184,6 +1171,6 @@ class BlueprintPluginTests(PluginsTestBaseCase, UnittestCompatMixin):
             if index > 0:
                 # same body (means same order)
                 self.assertEqual(plugin.body, blueprint_plugins[index].body)
-                # copied plugins are at the same level
-                self.assertEqual(plugin.level, blueprint_plugins[index].level)
+                # copied plugins are at the same depth
+                self.assertEqual(plugin.depth, blueprint_plugins[index].depth)
 

@@ -167,7 +167,7 @@ class BlueprintPlugin(CMSPluginBase):
         if 'placeholder_id' in request.POST:
             pk = request.POST['placeholder_id']
             try:
-                plugins = Placeholder.objects.get(pk=pk).get_plugins().filter(level=0)
+                plugins = Placeholder.objects.get(pk=pk).get_plugins().filter(depth=1)
             except Placeholder.DoesNotExist:
                 return HttpResponseBadRequest("placeholder with id %s not found." % pk)
         placeholder, _ = Placeholder.objects.get_or_create(slot=get_cms_setting('BLUEPRINT_PLACEHOLDER'))
@@ -182,7 +182,7 @@ class BlueprintPlugin(CMSPluginBase):
             # recreate the plugin structure but with a blueprint top-level plugin
             # that contains them all
             for plugin in plugins:
-                children = plugin.get_descendants(include_self=True)
+                children = plugin.get_tree(plugin)
                 children = downcast_plugins(children)
                 copy_plugins_to(children, placeholder, language, parent_plugin_id=blueprint.pk)
         return HttpResponse("ok")
@@ -210,8 +210,8 @@ class BlueprintPlugin(CMSPluginBase):
             Placeholder.objects.get(slot=get_cms_setting('BLUEPRINT_PLACEHOLDER'))
         except Placeholder.DoesNotExist:
             return HttpResponseBadRequest("%s placeholder not found." % get_cms_setting('BLUEPRINT_PLACEHOLDER'))
-        for root_plugin in plugin.get_descendants(include_self=False).filter(level=1):
-            children = root_plugin.get_descendants(include_self=True)
+        for root_plugin in plugin.get_tree(plugin).filter(depth=2):
+            children = root_plugin.get_tree(root_plugin)
             children = downcast_plugins(children)
             copy_plugins_to(children, target_placeholder, target_language, parent_plugin_id=target_plugin_id)
         return HttpResponse("ok")
