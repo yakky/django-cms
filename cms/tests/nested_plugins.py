@@ -1016,7 +1016,8 @@ class BlueprintPluginTests(PluginsTestBaseCase, UnittestCompatMixin):
         request = self.get_request(path='/en/', post_data=post_data)
         blueprint = BlueprintPlugin()
         response = blueprint.create_blueprint(request)
-        self.assertContains(response, 'ok')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'edit-plugin')
         return blueprint
 
     def _get_plugins(self, originals):
