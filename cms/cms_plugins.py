@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import json
 from django.contrib.sites.models import get_current_site
 from cms.models import CMSPlugin, Placeholder
 from cms.models.aliaspluginmodel import AliasPluginModel
@@ -139,6 +140,7 @@ class BlueprintPlugin(CMSPluginBase):
                 _("Create Blueprint"),
                 admin_reverse("cms_create_blueprint"),
                 data={'placeholder_id': placeholder.pk, 'csrfmiddlewaretoken': get_token(request)},
+                action='ajax_add'
             )
         ]
 
@@ -185,7 +187,15 @@ class BlueprintPlugin(CMSPluginBase):
                 children = plugin.get_tree(plugin)
                 children = downcast_plugins(children)
                 copy_plugins_to(children, placeholder, language, parent_plugin_id=blueprint.pk)
-        return HttpResponse("ok")
+            response = {
+                'url': force_text(
+                    admin_reverse("cms_page_edit_plugin", args=[blueprint.pk])),
+                'delete': force_text(
+                    admin_reverse("cms_page_edit_plugin", args=[blueprint.pk])),
+                'breadcrumb': blueprint.get_breadcrumb(),
+            }
+            return HttpResponse(json.dumps(response), content_type='application/json')
+        return HttpResponseBadRequest("no plugins to create blueprint from.")
 
     def apply_blueprint(self, request):
         if not request.user.is_staff:
