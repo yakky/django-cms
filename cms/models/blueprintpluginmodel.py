@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.core.urlresolvers import reverse
 from cms.models import CMSPlugin
 from cms.utils.compat.dj import python_2_unicode_compatible
 from cms.utils.copy_plugins import copy_plugins_to
@@ -31,3 +32,7 @@ class BlueprintPluginModel(CMSPlugin):
             plugin.placeholder = self.placeholder_ref
             plugin.language = language
             plugin.save()
+
+    @property
+    def move_url(self):
+        return reverse('admin:cms_apply_blueprint',)

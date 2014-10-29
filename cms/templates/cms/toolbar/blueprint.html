@@ -1,0 +1,19 @@
+{% load i18n %}
+{% load url from future %}
+
+{% if request.toolbar.edit_mode or request.toolbar.build_mode %}
+{% if request.toolbar.get_blueprint_plugins %}
+{% with slot="blueprint" %}
+<div class="cms_blueprint">
+	{% for plugin in request.toolbar.get_blueprint_plugins %}
+	<div class="cms_plugins">{% include "cms/toolbar/plugin.html" with instance=plugin %}</div>
+	{% endfor %}
+	<div class="cms_clipboard-containers cms_dragarea cms_draggables">
+		{% for plugin in request.toolbar.get_blueprint_plugins %}
+			{% include "cms/toolbar/dragitem.html" with plugin=plugin %}
+		{% endfor %}
+	</div>
+</div>
+{% endwith %}
+{% endif %}
+{% endif %}

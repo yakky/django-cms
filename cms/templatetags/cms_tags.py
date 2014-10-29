@@ -642,9 +642,11 @@ class CMSToolbar(RenderBlock):
                 # needed to populate the context with sekizai content
                 render_to_string('cms/toolbar/toolbar_javascript.html', context)
                 clipboard = mark_safe(render_to_string('cms/toolbar/clipboard.html', context))
+                blueprint = mark_safe(render_to_string('cms/toolbar/blueprint.html', context))
         else:
             language = None
             clipboard = ''
+            blueprint = ''
         # render everything below the tag
         rendered_contents = nodelist.render(context)
         # sanity checks
@@ -658,6 +660,7 @@ class CMSToolbar(RenderBlock):
         request.toolbar.post_template_populate()
         with force_language(language):
             context['clipboard'] = clipboard
+            context['blueprint'] = blueprint
             content = render_to_string('cms/toolbar/toolbar.html', context)
         # return the toolbar content and the content below
         return '%s\n%s' % (content, rendered_contents)

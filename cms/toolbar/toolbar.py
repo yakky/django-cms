@@ -16,6 +16,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.middleware.csrf import get_token
 from django.utils.translation import ugettext_lazy as _
 from django.utils.datastructures import SortedDict
+from cms.utils.plugins import downcast_plugins
 
 
 class CMSToolbarLoginForm(AuthenticationForm):
@@ -75,6 +76,7 @@ class CMSToolbar(ToolbarAPIMixin):
                 user_settings.language = self.language
                 user_settings.save()
             self.clipboard = user_settings.clipboard
+            self.blueprint, _ = Placeholder.objects.get_or_create(slot=get_cms_setting('BLUEPRINT_PLACEHOLDER'))
         with force_language(self.language):
             try:
                 decorator = resolve(self.request.path_info).func
@@ -213,6 +215,12 @@ class CMSToolbar(ToolbarAPIMixin):
         if not hasattr(self, "clipboard"):
             return []
         return self.clipboard.get_plugins()
+
+    def get_blueprint_plugins(self):
+        self.populate()
+        if not hasattr(self, "blueprint"):
+            return []
+        return downcast_plugins(self.blueprint.get_plugins().filter(depth=1))
 
     def get_left_items(self):
         self.populate()
