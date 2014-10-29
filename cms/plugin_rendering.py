@@ -200,7 +200,7 @@ def render_placeholder_toolbar(placeholder, context, name_fallback, save_languag
     context.push()
 
     # to restrict child-only plugins from draggables..
-    context['allowed_plugins'] = [cls.__name__ for cls in plugin_pool.get_all_plugins(slot, page)]
+    context['allowed_plugins'] = [cls.__name__ for cls in plugin_pool.get_all_plugins(slot, page)] + get_cms_setting('SYSTEM_PLUGINS')
     context['placeholder'] = placeholder
     context['language'] = save_language
     context['page'] = page
