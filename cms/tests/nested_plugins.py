@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import with_statement
 import json
+from django.contrib.auth.models import AnonymousUser
 
 from djangocms_text_ckeditor.models import Text
 
@@ -1041,6 +1042,34 @@ class BlueprintPluginTests(PluginsTestBaseCase, UnittestCompatMixin):
 
         return blueprint_placeholder, target_placeholder, source_plugin
 
+    def test_blueprint_create_errors(self):
+        originals = self.create_plugin_structure()
+
+        post_data = {}
+        request = self.get_request(path='/en/', post_data=post_data)
+        request.user = AnonymousUser()
+        blueprint = BlueprintPlugin()
+        response = blueprint.create_blueprint(request)
+        self.assertContains(response, 'not enough privileges', status_code=403)
+
+        post_data = {}
+        request = self.get_request(path='/en/', post_data=post_data)
+        blueprint = BlueprintPlugin()
+        response = blueprint.create_blueprint(request)
+        self.assertContains(response, 'plugin_id or placeholder_id ', status_code=400)
+
+        post_data = {'plugin_id': 999999}
+        request = self.get_request(path='/en/', post_data=post_data)
+        blueprint = BlueprintPlugin()
+        response = blueprint.create_blueprint(request)
+        self.assertContains(response, 'plugin with id', status_code=400)
+
+        post_data = {'placeholder_id': 999999}
+        request = self.get_request(path='/en/', post_data=post_data)
+        blueprint = BlueprintPlugin()
+        response = blueprint.create_blueprint(request)
+        self.assertContains(response, 'placeholder with id', status_code=400)
+
     def test_blueprint_copy_one_plugin(self):
         originals = self.create_plugin_structure()
 
@@ -1069,6 +1098,15 @@ class BlueprintPluginTests(PluginsTestBaseCase, UnittestCompatMixin):
             # copied plugins is one level deeper
             self.assertEqual(plugin.depth, blueprint_plugins[index + 1].depth - 1)
 
+    def test_blueprint_copy_empty_placeholder(self):
+        placeholder, _ = Placeholder.objects.get_or_create(slot=u"empty_slot")
+
+        post_data = {'placeholder_id': placeholder.pk}
+        request = self.get_request(path='/en/', post_data=post_data)
+        blueprint = BlueprintPlugin()
+        response = blueprint.create_blueprint(request)
+        self.assertContains(response, 'no plugins to create blueprint from', status_code=400)
+
     def test_blueprint_copy_placeholder(self):
         originals = self.create_plugin_structure()  # nopyflakes
         placeholder = Placeholder.objects.get(slot=u"some_slot")
@@ -1084,6 +1122,57 @@ class BlueprintPluginTests(PluginsTestBaseCase, UnittestCompatMixin):
             self.assertEqual(plugin.body, blueprint_plugins[index + 1].body)
             # copied plugins is one level deeper
             self.assertEqual(plugin.depth, blueprint_plugins[index + 1].depth - 1)
+
+    def test_blueprint_apply_errors(self):
+        originals = self.create_plugin_structure()
+
+        blueprint = self._create_blueprint(plugin=originals[-1])
+
+        blueprint_placeholder, target_placeholder, source_plugin = self._get_target_data()
+        target_language = 'fr'
+
+        post_data = {}
+        request = self.get_request(path='/en/', post_data=post_data)
+        request.user = AnonymousUser()
+        blueprint = BlueprintPlugin()
+        response = blueprint.apply_blueprint(request)
+        self.assertContains(response, 'not enough privileges', status_code=403)
+
+        post_data = {}
+        request = self.get_request(path='/en/', post_data=post_data)
+        blueprint = BlueprintPlugin()
+        response = blueprint.apply_blueprint(request)
+        self.assertContains(response, 'source_plugin_id, target_placeholder_id or target_language ', status_code=400)
+
+        post_data = {
+            'placeholder_id': target_placeholder.pk,
+            'plugin_language': 'kl',
+            'plugin_id': source_plugin.pk,
+        }
+        request = self.get_request(path='/en/', post_data=post_data)
+        blueprint = BlueprintPlugin()
+        response = blueprint.apply_blueprint(request)
+        self.assertContains(response, 'Language must be set to a supported language', status_code=400)
+
+        post_data = {
+            'placeholder_id': target_placeholder.pk,
+            'plugin_language': target_language,
+            'plugin_id': 99999,
+        }
+        request = self.get_request(path='/en/', post_data=post_data)
+        blueprint = BlueprintPlugin()
+        response = blueprint.apply_blueprint(request)
+        self.assertContains(response, 'plugin with id', status_code=400)
+
+        post_data = {
+            'placeholder_id': 99999,
+            'plugin_language': target_language,
+            'plugin_id': source_plugin.pk,
+        }
+        request = self.get_request(path='/en/', post_data=post_data)
+        blueprint = BlueprintPlugin()
+        response = blueprint.apply_blueprint(request)
+        self.assertContains(response, 'placeholder with id', status_code=400)
 
     def test_blueprint_apply_one_root(self):
         originals = self.create_plugin_structure()

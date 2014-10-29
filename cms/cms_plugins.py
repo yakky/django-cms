@@ -201,8 +201,8 @@ class BlueprintPlugin(CMSPluginBase):
     def apply_blueprint(self, request):
         if not request.user.is_staff:
             return HttpResponseForbidden("not enough privileges")
-        target_language = request.POST['plugin_language']
-        target_placeholder_id = request.POST['placeholder_id']
+        target_language = request.POST.get('plugin_language', None)
+        target_placeholder_id = request.POST.get('placeholder_id', None)
         target_plugin_id = request.POST.get('plugin_parent', None)
         source_plugin_id = request.POST.get('plugin_id', None)
         if not source_plugin_id or not target_placeholder_id or not target_language:
