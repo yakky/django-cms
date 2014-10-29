@@ -1043,7 +1043,7 @@ class BlueprintPluginTests(PluginsTestBaseCase, UnittestCompatMixin):
         return blueprint_placeholder, target_placeholder, source_plugin
 
     def test_blueprint_create_errors(self):
-        originals = self.create_plugin_structure()
+        originals = self.create_plugin_structure()  # nopyflakes
 
         post_data = {}
         request = self.get_request(path='/en/', post_data=post_data)
