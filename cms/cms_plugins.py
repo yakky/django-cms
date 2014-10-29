@@ -131,6 +131,7 @@ class BlueprintPlugin(CMSPluginBase):
                 _("Create Blueprint"),
                 admin_reverse("cms_create_blueprint"),
                 data={'plugin_id': plugin.pk, 'csrfmiddlewaretoken': get_token(request)},
+                action='ajax_add'
             )
         ]
 
@@ -200,10 +201,10 @@ class BlueprintPlugin(CMSPluginBase):
     def apply_blueprint(self, request):
         if not request.user.is_staff:
             return HttpResponseForbidden("not enough privileges")
-        target_language = request.POST['target_language']
-        target_placeholder_id = request.POST['target_placeholder_id']
-        target_plugin_id = request.POST.get('target_plugin_id', None)
-        source_plugin_id = request.POST.get('source_plugin_id', None)
+        target_language = request.POST['plugin_language']
+        target_placeholder_id = request.POST['placeholder_id']
+        target_plugin_id = request.POST.get('plugin_parent', None)
+        source_plugin_id = request.POST.get('plugin_id', None)
         if not source_plugin_id or not target_placeholder_id or not target_language:
             return HttpResponseBadRequest("source_plugin_id, target_placeholder_id or target_language POST parameter missing.")
         if not target_language or not target_language in get_language_list():
@@ -224,7 +225,10 @@ class BlueprintPlugin(CMSPluginBase):
             children = root_plugin.get_tree(root_plugin)
             children = downcast_plugins(children)
             copy_plugins_to(children, target_placeholder, target_language, parent_plugin_id=target_plugin_id)
-        return HttpResponse("ok")
+        response = {
+            'reload': True
+        }
+        return HttpResponse(json.dumps(response), content_type='application/json')
 
 
 plugin_pool.register_plugin(BlueprintPlugin)

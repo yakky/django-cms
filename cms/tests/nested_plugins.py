@@ -1095,9 +1095,9 @@ class BlueprintPluginTests(PluginsTestBaseCase, UnittestCompatMixin):
         target_language = 'fr'
 
         post_data = {
-            'target_placeholder_id': target_placeholder.pk,
-            'target_language': target_language,
-            'source_plugin_id': source_plugin.pk,
+            'placeholder_id': target_placeholder.pk,
+            'plugin_language': target_language,
+            'plugin_id': source_plugin.pk,
         }
 
         request = self.get_request(path='/en/', post_data=post_data)
@@ -1124,10 +1124,10 @@ class BlueprintPluginTests(PluginsTestBaseCase, UnittestCompatMixin):
         target_plugin.save()
 
         post_data = {
-            'target_placeholder_id': target_placeholder.pk,
-            'target_language': target_language,
-            'source_plugin_id': source_plugin.pk,
-            'target_plugin_id': target_plugin.pk,
+            'placeholder_id': target_placeholder.pk,
+            'plugin_language': target_language,
+            'plugin_id': source_plugin.pk,
+            'plugin_parent': target_plugin.pk,
         }
 
         request = self.get_request(path='/en/', post_data=post_data)
@@ -1154,10 +1154,10 @@ class BlueprintPluginTests(PluginsTestBaseCase, UnittestCompatMixin):
         target_plugin.save()
 
         post_data = {
-            'target_placeholder_id': target_placeholder.pk,
-            'target_language': target_language,
-            'source_plugin_id': source_plugin.pk,
-            'target_plugin_id': target_plugin.pk,
+            'placeholder_id': target_placeholder.pk,
+            'plugin_language': target_language,
+            'plugin_id': source_plugin.pk,
+            'plugin_parent': target_plugin.pk,
         }
 
         request = self.get_request(path='/en/', post_data=post_data)
