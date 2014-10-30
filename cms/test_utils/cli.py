@@ -268,6 +268,10 @@ def configure(db_url, **extra):
 
     if DJANGO_1_6:
         defaults['INSTALLED_APPS'].append('south')
+        defaults['SOUTH_MIGRATION_MODULES'] = {
+            'cms': 'cms.south_migrations',
+            'menus': 'menus.south_migrations',
+            }
     else:
         defaults['MIGRATION_MODULES'] = {
             'cms': 'cms.migrations',

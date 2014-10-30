@@ -464,10 +464,10 @@ $(document).ready(function () {
 			if (typeof toolbar == 'undefined' || typeof response == 'undefined') {
 				return function(toolbar, response) {
 					var that = caller;
-					that.editPlugin(response['url'], "ciao", response['breadcrumb']);
+					that.editPlugin(response['url'], that.options.plugin_name, response['breadcrumb']);
 				}
 			}
-			that.editPlugin(response['url'], "ciao", response['breadcrumb']);
+			that.editPlugin(response['url'], that.options.plugin_name, response['breadcrumb']);
 		},
 
 		_setSubnav: function (nav) {

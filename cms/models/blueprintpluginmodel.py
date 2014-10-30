@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
 from django.core.urlresolvers import reverse
+from django.db import models
+from django.utils.translation import ugettext_lazy as _
 from cms.models import CMSPlugin
 from cms.utils.compat.dj import python_2_unicode_compatible
 from cms.utils.copy_plugins import copy_plugins_to
-from django.db import models
 
 @python_2_unicode_compatible
 class BlueprintPluginModel(CMSPlugin):
-    name = models.CharField(max_length=255)
+    name = models.CharField(_(u'Name'), max_length=255)
 
     class Meta:
         app_label = 'cms'
+        verbose_name = _(u'Blueprint')
+        verbose_name_plural = _(u'Blueprints')
 
     def __str__(self):
         return self.name
