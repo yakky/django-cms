@@ -8,7 +8,7 @@ import django
 from django.contrib.admin.helpers import AdminForm
 from django.conf import settings
 from django.contrib import admin, messages
-from django.contrib.admin.models import LogEntry, CHANGE
+from django.contrib.admin.models import LogEntry
 from django.contrib.admin.options import IncorrectLookupParameters
 from django.contrib.admin.util import get_deleted_objects
 from django.contrib.contenttypes.models import ContentType
@@ -410,7 +410,7 @@ class PageAdmin(PlaceholderAdminMixin, ModelAdmin):
         The 'change' admin view for the Page model.
         """
         if extra_context is None:
-            extra_context = {'basic_info': True}
+            extra_context = {'basic_info': True, 'title': _("Basic info")}
         try:
             obj = self.model.objects.get(pk=object_id)
         except self.model.DoesNotExist:
@@ -841,6 +841,7 @@ class PageAdmin(PlaceholderAdminMixin, ModelAdmin):
                         title.slug = old_title.slug
                         title.save()
                         messages.error(request, _("Page reverted but slug stays the same because of url collisions."))
+            self.log_change(request, title, _(u'Page reverted'))
         return HttpResponse("ok")
 
     @require_POST
@@ -907,6 +908,7 @@ class PageAdmin(PlaceholderAdminMixin, ModelAdmin):
                         title.slug = old_title.slug
                         title.save()
                         messages.error(request, _("Page reverted but slug stays the same because of url collisions."))
+            self.log_change(request, title, _(u'Page modifications re-applied'))
         return HttpResponse("ok")
 
     @require_POST
@@ -926,6 +928,7 @@ class PageAdmin(PlaceholderAdminMixin, ModelAdmin):
             message = _("Template changed to %s") % dict(get_cms_setting('TEMPLATES'))[to_template]
             self.cleanup_history(page)
             helpers.make_revision_with_plugins(page, request.user, message)
+            self.log_change(request, page.get_title_obj(), message)
         return HttpResponse(force_unicode(_("The template was successfully changed")))
 
     @wrap_transaction
@@ -954,6 +957,7 @@ class PageAdmin(PlaceholderAdminMixin, ModelAdmin):
         if is_installed('reversion'):
             self.cleanup_history(page)
             helpers.make_revision_with_plugins(page, request.user, _("Page moved"))
+        self.log_change(request, page.get_title_obj(), _("Page moved"))
 
         return jsonify_request(HttpResponse(admin_utils.render_admin_menu_item(request, page).content))
 
@@ -1006,11 +1010,12 @@ class PageAdmin(PlaceholderAdminMixin, ModelAdmin):
                 if not self.has_copy_plugin_permission(request, placeholder, placeholder, plugins):
                     return HttpResponseForbidden(force_unicode(_('You do not have permission to copy these plugins.')))
                 copy_plugins.copy_plugins_to(plugins, placeholder, target_language)
+            message = _(u"Copied plugins from %(source_language)s to %(target_language)s") % {
+                'source_language': source_language, 'target_language': target_language}
             if page and is_installed('reversion'):
-                message = _(u"Copied plugins from %(source_language)s to %(target_language)s") % {
-                    'source_language': source_language, 'target_language': target_language}
                 self.cleanup_history(page)
                 helpers.make_revision_with_plugins(page, request.user, message)
+            self.log_change(request, page.get_title_obj(), message)
             return HttpResponse("ok")
 
     @wrap_transaction
@@ -1039,6 +1044,7 @@ class PageAdmin(PlaceholderAdminMixin, ModelAdmin):
                         'copy_permissions': request.REQUEST.get('copy_permissions', False),
                     }
                     page.copy_page(target, site, position, **kwargs)
+                    self.log_change(request, page.get_title_obj(), _(u'Page copied'))
                     return jsonify_request(HttpResponse("ok"))
                 except ValidationError:
                     exc = sys.exc_info()[1]
@@ -1074,21 +1080,24 @@ class PageAdmin(PlaceholderAdminMixin, ModelAdmin):
         if page:
             if all_published:
                 if page.get_publisher_state(language) == PUBLISHER_STATE_PENDING:
-                    messages.warning(request, _("Page not published! A parent page is not published yet."))
+                    log_action = True
+                    message = _("Page not published! A parent page is not published yet.")
+                    messages.warning(request, message)
                 else:
-                    messages.info(request, _('The content was successfully published.'))
-                LogEntry.objects.log_action(
-                    user_id=request.user.id,
-                    content_type_id=ContentType.objects.get_for_model(Page).pk,
-                    object_id=page_id,
-                    object_repr=page.get_title(language),
-                    action_flag=CHANGE,
-                )
+                    log_action = True
+                    message = _('The content was successfully published.')
+                    messages.info(request, message)
             else:
                 if page.get_publisher_state(language) == PUBLISHER_STATE_PENDING:
-                    messages.warning(request, _("Page not published! A parent page is not published yet."))
+                    log_action = True
+                    message = _("Page not published! A parent page is not published yet.")
+                    messages.warning(request, message)
                 else:
-                    messages.warning(request, _("There was a problem publishing your content"))
+                    log_action = False
+                    message = _('The content was successfully published.')
+                    messages.warning(request, message)
+            if log_action:
+                self.log_change(request, page.get_title_obj(language=language), message)
         if is_installed('reversion') and page:
             self.cleanup_history(page, publish=True)
             helpers.make_revision_with_plugins(page, request.user, PUBLISH_COMMENT)
@@ -1162,14 +1171,7 @@ class PageAdmin(PlaceholderAdminMixin, ModelAdmin):
             message = _('The %(language)s page "%(page)s" was successfully unpublished') % {
                 'language': get_language_object(language, site)['name'], 'page': page}
             messages.info(request, message)
-            LogEntry.objects.log_action(
-                user_id=request.user.id,
-                content_type_id=ContentType.objects.get_for_model(Page).pk,
-                object_id=page_id,
-                object_repr=page.get_title(),
-                action_flag=CHANGE,
-                change_message=message,
-            )
+            self.log_change(request, page.get_title_obj(language=language), message)
         except RuntimeError:
             exc = sys.exc_info()[1]
             messages.error(request, exc.message)
@@ -1190,7 +1192,9 @@ class PageAdmin(PlaceholderAdminMixin, ModelAdmin):
 
         page.revert(language)
 
-        messages.info(request, _('The page "%s" was successfully reverted.') % page)
+        message = _('The page "%s" was successfully reverted.') % page
+        messages.info(request, message)
+        self.log_change(request, page.get_title_obj(language=language), message)
 
         if 'node' in request.REQUEST:
             # if request comes from tree..
@@ -1323,6 +1327,7 @@ class PageAdmin(PlaceholderAdminMixin, ModelAdmin):
         page = get_object_or_404(Page, pk=page_id)
         if page.has_change_permission(request):
             page.toggle_in_navigation()
+            self.log_change(request, page.get_title_obj(), _(u'Changed page in navigation'))
             return admin_utils.render_admin_menu_item(request, page)
         return HttpResponseForbidden(force_unicode(_("You do not have permission to change this page's in_navigation status")))
 
@@ -1415,6 +1420,7 @@ class PageAdmin(PlaceholderAdminMixin, ModelAdmin):
             if form.is_valid():
                 form.save()
                 saved_successfully = True
+                self.log_change(request, title, _(u'Changed %s' % ','.join(form.changed_data)))
         else:
             form = PageTitleForm(instance=title)
         admin_form = AdminForm(form, fieldsets=[(None, {'fields': edit_fields})], prepopulated_fields={},

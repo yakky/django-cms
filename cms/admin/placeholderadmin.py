@@ -261,6 +261,7 @@ class PlaceholderAdminMixin(object):
             plugin.position = CMSPlugin.objects.filter(parent=parent).count()
             plugin.insert_at(parent, position='last-child', save=False)
         plugin.save()
+        self.log_addition(request, plugin)
         self.post_add_plugin(request, placeholder, plugin)
         response = {
             'url': force_unicode(
@@ -339,6 +340,8 @@ class PlaceholderAdminMixin(object):
                     'language': plugin.language, 'placeholder_id': plugin.placeholder_id
                 }
             )
+            self.log_change(request, plugin, _(u'Plugin %(plugin)s moved to %(placeholder)s') % {'plugin': plugin,
+                                                                                                 'placeholder': plugin.placeholder})
         self.post_copy_plugins(request, source_placeholder, target_placeholder, plugins)
         json_response = {'plugin_list': reduced_list, 'reload': reload_required}
         return HttpResponse(json.dumps(json_response), content_type='application/json')
@@ -396,6 +399,11 @@ class PlaceholderAdminMixin(object):
         if request.method == "POST" and plugin_admin.object_successfully_changed:
             self.post_edit_plugin(request, plugin_admin.saved_object)
             saved_object = plugin_admin.saved_object
+            if instance:
+                self.log_change(request, saved_object, _(u'Plugin %s changed' % saved_object))
+            else:
+                self.log_change(request, saved_object, _(u'Plugin %(plugin)s added to %(placeholder)s') % {
+                    'plugin': saved_object, 'placeholder': saved_object.placeholder})
             context = {
                 'CMS_MEDIA_URL': get_cms_setting('MEDIA_URL'),
                 'plugin': saved_object,
@@ -452,6 +460,7 @@ class PlaceholderAdminMixin(object):
                 return HttpResponseBadRequest(er)
 
         plugin.save()
+        self.log_change(request, plugin, _(u'Plugin %s moved' % plugin))
         for child in plugin.get_descendants(include_self=True):
             child.placeholder = placeholder
             child.language = language

@@ -104,6 +104,7 @@ class AliasPlugin(CMSPluginBase):
             alias.plugin = plugin
         if placeholder:
             alias.alias_placeholder = placeholder
+        self.log_addition(request, alias)
         alias.save()
         return HttpResponse("ok")
 
