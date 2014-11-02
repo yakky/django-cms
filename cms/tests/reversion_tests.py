@@ -89,10 +89,10 @@ class ReversionTestCase(TransactionCMSTestCase):
             self.assertEqual(Page.objects.all().count(), 2)
             self.assertEqual(Title.objects.all().count(), 2)
             self.assertEqual(CMSPlugin.objects.all().count(), 2)
-            self.assertEqual(Revision.objects.all().count(), 5)
+            self.assertEqual(Revision.objects.all().count(), 8)
 
             ctype = ContentType.objects.get_for_model(Page)
-            revision = Revision.objects.all()[2]
+            revision = Revision.objects.all()[4]
             version = Version.objects.get(content_type=ctype, revision=revision)
             page = Page.objects.all()[0]
 
@@ -113,7 +113,7 @@ class ReversionTestCase(TransactionCMSTestCase):
             # test that CMSPlugin subclasses are reverted
             self.assertEqual(Text.objects.all().count(), 2)
             self.assertEqual(Text.objects.get(pk=self.txt.pk).body, "Hello World")
-            self.assertEqual(Revision.objects.all().count(), 6)
+            self.assertEqual(Revision.objects.all().count(), 9)
 
     def test_undo_redo(self):
         """
@@ -123,11 +123,11 @@ class ReversionTestCase(TransactionCMSTestCase):
             self.assertEqual(Page.objects.all().count(), 2)
             self.assertEqual(Title.objects.all().count(), 2)
             self.assertEqual(CMSPlugin.objects.all().count(), 2)
-            self.assertEqual(Revision.objects.all().count(), 5)
+            self.assertEqual(Revision.objects.all().count(), 8)
             self.assertEqual(Placeholder.objects.count(), 5)
 
             ctype = ContentType.objects.get_for_model(Page)
-            revision = Revision.objects.all()[2]
+            revision = Revision.objects.all()[4]
             Version.objects.get(content_type=ctype, revision=revision)
             page = Page.objects.all()[0]
 
@@ -170,6 +170,7 @@ class ReversionTestCase(TransactionCMSTestCase):
             self.client.post(undo_url)
             self.assertEqual(2, CMSPlugin.objects.all().count())
             self.assertEqual(Placeholder.objects.count(), 5)
+            self.assertEqual(Placeholder.objects.count(), 5)
 
     def test_undo_slug_collision(self):
         data1 = self.get_new_page_data()
@@ -206,7 +207,7 @@ class ReversionTestCase(TransactionCMSTestCase):
         Test that you can recover a page
         """
         with self.login_user_context(self.user):
-            self.assertEqual(Revision.objects.all().count(), 5)
+            self.assertEqual(Revision.objects.all().count(), 8)
             ctype = ContentType.objects.get_for_model(Page)
             revision = Revision.objects.all()[4]
             version = Version.objects.filter(content_type=ctype, revision=revision)[0]
@@ -243,12 +244,12 @@ class ReversionTestCase(TransactionCMSTestCase):
             with SettingsOverride(CMS_MAX_PAGE_PUBLISH_REVERSIONS=2, CMS_MAX_PAGE_HISTORY_REVERSIONS=2):
                 page = Page.objects.all()[0]
                 page_pk = page.pk
-                self.assertEqual(Revision.objects.all().count(), 5)
+                self.assertEqual(Revision.objects.all().count(), 8)
                 for x in range(10):
                     publish_url = URL_CMS_PAGE + "%s/en/publish/" % page_pk
                     response = self.client.get(publish_url)
                     self.assertEqual(response.status_code, 302)
-                self.assertEqual(Revision.objects.all().count(), 4)
+                self.assertEqual(Revision.objects.all().count(), 7)
 
 
 class ReversionFileFieldTests(CMSTestCase):
