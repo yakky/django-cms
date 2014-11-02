@@ -299,7 +299,7 @@ class AdminTestCase(AdminTestsBase):
     def test_delete(self):
         admin_user = self.get_superuser()
         create_page("home", "nav_playground.html", "en",
-                           created_by=admin_user, published=True)
+                    created_by=admin_user, published=True)
         page = create_page("delete-page", "nav_playground.html", "en",
                            created_by=admin_user, published=True)
         create_page('child-page', "nav_playground.html", "en",
@@ -316,7 +316,7 @@ class AdminTestCase(AdminTestsBase):
     def test_delete_diff_language(self):
         admin_user = self.get_superuser()
         create_page("home", "nav_playground.html", "en",
-                           created_by=admin_user, published=True)
+                    created_by=admin_user, published=True)
         page = create_page("delete-page", "nav_playground.html", "en",
                            created_by=admin_user, published=True)
         create_page('child-page', "nav_playground.html", "de",
@@ -412,6 +412,8 @@ class AdminTestCase(AdminTestsBase):
                 self.assertEqual(timezone.localtime(draft.publication_end_date).timetuple(), new_end_date.timetuple())
                 if original_end_date:
                     self.assertNotEqual(draft.publication_end_date.timetuple(), original_end_date.timetuple())
+                lastlog = LogEntry.objects.filter(object_id=page.pk).latest('id')
+                self.assertTrue('Changed publication_date' in lastlog.change_message)
 
     def test_change_template(self):
         admin_user, staff = self._get_guys()
@@ -429,6 +431,8 @@ class AdminTestCase(AdminTestsBase):
             self.assertEqual(response.status_code, 400)
             response = self.client.post(url, {'template': get_cms_setting('TEMPLATES')[0][0]})
             self.assertEqual(response.status_code, 200)
+            lastlog = LogEntry.objects.filter(object_id=page.pk).latest('id')
+            self.assertTrue('Template changed to %s' % get_cms_setting('TEMPLATES')[0][1] in lastlog.change_message)
 
     def test_get_permissions(self):
         page = create_page('test-page', 'nav_playground.html', 'en')
@@ -659,6 +663,8 @@ class AdminTests(AdminTestsBase):
             request = self.get_request(post_data={'no': 'data'})
             old = page.in_navigation
             response = self.admin_class.change_innavigation(request, page.pk)
+            self.assertEqual(page.pk, int(LogEntry.objects.all()[0].object_id))
+            self.assertTrue('in navigation' in LogEntry.objects.all()[0].change_message)
             self.assertEqual(response.status_code, 200)
             page = self.reload(page)
             self.assertEqual(old, not page.in_navigation)
@@ -760,6 +766,8 @@ class AdminTests(AdminTestsBase):
             response = self.admin_class.move_plugin(request)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(json.loads(response.content.decode('utf8')), expected)
+            lastlog = LogEntry.objects.filter(object_id=pageplugin.pk).latest('id')
+            self.assertTrue('moved' in lastlog.change_message)
 
     def test_move_language(self):
         page = self.get_page()
@@ -873,6 +881,8 @@ class AdminTests(AdminTestsBase):
             self.client.post(admin_url, post_data)
             draft_page = Page.objects.get(pk=page.pk).get_draft_object()
             self.assertTrue(draft_page.is_dirty('en'))
+            lastlog = LogEntry.objects.filter(object_id=page.pk).latest('id')
+            self.assertTrue('Changed title' in lastlog.change_message)
 
     def test_edit_title_languages(self):
         language = "en"
