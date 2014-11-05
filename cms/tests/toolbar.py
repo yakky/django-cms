@@ -2,14 +2,14 @@
 from __future__ import with_statement
 import datetime
 import re
-from cms.utils.urlutils import admin_reverse
 
+from django.contrib.admin import site
 from django.template.defaultfilters import truncatewords
 from django.contrib.auth.models import AnonymousUser, Permission
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.utils.functional import lazy
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, activate
 from django.core.urlresolvers import reverse
 
 from cms.api import create_page, create_title, add_plugin
@@ -29,6 +29,7 @@ from cms.test_utils.testcases import (SettingsOverrideTestCase,
 from cms.test_utils.util.context_managers import SettingsOverride
 from cms.utils.compat import DJANGO_1_4
 from cms.utils.conf import get_cms_setting
+from cms.utils.urlutils import admin_reverse
 from cms.views import details
 
 
@@ -1248,6 +1249,41 @@ class EditModelTemplateTagTest(ToolbarTestBase):
         self.assertContains(
             response,
             '<div class="cms_plugin cms_plugin-cms-page-changelist-%s cms_render_model cms_render_model_block"><h3>Menu</h3></div>' % page.pk)
+
+    def test_save_view_on_site(self):
+        admin_class = site._registry[Example1]
+        request = self.get_request(post_data={'_continue_frontend': 1})
+
+        ex1 = Example1(char_1="char_1", char_2="char_2", char_3="char_3",
+                       char_4="char_4")
+        ex1.save()
+        response = admin_class.response_change(request, ex1)
+        self.assertEqual(response['Location'], ex1.get_absolute_url())
+
+    def test_save_multilingual_view_on_site(self):
+        admin_class = site._registry[Example1]
+
+        exm = MultilingualExample1()
+        exm.translate("en")
+        exm.char_1 = 'one'
+        exm.char_2 = 'two'
+        exm.save()
+        exm.translate("fr")
+        exm.char_1 = "un"
+        exm.char_2 = "deux"
+        exm.save()
+
+        activate('en')
+        request = self.get_request(post_data={'_continue_frontend': 1})
+        response = admin_class.response_change(request, exm)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], exm.get_absolute_url())
+
+        activate('fr')
+        request = self.get_request(post_data={'_continue_frontend': 1})
+        response = admin_class.response_change(request, exm)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], exm.get_absolute_url())
 
 
 class ToolbarAPITests(TestCase):
