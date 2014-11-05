@@ -14,6 +14,8 @@ from cms.plugin_pool import plugin_pool
 from cms.utils import get_cms_setting
 from cms.utils.compat.dj import force_unicode
 from cms.utils.plugins import requires_reload, has_reached_plugin_limit
+from django.contrib import messages
+from django.utils.encoding import force_text
 from django.contrib.admin import ModelAdmin
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import render_to_response, get_object_or_404
@@ -117,6 +119,21 @@ class FrontendEditableAdminMixin(object):
         if not cancel_clicked and request.method == 'POST' and saved_successfully:
             return render_to_response('admin/cms/page/plugin/confirm_form.html', context, RequestContext(request))
         return render_to_response('admin/cms/page/plugin/change_form.html', context, RequestContext(request))
+
+    def response_change(self, request, obj):
+        """
+        Determines the HttpResponse for the change_view stage.
+        """
+        opts = self.model._meta
+
+        msg_dict = {'name': force_text(opts.verbose_name), 'obj': force_text(obj)}
+        if "_continue_frontend" in request.POST and getattr(obj, 'get_absolute_url', False):
+            msg = _('The %(name)s "%(obj)s" was changed successfully. Redirecting to the frontend.') % msg_dict
+            self.message_user(request, msg, messages.SUCCESS)
+            redirect_url = obj.get_absolute_url()
+            return HttpResponseRedirect(redirect_url)
+        else:
+            return super(FrontendEditableAdminMixin, self).response_change(request, obj)
 
 
 class PlaceholderAdminMixin(object):

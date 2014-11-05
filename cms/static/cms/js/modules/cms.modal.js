@@ -425,6 +425,9 @@ $(document).ready(function () {
 			} else {
 				row = iframe.contents().find('.save-box:eq(0)');
 			}
+			if($('input[name="_save"]', row).length && iframe.contents().find('.viewsitelink').length) {
+				row.prepend($('<input type="submit" value="'+that.config.lang.continue_frontend+'" class="cms-continue_frontend" name="_continue_frontend" data-rel="_0">'));
+			}
 			row.hide(); // hide submit-row
 			var buttons = row.find('input, a, button');
 			var render = $('<span />'); // seriously jquery...
@@ -464,14 +467,20 @@ $(document).ready(function () {
 						if(item.is('a')) that._loadContent(item.prop('href'), title);
 
 						// trigger only when blue action buttons are triggered
-						if(item.hasClass('default') || item.hasClass('deletelink')) {
+						if(item.hasClass('default') || item.hasClass('deletelink') || item.hasClass('cms-continue_frontend')) {
  							that.options.newPlugin = null;
  							// reset onClose when delete is triggered
 							if(item.hasClass('deletelink')) that.options.onClose = null;
 							// hide iframe
 							that.modal.find('.cms_modal-frame iframe').hide();
-							// page has been saved or deleted, run checkup
-							that.saved = true;
+							if(item.hasClass('cms-continue_frontend')) {
+								// page must be redirected to the frontend
+								that.reloadSrc = true;
+							}
+							else {
+								// page has been saved or deleted, run checkup
+								that.saved = true;
+							}
 						}
 					});
 
@@ -550,6 +559,8 @@ $(document).ready(function () {
 				// also check that no delete-confirmation is required
 				if(that.saved && !contents.find('.delete-confirmation').length) {
 					that.reloadBrowser(window.location.href, false, true);
+				} else if(that.reloadSrc) {
+					that.reloadBrowser(this.contentDocument.URL, false, false);
 				} else {
 					iframe.show();
 					// set title of not provided
