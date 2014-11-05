@@ -425,7 +425,7 @@ $(document).ready(function () {
 			} else {
 				row = iframe.contents().find('.save-box:eq(0)');
 			}
-			if($('input[name="_save"]', row).length && iframe.contents().find('.viewsitelink').length) {
+			if($('input[name="_save"]', row).length) {
 				row.prepend($('<input type="submit" value="'+that.config.lang.continue_frontend+'" class="cms-continue_frontend" name="_continue_frontend" data-rel="_0">'));
 			}
 			row.hide(); // hide submit-row
@@ -553,6 +553,10 @@ $(document).ready(function () {
 				// when an error occurs, reset the saved status so the form can be checked and validated again
 				if(iframe.contents().find('.errornote').length || iframe.contents().find('.errorlist').length) {
 					that.saved = false;
+					that.reloadSrc = false;
+				}
+				if(!contents || iframe.contents().find('.change-list').length) {
+					that.reloadSrc = false;
 				}
 
 				// when the window has been changed pressing the blue or red button, we need to run a reload check

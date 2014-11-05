@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from copy import deepcopy
 import json
 import warnings
 
@@ -119,19 +120,53 @@ class FrontendEditableAdminMixin(object):
             return render_to_response('admin/cms/page/plugin/confirm_form.html', context, RequestContext(request))
         return render_to_response('admin/cms/page/plugin/change_form.html', context, RequestContext(request))
 
+    def _get_continue_frontend(self, request, obj):
+        opts = self.model._meta
+        redirect_url = None
+
+        msg_dict = {'name': force_text(opts.verbose_name), 'obj': force_text(obj)}
+        if getattr(obj, 'get_absolute_url', False):
+            try:
+                # if get_absolute_url erros, just behave like it doesn't exists
+                redirect_url = obj.get_absolute_url()
+            except Exception as e:
+                return None
+        if '_continue_frontend' in request.POST and redirect_url:
+            msg = _('The %(name)s "%(obj)s" was changed successfully. Redirecting to the frontend.') % msg_dict
+            self.message_user(request, msg, messages.SUCCESS)
+            return HttpResponseRedirect(redirect_url)
+        return None
+
+    def response_add(self, request, obj):
+        """
+        Determines the HttpResponse for the add_view stage.
+        """
+        redirect = self._get_continue_frontend(request, obj)
+        if redirect:
+            return redirect
+        else:
+            # remove the custom action and fallback to the save one
+            post = deepcopy(request.POST)
+            if '_continue_frontend' in post:
+                del(post['_continue_frontend'])
+                post['_save'] = 1
+            request.POST = post
+            return super(FrontendEditableAdminMixin, self).response_add(request, obj)
+
     def response_change(self, request, obj):
         """
         Determines the HttpResponse for the change_view stage.
         """
-        opts = self.model._meta
-
-        msg_dict = {'name': force_text(opts.verbose_name), 'obj': force_text(obj)}
-        if "_continue_frontend" in request.POST and getattr(obj, 'get_absolute_url', False):
-            msg = _('The %(name)s "%(obj)s" was changed successfully. Redirecting to the frontend.') % msg_dict
-            self.message_user(request, msg, messages.SUCCESS)
-            redirect_url = obj.get_absolute_url()
-            return HttpResponseRedirect(redirect_url)
+        redirect = self._get_continue_frontend(request, obj)
+        if redirect:
+            return redirect
         else:
+            # remove the custom action and fallback to the save one
+            post = deepcopy(request.POST)
+            if '_continue_frontend' in post:
+                del(post['_continue_frontend'])
+                post['_save'] = 1
+            request.POST = post
             return super(FrontendEditableAdminMixin, self).response_change(request, obj)
 
 
