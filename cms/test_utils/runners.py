@@ -17,6 +17,20 @@ def time_it(func):
     return _inner
 
 
+class CmsTestSuiteRunner(DjangoTestSuiteRunner):
+
+    def teardown_databases(self, old_config, **kwargs):
+        """
+        Destroys all the non-mirror databases.
+        """
+        old_names, mirrors = old_config
+        for connection, old_name, destroy in old_names:
+            if destroy:
+                if connection.settings_dict['ENGINE'] == 'django.db.backends.mysql':
+                    connection.cursor.execute('SET GLOBAL max_allowed_packet=10485760;')
+                connection.creation.destroy_test_db(old_name, self.verbosity)
+
+
 class TimingSuite(TestSuite):
     def addTest(self, test):
         test = time_it(test)

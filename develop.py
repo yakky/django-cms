@@ -120,7 +120,7 @@ def _get_test_labels():
     return test_labels
 
 
-def _test_run_worker(test_labels, failfast=False, test_runner='django.test.simple.DjangoTestSuiteRunner'):
+def _test_run_worker(test_labels, failfast=False, test_runner='cms.test_utils.runners.CmsTestSuiteRunner'):
     warnings.filterwarnings(
         'error', r"DateTimeField received a naive datetime",
         RuntimeWarning, r'django\.db\.models\.fields')
