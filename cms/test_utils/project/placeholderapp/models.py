@@ -4,6 +4,8 @@ from cms.utils import get_language_from_request
 from cms.utils.compat.dj import python_2_unicode_compatible
 from django.db import models
 from cms.models.fields import PlaceholderField
+from djangocms_text_ckeditor.models import AbstractText
+from djangocms_text_ckeditor.fields import HTMLField
 from hvad.models import TranslatableModel, TranslatedFields
 
 
@@ -13,6 +15,10 @@ def dynamic_placeholder_1(instance):
 
 def dynamic_placeholder_2(instance):
     return instance.char_2
+
+
+class SampleMultiText(AbstractText):
+    extra_text = HTMLField()
 
 
 @python_2_unicode_compatible

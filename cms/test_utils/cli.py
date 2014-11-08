@@ -218,7 +218,7 @@ def configure(db_url, **extra):
                 'name': gettext("sidebar column")
             },
             'col_left': {
-                'plugins': ('FilePlugin', 'FlashPlugin', 'LinkPlugin', 'PicturePlugin',
+                'plugins': ('FilePlugin', 'FlashPlugin', 'LinkPlugin', 'PicturePlugin', 'ExtraText',
                 'TextPlugin', 'SnippetPlugin', 'GoogleMapPlugin', 'MultiColumnPlugin', 'StylePlugin'),
                 'name': gettext("left column"),
                 'plugin_modules': {
