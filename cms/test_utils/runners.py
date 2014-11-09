@@ -27,7 +27,7 @@ class CmsTestSuiteRunner(DjangoTestSuiteRunner):
         for connection, old_name, destroy in old_names:
             if destroy:
                 if connection.settings_dict['ENGINE'] == 'django.db.backends.mysql':
-                    connection.cursor.execute('SET GLOBAL max_allowed_packet=10485760;')
+                    connection.cursor().execute('SET GLOBAL max_allowed_packet=10485760;')
                 connection.creation.destroy_test_db(old_name, self.verbosity)
 
 
