@@ -17,7 +17,6 @@ from django.utils.translation import ugettext_lazy as _, get_language
 class PlaceholderPlugin(CMSPluginBase):
     name = _("Placeholder")
     parent_classes = [0]  # so you will not be able to add it something
-    #require_parent = True
     render_plugin = False
     admin_preview = False
 
@@ -76,7 +75,7 @@ class AliasPlugin(CMSPluginBase):
     def create_alias(self, request):
         if not request.user.is_staff:
             return HttpResponseForbidden("not enough privileges")
-        if not 'plugin_id' in request.POST and not 'placeholder_id' in request.POST:
+        if 'plugin_id' not in request.POST and 'placeholder_id' not in request.POST:
             return HttpResponseBadRequest("plugin_id or placeholder_id POST parameter missing.")
         plugin = None
         placeholder = None
