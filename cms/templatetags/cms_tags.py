@@ -2,6 +2,7 @@
 from copy import copy
 from datetime import datetime
 from itertools import chain
+from django.utils.six import string_types
 import re
 from classytags.values import StringValue
 from cms.utils.urlutils import admin_reverse
@@ -674,10 +675,8 @@ class CMSToolbar(RenderBlock):
             with force_language(language):
                 # needed to populate the context with sekizai content
                 render_to_string('cms/toolbar/toolbar_javascript.html', context)
-                clipboard = mark_safe(render_to_string('cms/toolbar/clipboard.html', context))
         else:
             language = None
-            clipboard = ''
         # render everything below the tag
         rendered_contents = nodelist.render(context)
         # sanity checks
@@ -690,7 +689,7 @@ class CMSToolbar(RenderBlock):
         # render the toolbar content
         request.toolbar.post_template_populate()
         with force_language(language):
-            context['clipboard'] = clipboard
+            context['addons'] = toolbar.render_addons(context)
             content = render_to_string('cms/toolbar/toolbar.html', context)
         # return the toolbar content and the content below
         return '%s\n%s' % (content, rendered_contents)
@@ -1120,11 +1119,13 @@ class RenderPlaceholder(AsTag):
         placeholder = kwargs.get('placeholder')
         width = kwargs.get('width')
         language = kwargs.get('language')
-
         if not request:
             return ''
         if not placeholder:
             return ''
+
+        if isinstance(placeholder, string_types):
+            placeholder = PlaceholderModel.objects.get(slot=placeholder)
         if not hasattr(request, 'placeholders'):
             request.placeholders = []
         request.placeholders.append(placeholder)
