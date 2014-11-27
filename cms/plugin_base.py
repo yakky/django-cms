@@ -122,6 +122,7 @@ class CMSPluginBase(with_metaclass(CMSPluginBaseMetaclass, admin.ModelAdmin)):
     disable_child_plugin = False
 
     cache = get_cms_setting('PLUGIN_CACHE')
+    system = False
 
     opts = {}
 
