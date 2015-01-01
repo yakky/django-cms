@@ -1306,6 +1306,8 @@ class Page(with_metaclass(PageMetaClass, MPTTModel)):
         Revert to a specific revision
         """
         from cms.utils.page_resolver import is_valid_url
+        # Get current titles
+        old_titles = list(self.title_set.all())
 
         old_titles = list(self.title_set.all())
         # remove existing plugins / placeholders in the current page version
