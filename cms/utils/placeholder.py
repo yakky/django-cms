@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models.query_utils import Q
 from django.utils import six
+from django.utils.encoding import force_text
 from sekizai.helpers import get_varname
 
 from cms.utils import get_cms_setting
@@ -61,7 +62,7 @@ def get_placeholder_conf(setting, placeholder, template=None, default=None):
         keys = []
         if template:
             keys.append("%s %s" % (template, placeholder))
-        keys.append(placeholder)
+        keys.append(force_text(placeholder))
         for key in keys:
             conf = get_cms_setting('PLACEHOLDER_CONF').get(key)
             if not conf:

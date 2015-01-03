@@ -1059,6 +1059,77 @@ class PluginsTestCase(PluginsTestBaseCase):
         for plugin in [ParentClassesPlugin, GenericParentPlugin, KidnapperPlugin]:
             plugin_pool.unregister_plugin(plugin)
 
+    def test_plugin_options_plugins(self):
+        page = api.create_page("page", "nav_playground.html", "en", published=True)
+        placeholder = page.placeholders.get(slot='body')
+
+        # plugins option
+        CMS_PLACEHOLDER_CONF = {
+            'body': {
+                'plugins': ['LinkPlugin', 'PicturePlugin', 'TextPlugin'],
+            }
+        }
+        with SettingsOverride(CMS_PLACEHOLDER_CONF=CMS_PLACEHOLDER_CONF):
+            plugins = plugin_pool.get_all_plugins(placeholder.slot, page)
+            self.assertEqual(set([plugin.__name__ for plugin in plugins]), set(['LinkPlugin', 'PicturePlugin', 'TextPlugin']))
+            text_plugins = plugin_pool.get_text_enabled_plugins(placeholder.slot, page)
+            self.assertEqual(set([plugin.__name__ for plugin in text_plugins]), set(['LinkPlugin', 'PicturePlugin']))
+
+        # text_only_plugins option
+        CMS_PLACEHOLDER_CONF = {
+            'body': {
+                'plugins': ['TextPlugin'],
+                'text_only_plugins': ['LinkPlugin', 'PicturePlugin'],
+            }
+        }
+        with SettingsOverride(CMS_PLACEHOLDER_CONF=CMS_PLACEHOLDER_CONF):
+            plugins = plugin_pool.get_all_plugins(placeholder.slot, page)
+            self.assertEqual(set([plugin.__name__ for plugin in plugins]), set(['TextPlugin']))
+            text_plugins = plugin_pool.get_text_enabled_plugins(placeholder.slot, page)
+            self.assertEqual(set([plugin.__name__ for plugin in text_plugins]), set(['LinkPlugin', 'PicturePlugin']))
+
+        # text_plugins option
+        CMS_PLACEHOLDER_CONF = {
+            'body': {
+                'plugins': ['TextPlugin', 'VideoPlugin'],
+                'text_only_plugins': ['LinkPlugin', 'PicturePlugin', 'VideoPlugin'],
+                'text_plugins': ['LinkPlugin', 'PicturePlugin'],
+            }
+        }
+        with SettingsOverride(CMS_PLACEHOLDER_CONF=CMS_PLACEHOLDER_CONF):
+            plugins = plugin_pool.get_all_plugins(placeholder.slot, page)
+            self.assertEqual(set([plugin.__name__ for plugin in plugins]), set(['TextPlugin', 'VideoPlugin']))
+            text_plugins = plugin_pool.get_text_enabled_plugins(placeholder.slot, page)
+            self.assertEqual(set([plugin.__name__ for plugin in text_plugins]), set(['LinkPlugin', 'PicturePlugin']))
+
+        # text_removed_plugins option + text_only_plugins
+        CMS_PLACEHOLDER_CONF = {
+            'body': {
+                'plugins': ['TextPlugin', 'VideoPlugin'],
+                'text_only_plugins': ['LinkPlugin', 'PicturePlugin', 'VideoPlugin'],
+                'text_removed_plugins': ['LinkPlugin', 'PicturePlugin'],
+            }
+        }
+        with SettingsOverride(CMS_PLACEHOLDER_CONF=CMS_PLACEHOLDER_CONF):
+            plugins = plugin_pool.get_all_plugins(placeholder.slot, page)
+            self.assertEqual(set([plugin.__name__ for plugin in plugins]), set(['TextPlugin', 'VideoPlugin']))
+            text_plugins = plugin_pool.get_text_enabled_plugins(placeholder.slot, page)
+            self.assertEqual(set([plugin.__name__ for plugin in text_plugins]), set(['VideoPlugin']))
+
+        # text_removed_plugins option + text_plugins
+        CMS_PLACEHOLDER_CONF = {
+            'body': {
+                'plugins': ['TextPlugin', 'VideoPlugin'],
+                'text_plugins': ['LinkPlugin', 'PicturePlugin'],
+                'text_removed_plugins': ['LinkPlugin'],
+            }
+        }
+        with SettingsOverride(CMS_PLACEHOLDER_CONF=CMS_PLACEHOLDER_CONF):
+            plugins = plugin_pool.get_all_plugins(placeholder.slot, page)
+            self.assertEqual(set([plugin.__name__ for plugin in plugins]), set(['TextPlugin', 'VideoPlugin']))
+            text_plugins = plugin_pool.get_text_enabled_plugins(placeholder.slot, page)
+            self.assertEqual(set([plugin.__name__ for plugin in text_plugins]), set(['PicturePlugin']))
+
     def test_plugin_child_classes_from_settings(self):
         page = api.create_page("page", "nav_playground.html", "en", published=True)
         placeholder = page.placeholders.get(slot='body')
