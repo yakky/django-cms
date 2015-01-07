@@ -1257,7 +1257,10 @@ class Page(with_metaclass(PageMetaClass, MP_Node)):
             raise
         previous_revision = previous_version.revision
 
-        self._apply_revision(previous_revision)
+        clean = self._apply_revision(previous_revision)
+        if clean:
+            return Page.objects.get(self.pk)
+        return Page.objects.get(self.pk), clean
 
     def redo(self):
         """
@@ -1283,7 +1286,8 @@ class Page(with_metaclass(PageMetaClass, MP_Node)):
             raise
         next_revision = previous_version.revision
 
-        self._apply_revision(next_revision)
+        clean = self._apply_revision(next_revision)
+        return Page.objects.get(self.pk), clean
 
     def _apply_revision(self, target_revision):
         """
