@@ -9,8 +9,8 @@ def validate_dependencies():
     """
     Check for installed apps, their versions and configuration options
     """
-    if not app_is_installed('mptt'):
-        raise ImproperlyConfigured('django CMS requires django-mptt package.')
+    if not app_is_installed('treebeard'):
+        raise ImproperlyConfigured('django CMS requires django-treebeard. Please install it and add "treebeard" to INSTALLED_APPS.')
 
     if app_is_installed('reversion'):
         from reversion.admin import VersionAdmin
