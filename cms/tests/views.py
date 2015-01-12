@@ -147,13 +147,13 @@ class ViewTests(SettingsOverrideTestCase):
         page = create_page("page", "nav_playground.html", "en", published=True)
         # Anon user
         response = self.client.get("/en/?%s" % get_cms_setting('CMS_TOOLBAR_URL__EDIT_ON'))
-        self.assertNotContains(response, "cms_toolbar-item_switch", 200)
+        self.assertNotContains(response, "cms_toolbar-item_switch_save-edit", 200)
 
         # Superuser
         user = self.get_superuser()
         with self.login_user_context(user):
             response = self.client.get("/en/?%s" % get_cms_setting('CMS_TOOLBAR_URL__EDIT_ON'))
-        self.assertContains(response, "cms_toolbar-item_switch", 4, 200)
+        self.assertContains(response, "cms_toolbar-item_switch_save-edit", 1, 200)
 
         # Admin but with no permission
         user = self.get_staff_user_with_no_permissions()
@@ -161,12 +161,12 @@ class ViewTests(SettingsOverrideTestCase):
 
         with self.login_user_context(user):
             response = self.client.get("/en/?%s" % get_cms_setting('CMS_TOOLBAR_URL__EDIT_ON'))
-        self.assertNotContains(response, "cms_toolbar-item_switch", 200)
+        self.assertNotContains(response, "cms_toolbar-item_switch_save-edit", 200)
 
         PagePermission.objects.create(can_change=True, user=user, page=page)
         with self.login_user_context(user):
             response = self.client.get("/en/?%s" % get_cms_setting('CMS_TOOLBAR_URL__EDIT_ON'))
-        self.assertContains(response, "cms_toolbar-item_switch", 4, 200)
+        self.assertContains(response, "cms_toolbar-item_switch_save-edit", 1, 200)
 
 
 class ContextTests(SettingsOverrideTestCase):
