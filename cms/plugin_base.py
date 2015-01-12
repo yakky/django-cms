@@ -123,6 +123,7 @@ class CMSPluginBase(with_metaclass(CMSPluginBaseMetaclass, admin.ModelAdmin)):
     disable_child_plugin = False
 
     cache = get_cms_setting('PLUGIN_CACHE')
+    system = False
 
     opts = {}
 
@@ -364,8 +365,9 @@ class CMSPluginBase(with_metaclass(CMSPluginBaseMetaclass, admin.ModelAdmin)):
 
 
 class PluginMenuItem(object):
-    def __init__(self, name, url, data, question=None):
+    def __init__(self, name, url, data, question=None, action='ajax'):
         self.name = name
         self.url = url
         self.data = json.dumps(data)
         self.question = question
+        self.action = action

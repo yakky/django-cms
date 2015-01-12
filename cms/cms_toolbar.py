@@ -2,6 +2,8 @@
 
 from django.conf import settings
 from django.core.urlresolvers import reverse, NoReverseMatch, resolve, Resolver404
+from django.template.loader import render_to_string
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.contrib import admin
 from django.contrib.auth.models import User, AnonymousUser
@@ -105,6 +107,8 @@ class BasicToolbar(CMSToolbar):
 
         self.add_admin_menu()
         self.add_language_menu()
+        user_settings = self.request.toolbar.get_user_settings()
+        self.clipboard = user_settings.clipboard
 
     def add_admin_menu(self):
         admin_menu = self.toolbar.get_or_create_menu(ADMIN_MENU_IDENTIFIER, self.current_site.name)
@@ -192,6 +196,18 @@ class BasicToolbar(CMSToolbar):
         except (AttributeError, NotImplementedError):
             return default
 
+    def get_clipboard_plugins(self):
+        self.populate()
+        if not hasattr(self, "clipboard"):
+            return []
+        return self.clipboard.get_plugins()
+
+    def render_addons(self, context):
+        context.push()
+        context['local_toolbar'] = self
+        clipboard = mark_safe(render_to_string('cms/toolbar/clipboard.html', context))
+        context.pop()
+        return [clipboard]
 
 @toolbar_pool.register
 class PageToolbar(CMSToolbar):
