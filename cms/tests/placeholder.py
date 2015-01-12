@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import with_statement
 import itertools
-import warnings
 
 from django.conf import settings
 from django.contrib import admin
@@ -23,7 +22,6 @@ from djangocms_text_ckeditor.models import Text
 from sekizai.context import SekizaiContext
 
 from cms import constants
-from cms.admin.placeholderadmin import PlaceholderAdmin, PlaceholderAdminMixin
 from cms.api import add_plugin, create_page, create_title
 from cms.exceptions import DuplicatePlaceholderWarning
 from cms.models.fields import PlaceholderField
@@ -585,8 +583,7 @@ class PlaceholderTestCase(CMSTestCase, UnittestCompatMixin):
             page.placeholders.add(placeholder)
         page.reload()
         for placeholder in page.placeholders.all():
-            add_plugin(placeholder, "TextPlugin", "en", body="body",
-                       id=placeholder.pk)
+            add_plugin(placeholder, "TextPlugin", "en", body="body")
         with SettingsOverride(USE_THOUSAND_SEPARATOR=True, USE_L10N=True):
             # Superuser
             user = self.get_superuser()
@@ -654,17 +651,6 @@ class PlaceholderTestCase(CMSTestCase, UnittestCompatMixin):
         # get languages
         langs = [lang['code'] for lang in placeholder.get_filled_languages()]
         self.assertEqual(avail_langs, set(langs))
-
-    def test_deprecated_PlaceholderAdmin(self):
-        admin_site = admin.sites.AdminSite()
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            pa = PlaceholderAdmin(Placeholder, admin_site)
-            self.assertEqual(len(w), 1)
-            self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
-            self.assertTrue("PlaceholderAdminMixin with admin.ModelAdmin" in str(w[-1].message))
-            self.assertIsInstance(pa, admin.ModelAdmin, 'PlaceholderAdmin not admin.ModelAdmin')
-            self.assertIsInstance(pa, PlaceholderAdminMixin, 'PlaceholderAdmin not PlaceholderAdminMixin')
 
     @override_settings(TEMPLATE_LOADERS=(
         ('django.template.loaders.cached.Loader', (

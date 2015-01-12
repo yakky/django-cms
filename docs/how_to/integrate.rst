@@ -76,7 +76,9 @@ Revision management
 -------------------
 
 * `django-reversion`_ 1.8.X (with Django 1.6.X and Django 1.7.X) to support
-  versioning of your content.
+  versions of your content (If using a different Django version it is a good
+  idea to check the page `Compatible-Django-Versions`_ in the django-reversion
+  wiki in order to make sure that the package versions are compatible.)
 
   .. note::
 
@@ -691,5 +693,5 @@ For more information on using django CMS for managing web content, see
 To deploy your django CMS project on a production webserver, please refer to the
 `Django documentation <http://docs.djangoproject.com/en/dev/howto/deployment/>`_.
 
-.. _official documentation: http://docs.djangoproject.com/en/dev/topics/templates/
+.. _official documentation: http://docs.djangoproject.com/en/stable/topics/templates/
 .. _tutorial: https://github.com/divio/django-cms-tutorial

@@ -2,6 +2,7 @@
 from __future__ import with_statement
 import json
 import datetime
+from cms import api
 from cms.utils.urlutils import admin_reverse
 
 from djangocms_text_ckeditor.cms_plugins import TextPlugin
@@ -349,7 +350,7 @@ class AdminTestCase(AdminTestsBase):
                     continue
                 if not admin_instance.search_fields:
                     continue
-                url = admin_reverse('cms_%s_changelist' % model._meta.module_name)
+                url = admin_reverse('cms_%s_changelist' % model._meta.model_name)
                 response = self.client.get('%s?q=1' % url)
                 errmsg = response.content
                 self.assertEqual(response.status_code, 200, errmsg)
@@ -467,7 +468,7 @@ class AdminTestCase(AdminTestsBase):
                                        created_by=admin_user, published=True, parent=second_level_page_top)
         self.assertEqual(Page.objects.all().count(), 4)
 
-        url = admin_reverse('cms_%s_changelist' % Page._meta.module_name)
+        url = admin_reverse('cms_%s_changelist' % Page._meta.model_name)
         request = self.get_request(url)
 
         request.session = {}
@@ -509,7 +510,7 @@ class AdminTestCase(AdminTestsBase):
         third_level_page = create_page('level3', "nav_playground.html", "en",
                                        created_by=admin_user, published=True, parent=second_level_page_top)
 
-        url = admin_reverse('cms_%s_changelist' % Page._meta.module_name)
+        url = admin_reverse('cms_%s_changelist' % Page._meta.model_name)
 
         if get_user_model().USERNAME_FIELD == 'email':
             self.client.login(username='admin@django-cms.org', password='admin@django-cms.org')
@@ -558,7 +559,7 @@ class AdminTestCase(AdminTestsBase):
         # Add a es-mx translation for this page
         create_title("es-mx", es_title, page, slug="es_pagina")
 
-        url = admin_reverse('cms_%s_changelist' % Page._meta.module_name)
+        url = admin_reverse('cms_%s_changelist' % Page._meta.model_name)
         url_pat = '<a href="{0}/{1}/preview/"[^>]*>{2}</a>'
 
         with self.login_user_context(admin_guy):
@@ -1285,7 +1286,6 @@ class AdminFormsTests(AdminTestsBase):
 
             form = PageForm(data)
             self.assertTrue(form.is_valid(), form.errors.as_text())
-            # WTF? WHY DOES form.save() not handle this stuff???
             instance = form.save()
             instance.permission_user_cache = user
             instance.permission_advanced_settings_cache = True
@@ -1312,6 +1312,87 @@ class AdminFormsTests(AdminTestsBase):
         self.assertFalse(form.is_valid())
         self.assertIn(u"Site doesn't match the parent's page site",
                       form.errors['__all__'])
+
+    def test_form_errors(self):
+
+        new_page_data = {
+            'title': 'Title',
+            'slug': 'home',
+            'language': 'en',
+            'site': 10,
+            'template': get_cms_setting('TEMPLATES')[0][0],
+            'reverse_id': '',
+        }
+        form = PageForm(data=new_page_data, files=None)
+        self.assertFalse(form.is_valid())
+        site0 = Site.objects.create(domain='foo.com', name='foo.com')
+        page1 = api.create_page("test", get_cms_setting('TEMPLATES')[0][0], "fr", site=site0)
+
+        new_page_data = {
+            'title': 'Title',
+            'slug': 'home',
+            'language': 'en',
+            'site': 1,
+            'template': get_cms_setting('TEMPLATES')[0][0],
+            'reverse_id': '',
+            'parent': page1.pk,
+        }
+        form = PageForm(data=new_page_data, files=None)
+        self.assertFalse(form.is_valid())
+
+        new_page_data = {
+            'title': 'Title',
+            'slug': '#',
+            'language': 'en',
+            'site': 1,
+            'template': get_cms_setting('TEMPLATES')[0][0],
+            'reverse_id': '',
+        }
+        form = PageForm(data=new_page_data, files=None)
+        self.assertFalse(form.is_valid())
+
+        new_page_data = {
+            'title': 'Title',
+            'slug': 'home',
+            'language': 'pp',
+            'site': 1,
+            'template': get_cms_setting('TEMPLATES')[0][0],
+            'reverse_id': '',
+            'parent':'',
+        }
+        form = PageForm(data=new_page_data, files=None)
+        self.assertFalse(form.is_valid())
+
+
+        page2 = api.create_page("test", get_cms_setting('TEMPLATES')[0][0], "en")
+        new_page_data = {
+            'title': 'Title',
+            'slug': 'test',
+            'language': 'en',
+            'site': 1,
+            'template': get_cms_setting('TEMPLATES')[0][0],
+            'reverse_id': '',
+            'parent':'',
+        }
+        form = PageForm(data=new_page_data, files=None)
+        self.assertFalse(form.is_valid())
+
+        page3 = api.create_page("test", get_cms_setting('TEMPLATES')[0][0], "en", parent=page2)
+        page3.title_set.update(path="hello/")
+        page3 = page3.reload()
+        new_page_data = {
+            'title': 'Title',
+            'slug': 'test',
+            'language': 'en',
+            'site': 1,
+            'template': get_cms_setting('TEMPLATES')[0][0],
+            'reverse_id': '',
+            'parent':'',
+        }
+        form = PageForm(data=new_page_data, files=None, instance=page3)
+        self.assertFalse(form.is_valid())
+
+
 
     def test_reverse_id_error_location(self):
         ''' Test moving the reverse_id validation error to a field specific one '''
@@ -1428,7 +1509,7 @@ class AdminFormsTests(AdminTestsBase):
             self.assertIn('<b>Test</b>', output)
         with self.assertNumQueries(FuzzyInt(18, 34)):
             force_unicode(self.client.get('/en/?%s' % get_cms_setting('CMS_TOOLBAR_URL__EDIT_ON')).content)
-        with self.assertNumQueries(FuzzyInt(12, 14)):
+        with self.assertNumQueries(FuzzyInt(11, 13)):
             force_unicode(self.client.get('/en/').content)
 
     def test_tree_view_queries(self):
