@@ -1273,7 +1273,8 @@ class Page(with_metaclass(PageMetaClass, MPTTModel)):
             raise
         previous_revision = previous_version.revision
 
-        return self._apply_revision(previous_revision)
+        clean = self._apply_revision(previous_revision)
+        return Page.objects.get(self.pk), clean
 
     def redo(self):
         """
@@ -1299,13 +1300,16 @@ class Page(with_metaclass(PageMetaClass, MPTTModel)):
             raise
         next_revision = previous_version.revision
 
-        return self._apply_revision(next_revision)
+        clean = self._apply_revision(next_revision)
+        return Page.objects.get(self.pk), clean
 
     def _apply_revision(self, target_revision):
         """
         Revert to a specific revision
         """
         from cms.utils.page_resolver import is_valid_url
+        # Get current titles
+        old_titles = list(self.title_set.all())
 
         old_titles = list(self.title_set.all())
         # remove existing plugins / placeholders in the current page version
