@@ -1274,7 +1274,7 @@ class Page(with_metaclass(PageMetaClass, MPTTModel)):
         previous_revision = previous_version.revision
 
         clean = self._apply_revision(previous_revision)
-        return Page.objects.get(self.pk), clean
+        return Page.objects.get(pk=self.pk), clean
 
     def redo(self):
         """
@@ -1301,7 +1301,7 @@ class Page(with_metaclass(PageMetaClass, MPTTModel)):
         next_revision = previous_version.revision
 
         clean = self._apply_revision(next_revision)
-        return Page.objects.get(self.pk), clean
+        return Page.objects.get(pk=self.pk), clean
 
     def _apply_revision(self, target_revision):
         """
