@@ -20,8 +20,9 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404, HttpRespons
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from django.template.defaultfilters import escape
-from django.utils.translation import ugettext_lazy as _, get_language
 from django.utils.decorators import method_decorator
+from django.utils.translation import ugettext_lazy as _, get_language
+from django.utils.six.moves.urllib_parse import unquote
 from django.views.decorators.http import require_POST
 
 from cms.admin.change_list import CMSChangeList
@@ -40,7 +41,6 @@ from cms.utils import helpers, permissions, get_language_from_request, admin as 
 from cms.utils.i18n import get_language_list, get_language_tuple, get_language_object, force_language
 from cms.utils.admin import jsonify_request
 from cms.utils.compat.dj import force_unicode, is_installed
-from cms.utils.compat.urls import unquote
 from cms.utils.conf import get_cms_setting
 from cms.utils.helpers import find_placeholder_relation
 from cms.utils.permissions import has_global_page_permission, has_generic_permission

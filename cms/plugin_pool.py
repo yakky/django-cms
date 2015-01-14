@@ -3,7 +3,6 @@ from operator import attrgetter
 
 from django.core.exceptions import ImproperlyConfigured
 from django.conf.urls import url, patterns, include
-from django.contrib.formtools.wizard.views import normalize_name
 from django.db.models import signals
 from django.template.defaultfilters import slugify
 from django.utils import six
@@ -16,7 +15,7 @@ from cms.models import CMSPlugin
 from cms.utils.django_load import load
 from cms.utils.helpers import reversion_register
 from cms.utils.placeholder import get_placeholder_conf
-from cms.utils.compat.dj import force_unicode, is_installed
+from cms.utils.compat.dj import force_unicode, is_installed, normalize_name
 
 
 class PluginPool(object):

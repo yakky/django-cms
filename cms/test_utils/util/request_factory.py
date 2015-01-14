@@ -6,8 +6,8 @@ from django.test.client import (FakePayload, MULTIPART_CONTENT, encode_multipart
 from django.utils import six
 from django.utils.encoding import smart_str
 from django.utils.six.moves import StringIO
+from django.utils.six.moves.urllib.parse import urlparse, urlencode, unquote
 
-from cms.utils.compat.urls import urlencode, urlparse, unquote
 
 
 class RequestFactory(object):

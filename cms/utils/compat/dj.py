@@ -1,29 +1,26 @@
-import django
+import re
+
 from django.conf import settings
 
-__all__ = ['User', 'get_user_model', 'user_model_label', 'user_related_name',
+
+__all__ = ['get_user_model', 'user_model_label', 'user_related_name',
            'user_related_query_name',
            'python_2_unicode_compatible', 'get_app_paths',
            'is_installed', 'installed_apps'
            ]
 
+# This used to be conditionally checked, this is no longer the case
+# Imported here
+from django.utils.encoding import python_2_unicode_compatible, force_text  # nopyflakes
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User as OriginalUser
 
-try:  # pragma: no cover
-    from django.utils.encoding import force_unicode
-    def python_2_unicode_compatible(klass):
-        """
-        A decorator that defines __unicode__ and __str__ methods under Python 2.
-        Under Python 3 it does nothing.
+force_unicode = force_text
+is_user_swapped = bool(OriginalUser._meta.swapped)
+user_model_label = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
+user_related_query_name = "user"
+user_related_name = "user_set"
 
-        To support Python 2 and 3 with a single code base, define a __str__ method
-        returning text and apply this decorator to the class.
-        """
-        klass.__unicode__ = klass.__str__
-        klass.__str__ = lambda self: self.__unicode__().encode('utf-8')
-        return klass
-except ImportError:
-    force_unicode = lambda s: str(s)
-    from django.utils.encoding import python_2_unicode_compatible  # nopyflakes
 
 try:  # pragma: no cover
     from django.db.models.loading import get_app_paths
@@ -67,25 +64,13 @@ except ImportError:
         return settings.INSTALLED_APPS
 
 
-# Django 1.5+ compatibility
-if django.VERSION >= (1, 5):
-    from django.contrib.auth import get_user_model
-    from django.contrib.auth.models import User as OriginalUser
-    is_user_swapped = bool(OriginalUser._meta.swapped)
-else:  # pragma: no cover
-    from django.contrib.auth.models import User
-    User.USERNAME_FIELD = 'username'
-    get_user_model = lambda: User
-    is_user_swapped = False
-
-user_model_label = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
-
-# With a custom user model named "EmailUser", Django 1.5 creates
-# Group.emailuser_set but Django 1.6 creates Group.user_set.
-# See https://code.djangoproject.com/ticket/20244
-if (1, 5) <= django.VERSION < (1, 6):  # pragma: no cover
-    user_related_query_name = user_model_label.split('.')[1].lower()
-    user_related_name = user_related_query_name + '_set'
-else:  # pragma: no cover
-    user_related_query_name = "user"
-    user_related_name = "user_set"
+def normalize_name(name):
+    """
+    Converts camel-case style names into underscore separated words. Example::
+        >>> normalize_name('oneTwoThree')
+        'one_two_three'
+        >>> normalize_name('FourFiveSix')
+        'four_five_six'
+    """
+    new = re.sub('(((?<=[a-z])[A-Z])|([A-Z](?![A-Z]|$)))', '_\\1', name)
+    return new.lower().strip('_')

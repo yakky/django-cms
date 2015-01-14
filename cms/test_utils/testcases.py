@@ -12,6 +12,7 @@ from django.core.urlresolvers import reverse
 from django.template.context import Context
 from django.test import testcases
 from django.test.client import RequestFactory
+from django.utils.six.moves.urllib.parse import urljoin, unquote
 from django.utils.translation import activate
 from menus.menu_pool import menu_pool
 
@@ -19,7 +20,6 @@ from cms.models import Page
 from cms.test_utils.util.context_managers import (UserLoginContext,
     SettingsOverride)
 from cms.utils.compat.dj import get_user_model
-from cms.utils.compat.urls import urljoin, unquote
 from cms.utils.permissions import set_current_user
 
 

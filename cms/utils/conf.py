@@ -8,7 +8,6 @@ from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 
 from cms import constants
-from cms.utils.compat.urls import urljoin
 
 
 __all__ = ['get_cms_setting']
@@ -78,7 +77,7 @@ def get_media_root():
 
 @default('CMS_MEDIA_URL')
 def get_media_url():
-    return urljoin(settings.MEDIA_URL, get_cms_setting('MEDIA_PATH'))
+    return six.moves.urllib_parse.urljoin(settings.MEDIA_URL, get_cms_setting('MEDIA_PATH'))
 
 
 @default('CMS_TOOLBAR_URL__EDIT_ON')
