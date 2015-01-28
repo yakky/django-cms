@@ -8,16 +8,17 @@ class CMSApp(object):
     permissions = True
     exclude_permissions = []
 
-    def __init__(self):
-        if self.app_config:
-            if getattr(self.app_config, 'cmsapp', None):
+    def __new__(cls):
+        if cls.app_config:
+            if getattr(cls.app_config, 'cmsapp', None) and cls.app_config.cmsapp.__name__ != cls.__name__:
                 raise RuntimeError(
                     'Only one AppHook per AppHookConfiguration must exists.\n'
                     'AppHook %s already defined for %s AppHookConfig' % (
-                        self.app_config.cmsapp, self.app_config
+                        cls.app_config.cmsapp.__name__, cls.app_config.__name__
                     )
                 )
-            self.app_config.cmsapp = self
+            cls.app_config.cmsapp = cls
+        return super(CMSApp, cls).__new__(cls)
 
     def get_configs(self):
         raise NotImplemented('Configurable AppHooks must implement this method')
