@@ -164,12 +164,6 @@ $(document).ready(function () {
 				submenu.show();
 			});
 
-			// adds double click to edit
-			dragitem.bind('dblclick', function (e) {
-				e.preventDefault();
-				e.stopPropagation();
-				that.editPlugin(that.options.urls.edit_plugin, that.options.plugin_name, that.options.plugin_breadcrumb);
-			});
 
 			// adds longclick events
 			dragitem.bind('mousedown mouseup mousemove', function (e) {
@@ -710,11 +704,6 @@ $(document).ready(function () {
 
 				// save settings
 				CMS.API.Toolbar.setSettings(settings);
-			});
-			// adds double click event
-			draggable.bind('dblclick', function (e) {
-				e.stopPropagation();
-				$('.cms_plugin-' + that._getId($(this))).trigger('dblclick');
 			});
 
 			// only needs to be excecuted once
