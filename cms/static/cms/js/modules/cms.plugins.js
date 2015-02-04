@@ -72,6 +72,11 @@ $(document).ready(function () {
 			// register the subnav on the placeholder
 			this._setSubnav(dragbar.find('.cms_submenu'));
 
+			var items = dragbar.find(title).closest('.cms_dragarea').find('.cms_dragitem-collapsable');
+			if(items.length)  {
+				dragbar.find(title).addClass('cms_dragbar-arrow');
+			}
+
 			// enable expanding/collapsing globally within the placeholder
 			dragbar.find(title).bind(this.click, function () {
 				($(this).hasClass(expanded)) ? that._collapseAll($(this)) : that._expandAll($(this));
