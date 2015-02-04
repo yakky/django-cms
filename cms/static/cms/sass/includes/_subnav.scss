@@ -37,7 +37,7 @@
 	.cms_submenu-item:first-child span { border-top:none; }
 }
 
-.cms_submenu-quicksearch { display:none; position:absolute; right:-5px; top:-5px; z-index:1000;
+.cms_submenu-quicksearch { position:absolute; right:-5px; top:-5px; z-index:1000;
 	cursor:default; text-align:right; height:25px; @include border-radius(4px);
 	background:$color-grey-70 url('../img/toolbar/sprite_toolbar.png') no-repeat right -326px; }
 .cms_submenu-quicksearch label { cursor:pointer; }

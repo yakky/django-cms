@@ -144,26 +144,17 @@ $(document).ready(function () {
 				if(e.type === 'mouseenter' || e.type === 'mouseover') $(this).data('active', true);
 				if(e.type === 'mouseleave') {
 					$(this).data('active', false);
-					submenus.hide();
 				}
-
-				// add timeout to determine if we should hide the element
-				setTimeout(function () {
-					if(!$(e.currentTarget).data('active')) {
-						$(e.currentTarget).find('.cms_submenu:eq(0)').hide();
-					}
-				}, 100);
 			});
 
 			// adds event for showing the subnav
 			dragitem.bind('mouseenter', function (e) {
 				e.preventDefault();
 				e.stopPropagation();
-
-				submenus.hide();
 				submenu.show();
 			});
 
+			submenus.show();
 		},
 
 		_setGeneric: function () {
@@ -428,12 +419,6 @@ $(document).ready(function () {
 
 			nav.bind('mousedown', function (e) { e.stopPropagation(); });  // avoid starting the longclick event when using the drag bar
 
-			nav.bind('mouseenter mouseleave tap.cms', function (e) {
-				e.preventDefault();
-				e.stopPropagation();
-				(e.type === 'mouseenter') ? that._showSubnav($(this)) : that._hideSubnav($(this));
-			});
-
 			nav.find('a').bind('click.cms tap.cms', function (e) {
 				e.preventDefault();
 				e.stopPropagation();
@@ -478,6 +463,7 @@ $(document).ready(function () {
 				}
 				if(e.type === 'keyup') {
 					clearTimeout(that.timer);
+					that._showSubnav(nav);
 					// keybound is not required
 					that.timer = setTimeout(function () {
 						that._searchSubnav(nav, $(e.currentTarget).val());
@@ -501,33 +487,35 @@ $(document).ready(function () {
 			var dropdown = nav.find('.cms_submenu-dropdown');
 			var offset = parseInt(dropdown.data('top'));
 
-			// clearing
-			clearTimeout(this.timer);
+			if(!dropdown.is(':visible')) {
+				// clearing
+				clearTimeout(this.timer);
 
-			// add small delay before showing submenu
-			this.timer = setTimeout(function () {
-				// reset z indexes
-				var reset = $('.cms_submenu').parentsUntil('.cms_dragarea');
-				var scrollHint = nav.find('.cms_submenu-scroll-hint');
+				// add small delay before showing submenu
+				this.timer = setTimeout(function () {
+					// reset z indexes
+					var reset = $('.cms_submenu').parentsUntil('.cms_dragarea');
+					var scrollHint = nav.find('.cms_submenu-scroll-hint');
 
-				reset.css('z-index', 0);
+					reset.css('z-index', 0);
 
-				var parents = nav.parentsUntil('.cms_dragarea');
-					parents.css('z-index', 999);
+					var parents = nav.parentsUntil('.cms_dragarea');
+						parents.css('z-index', 999);
 
-				// show subnav
-				nav.find('.cms_submenu-quicksearch').show();
+					// show subnav
+					nav.find('.cms_submenu-quicksearch').show();
 
-				// set visible states
-				nav.find('> .cms_submenu-dropdown').show().on('scroll', function () {
-					scrollHint.fadeOut(100);
-					$(this).off('scroll');
-				});
+					// set visible states
+					nav.find('> .cms_submenu-dropdown').show().on('scroll', function () {
+						scrollHint.fadeOut(100);
+						$(this).off('scroll');
+					});
 
-				// show scrollHint for FF on OSX
-				if(nav[0].scrollHeight > 230) scrollHint.show();
+					// show scrollHint for FF on OSX
+					if(nav[0].scrollHeight > 230) scrollHint.show();
 
-			}, 100);
+				}, 100);
+			}
 
 			// add key events
 			$(document).unbind('keydown.cms');
@@ -583,8 +571,6 @@ $(document).ready(function () {
 			clearTimeout(this.timer);
 
 			var that = this;
-			// cancel if quicksearch is focues
-			if(this.focused) return false;
 
 			// set correct active state
 			nav.closest('.cms_draggable').data('active', false);
@@ -592,7 +578,6 @@ $(document).ready(function () {
 			this.timer = setTimeout(function () {
 				// set visible states
 				nav.find('> .cms_submenu-dropdown').hide();
-				nav.find('.cms_submenu-quicksearch').hide();
 				// reset search
 				nav.find('input').val('');
 				that._searchSubnav(nav, '');
@@ -611,7 +596,7 @@ $(document).ready(function () {
 
 			// cancel if value is zero
 			if(value === '') {
-				items.add(titles).show();
+				this._hideSubnav(nav);
 				return false;
 			}
 
@@ -654,7 +639,6 @@ $(document).ready(function () {
 			var that = this;
 			var settings = CMS.settings;
 			var draggable = $('.cms_draggable-' + this.options.plugin_id);
-
 			// check which button should be shown for collapsemenu
 			this.container.each(function (index, item) {
 				var els = $(item).find('.cms_dragitem-collapsable');
