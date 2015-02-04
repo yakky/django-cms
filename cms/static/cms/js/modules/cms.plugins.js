@@ -164,25 +164,6 @@ $(document).ready(function () {
 				submenu.show();
 			});
 
-
-			// adds longclick events
-			dragitem.bind('mousedown mouseup mousemove', function (e) {
-				if(e.type === 'mousedown') {
-					// start countdown
-					timer = setTimeout(function () {
-						CMS.API.StructureBoard.setActive(that.options.plugin_id, false);
-						// prevent dragging
-						$(document).bind('mousemove.keypress', function () {
-							$(document).trigger('keyup.cms', [true]);
-							setTimeout(function () {
-								$(document).unbind('mousemove.keypress');
-							}, 1000);
-						});
-					}, 500);
-				} else {
-					clearTimeout(timer);
-				}
-			});
 		},
 
 		_setGeneric: function () {
