@@ -416,8 +416,63 @@ $(document).ready(function () {
 
 		_setSubnav: function (nav) {
 			var that = this;
-
 			nav.bind('mousedown', function (e) { e.stopPropagation(); });  // avoid starting the longclick event when using the drag bar
+			$('.cms_draggable-' + this.options.plugin_id + ' > .cms_draggable_toolbar a').bind('click.cms tap.cms', function (e) {
+				e.preventDefault();
+				e.stopPropagation();
+
+				// show loader and make sure scroll doesn't jump
+				CMS.API.Toolbar._loader(true);
+				CMS.API.Helpers.preventScroll(false);
+
+				var el = $(this);
+				// set switch for subnav entries
+				switch(el.attr('data-rel')) {
+					case 'add-plugin':
+						$('.cms_draggable-' + that.options.plugin_id + ' > .cms_dragitem > .cms_child_plugins').toggle();
+						break;
+					case 'edit':
+						that.editPlugin(that.options.urls.edit_plugin, that.options.plugin_name, that.options.plugin_breadcrumb);
+						break;
+					case 'copy':
+						that.copyPlugin();
+						break;
+					case 'cut':
+						that.cutPlugin();
+						break;
+					case 'delete':
+						that.deletePlugin(that.options.urls.delete_plugin, that.options.plugin_name, that.options.plugin_breadcrumb);
+						break;
+					case 'edit-menu':
+						el.next().toggle();
+						break;
+					default:
+						CMS.API.Toolbar._loader(false);
+						CMS.API.Toolbar._delegate(el);
+						break;
+				}
+			});
+
+			$('.cms_draggable-' + this.options.plugin_id + ' > .cms_dragitem > .cms_child_plugins a').bind('click.cms tap.cms', function (e) {
+				e.preventDefault();
+				e.stopPropagation();
+
+				// show loader and make sure scroll doesn't jump
+				CMS.API.Toolbar._loader(true);
+				CMS.API.Helpers.preventScroll(false);
+
+				var el = $(this);
+				// set switch for subnav entries
+				switch(el.attr('data-rel')) {
+					case 'add':
+						that.addPlugin(el.attr('href').replace('#', ''), el.text(), that._getId(el.closest('.cms_draggable')));
+						break;
+					default:
+						CMS.API.Toolbar._loader(false);
+						CMS.API.Toolbar._delegate(el);
+						break;
+				}
+			});
 
 			nav.find('a').bind('click.cms tap.cms', function (e) {
 				e.preventDefault();
