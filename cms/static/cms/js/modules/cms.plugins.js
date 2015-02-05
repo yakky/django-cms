@@ -274,7 +274,7 @@ $(document).ready(function () {
 		},
 
 		cutPlugin: function () {
-			// if cut is once triggered, prevend additional actions
+			// if cut is once triggered, prevent additional actions
 			if(CMS.API.locked) return false;
 			CMS.API.locked = true;
 
