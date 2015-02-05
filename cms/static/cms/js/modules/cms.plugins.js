@@ -314,6 +314,51 @@ $(document).ready(function () {
 			});
 		},
 
+		pastePlugin: function () {
+			if(CMS.API.locked) return false;
+			CMS.API.locked = true;
+
+			var that = this;
+			var plugin_id = -1;
+			var containerClasses = CMS.API.Clipboard.containers[0].className.split(/\s+/);
+			for (var i = 0 ; i < containerClasses.length ; i++) {
+				matches = /^cms_draggable-(.*)/.exec(containerClasses[i]);
+				if (matches) {
+					plugin_id = matches[1];
+					break;
+				}
+			}
+
+			var data = {
+				'source_placeholder_id': CMS.config.clipboard.id,
+				'source_plugin_id': plugin_id || '',
+				'source_language': this.options.page_language || '',
+				'target_plugin_id': this.options.plugin_id || '',
+				'target_placeholder_id': this.options.placeholder_id || '',
+				'target_language': this.options.page_language,
+				'csrfmiddlewaretoken': this.csrf
+			};
+			var request = {
+				'type': 'POST',
+				'url': this.options.urls.copy_plugin,
+				'data': data,
+				'success': function () {
+					CMS.API.Clipboard.clear(function () {
+						CMS.API.Toolbar.openMessage(CMS.config.lang.success);
+						// reload
+						CMS.API.Helpers.reloadBrowser();
+					});
+				},
+				'error': function (jqXHR) {
+					CMS.API.locked = false;
+					var msg = CMS.config.lang.error;
+					// trigger error
+					that._showError(msg + jqXHR.responseText || jqXHR.status + ' ' + jqXHR.statusText);
+				}
+			};
+			$.ajax(request);
+		},
+
 		movePlugin: function (options) {
 			// cancel request if already in progress
 			if(CMS.API.locked) return false;
@@ -439,6 +484,9 @@ $(document).ready(function () {
 						break;
 					case 'cut':
 						that.cutPlugin();
+						break;
+					case 'paste':
+						that.pastePlugin();
 						break;
 					case 'delete':
 						that.deletePlugin(that.options.urls.delete_plugin, that.options.plugin_name, that.options.plugin_breadcrumb);
