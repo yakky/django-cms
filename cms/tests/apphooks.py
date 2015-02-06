@@ -2,6 +2,7 @@
 from __future__ import with_statement
 import sys
 
+from django.contrib.auth.models import Permission
 from django.core.urlresolvers import clear_url_caches, reverse
 from django.utils import six
 from django.utils.timezone import now
@@ -569,7 +570,7 @@ class ApphooksTestCase(CMSTestCase):
             self.assertTrue(toolbar.toolbars['cms.test_utils.project.placeholderapp.cms_toolbar.Example1Toolbar'].is_current_app)
 
     def test_toolbar_staff(self):
-        # Test that the toolbar contains edito mode switcher if placeholders are available
+        # Test that the toolbar contains edit mode switcher if placeholders are available
         apphooks = (
             'cms.test_utils.project.placeholderapp.cms_app.Example1App',
         )
@@ -582,6 +583,7 @@ class ApphooksTestCase(CMSTestCase):
             response = self.client.get(path+"?edit")
             toolbar = CMSToolbar(response.context['request'])
             toolbar.populate()
+            response.context['request'].user = self.user
             placeholder_toolbar = PlaceholderToolbar(response.context['request'], toolbar, True, path)
             placeholder_toolbar.populate()
             placeholder_toolbar.init_placeholders_from_request()
@@ -592,6 +594,17 @@ class ApphooksTestCase(CMSTestCase):
             response = self.client.get(path+"?edit")
             toolbar = CMSToolbar(response.context['request'])
             toolbar.populate()
+            response.context['request'].user = self.user
+            placeholder_toolbar = PlaceholderToolbar(response.context['request'], toolbar, True, path)
+            placeholder_toolbar.populate()
+            placeholder_toolbar.init_placeholders_from_request()
+            placeholder_toolbar.add_structure_mode()
+            self.assertEqual(len(placeholder_toolbar.toolbar.get_right_items()), 0)
+
+            permission = Permission.objects.get(codename='use_structure')
+            self.user.user_permissions.add(permission)
+
+            response.context['request'].user = get_user_model().objects.get(pk=self.user.pk)
             placeholder_toolbar = PlaceholderToolbar(response.context['request'], toolbar, True, path)
             placeholder_toolbar.populate()
             placeholder_toolbar.init_placeholders_from_request()

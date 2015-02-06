@@ -31,6 +31,9 @@ class Placeholder(models.Model):
 
     class Meta:
         app_label = 'cms'
+        permissions = (
+            ("use_structure", "Can use Structure mode"),
+        )
 
     def __str__(self):
         return self.slot
