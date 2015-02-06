@@ -315,6 +315,9 @@ $(document).ready(function () {
 		},
 
 		pastePlugin: function () {
+			if(!CMS.API.StructureBoard.isAllowed($('.cms_draggable-' + this.options.plugin_id + ' > .cms_draggable_toolbar'), $(CMS.API.Clipboard.containers[0]))) {
+				return false;
+			}
 			if(CMS.API.locked) return false;
 			CMS.API.locked = true;
 
