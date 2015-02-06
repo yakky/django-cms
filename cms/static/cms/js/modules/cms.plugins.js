@@ -495,7 +495,7 @@ $(document).ready(function () {
 						that.deletePlugin(that.options.urls.delete_plugin, that.options.plugin_name, that.options.plugin_breadcrumb);
 						break;
 					case 'edit-menu':
-						el.next().toggleClass('active');
+						el.toggleClass('active').next().toggleClass('active');
 						break;
 					default:
 						CMS.API.Toolbar._loader(false);
