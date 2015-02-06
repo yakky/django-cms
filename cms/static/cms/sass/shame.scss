@@ -1,0 +1,203 @@
+
+@import "compass/css3/border-radius";
+@import "compass/css3/box-sizing";
+@import "compass/css3/box-shadow";
+
+#cms_toolbar .cms_structure .cms_dragarea {
+    @include border-radius(4px);
+    @include box-sizing(border-box);
+    background: #f1f1f1;
+    margin: 0 0 5px;
+    padding: 15px;
+    position: absolute;
+}
+
+#cms_toolbar .cms_structure .cms_dragbar .cms_dragbar-title {
+    font-size: 12px;
+    line-height: 17px;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 0;
+    height: 16px;
+    cursor: pointer;
+    color: #5e5e5e;
+    text-shadow: none;
+}
+
+#cms_toolbar .cms_submenu-quicksearch {
+    @include border-radius(0);
+    position: absolute;
+    right: -5px;
+    top: -5px;
+    z-index: 1000;
+    cursor: default;
+    text-align: right;
+    height: 25px;
+    background: white url("../img/toolbar/sprite_toolbar.png") no-repeat right -326px;
+}
+
+#cms_toolbar .cms_submenu-quicksearch input {
+    display: block;
+    font-size: 12px;
+    color: #5e5e5e;
+    text-align: right;
+    width: 109px;
+    height: 20px;
+    padding: 3px 1px 1px 5px;
+    margin-right: 25px;
+    border: 0;
+    background: white;
+}
+
+#cms_toolbar .cms_structure .cms_draggable {
+    @include box-shadow(0px 2px 0px 0px rgba(50, 50, 50, 0.2));
+    z-index: 100;
+    color: #5e5e5e;
+    border: 0;
+    //padding: 10px 10px 10px 20px;
+    padding: 0;
+    background: white url("../img/toolbar/sprite_toolbar.png") no-repeat 5px -454px;
+
+    &:hover {
+        @include box-shadow(0px 2px 0px 0px rgba(50, 50, 50, 0.2));
+    }
+
+    .cms_draggable_toolbar {
+        position: absolute;
+        right: 0;
+    }
+
+    .cms_dragitem-text {
+        color: #5e5e5e;
+        font-style: italic;
+
+        > strong:first-child {
+            margin-right: 10px;
+            font-style: normal;
+        }
+    }
+}
+
+.cms_submenu-quicksearch, .cms_submenu {
+    display: none !important;
+}
+
+div.cms_draggable_toolbar {
+    padding-right: 10px;
+
+    > a, > a:hover, > a:active, > a:focus {
+        @include border-radius(3px);
+        text-transform: uppercase;
+        font-size: 10px;
+        font-weight: 700;
+        color: #333;
+        background: #f1f1f1;
+        padding: 5px 7px 5px 22px;
+        line-height: 1;
+        float: left;
+        margin-right: 4px;
+    }
+}
+
+div.cms_draggable_toolbar {
+    > a[data-rel=add-plugin] {
+        background: url('../img/add.png') no-repeat 7px center;
+        background-color: #2ecc71;
+        color: white;
+
+        &:hover {
+            background-color: lighten(#2ecc71, 10);
+        }
+
+        &:active {
+            background-color: lighten(#2ecc71, 10);
+        }
+
+        &:focus {
+            background-color: #2ecc71;
+        }
+    }
+
+    > a[data-rel=edit] {
+        background: #f1f1f1 url('../img/edit.png') no-repeat 7px center;
+
+        &:hover {
+            background-color: #f1f1f1;
+        }
+
+        &:active {
+            background-color: #f1f1f1;
+        }
+
+        &:focus {
+            background-color: #f1f1f1;
+        }
+    }
+
+    > a[data-rel=delete] {
+        background: #f1f1f1 url('../img/delete.png') no-repeat 7px center;
+
+        &:hover {
+            background-color: #f1f1f1;
+        }
+
+        &:active {
+            background-color: #f1f1f1;
+        }
+
+        &:focus {
+            background-color: #f1f1f1;
+        }
+    }
+
+    > a[data-rel=edit-menu] {
+        @include border-radius(3px 3px 0 0);
+        background: url('../img/hamburger.png') no-repeat 5px center;
+        background-color: none;
+        color: white;
+        width: 20px;
+        height: 20px;
+        overflow: hidden;
+        padding: 5px 7px;
+        padding: 0;
+        margin: 0;
+
+        &:focus {
+            background-color: none;
+        }
+
+        &.active, &:active {
+            background-color: #828282;
+            background: #828282 url('../img/hamburger.png') no-repeat -35px center;
+        }
+    }
+}
+
+.cms_draggable_toolbar .cms_edit-menu-dropdown {
+    display: none;
+    background-color: #828282;
+    position: absolute;
+    right: 10px;
+    top: 20px;
+    padding: 0;
+
+    > div > a {
+        display: block;
+        color: white;
+        text-transform: uppercase;
+        font-size: 10px;
+        padding: 1px 5px;
+
+        &:hover {
+            background-color: #a8a9ad;
+        }
+    }
+
+    &.active {
+        display: block;
+    }
+}
+
+.cms_child_plugins {
+    display: none;
+}
