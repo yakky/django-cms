@@ -2,25 +2,25 @@ language: python
 
 python:
   - 3.4
-  - 3.3
-  - 2.7
-  - 2.6
+#  - 3.3
+#  - 2.7
+#  - 2.6
 
 sudo: false
 
 env:
   global:
-    - SAUCE_USERNAME=digi604
-    - secure: NWiSBCHFB6LbTMget2qLIdqZlx0zeu3j+Y7Lsqb8kuYXyT2IUBGFVedcGWuGv/9Mzypb80EQWtVTokA3/3QIbesqr29uG95pMPHiYWLdnTO6UHcLMcNXiSzhBGdRDZ40iHSVv2dDHs4GNwGOH5+UCA0z3j7SWmChuFbNXh+Vsqw=
+    - SAUCE_USERNAME: django-cms
+    - secure: "Fkc+4oTkrnNHtk/g44JC90gk7oBGnRqBcbg7nbiVxyYXf4QSe53fTiw1ntRyywl1WUc+BPCzL5UwLGvy6jQT1ydwTKylY2w+RgPvzyq4bVGC8km23IOpqp7zedsniz+djLWqgkxAneO1TRi2YtYsU9JMd7bEo1ZEojsj0smd8f4="
   matrix:
-    - DJANGO=1.6 DATABASE_URL='sqlite://localhost/:memory:' SELENIUM=0
-    - DJANGO=1.6 DATABASE_URL='mysql://root@127.0.0.1/djangocms_test' SELENIUM=0
-    - DJANGO=1.6 DATABASE_URL='postgres://postgres@127.0.0.1/djangocms_test' SELENIUM=0
-    - DJANGO=1.6 DATABASE_URL='postgres://postgres@127.0.0.1/djangocms_test' SELENIUM=1 AUTH_USER_MODEL='emailuserapp.EmailUser'
-    - DJANGO=1.7 DATABASE_URL='sqlite://localhost/:memory:' SELENIUM=0
-    - DJANGO=1.7 DATABASE_URL='mysql://root@127.0.0.1/djangocms_test' SELENIUM=0
-    - DJANGO=1.7 DATABASE_URL='postgres://postgres@127.0.0.1/djangocms_test' SELENIUM=0
-    - DJANGO=1.7 DATABASE_URL='postgres://postgres@127.0.0.1/djangocms_test' SELENIUM=1 AUTH_USER_MODEL='emailuserapp.EmailUser'
+#    - DJANGO=1.6 DATABASE_URL='sqlite://localhost/:memory:' SELENIUM=0
+#    - DJANGO=1.6 DATABASE_URL='mysql://root@127.0.0.1/djangocms_test' SELENIUM=0
+#    - DJANGO=1.6 DATABASE_URL='postgres://postgres@127.0.0.1/djangocms_test' SELENIUM=0
+#    - DJANGO=1.6 DATABASE_URL='postgres://postgres@127.0.0.1/djangocms_test' SELENIUM=1 AUTH_USER_MODEL='emailuserapp.EmailUser'
+#    - DJANGO=1.7 DATABASE_URL='sqlite://localhost/:memory:' SELENIUM=0
+#    - DJANGO=1.7 DATABASE_URL='mysql://root@127.0.0.1/djangocms_test' SELENIUM=0
+#    - DJANGO=1.7 DATABASE_URL='postgres://postgres@127.0.0.1/djangocms_test' SELENIUM=0
+#    - DJANGO=1.7 DATABASE_URL='postgres://postgres@127.0.0.1/djangocms_test' SELENIUM=1 AUTH_USER_MODEL='emailuserapp.EmailUser'
     - DJANGO=1.6 DATABASE_URL='postgres://postgres@127.0.0.1/djangocms_test' SELENIUM=1 AUTH_USER_MODEL='customuserapp.User'
 
 before_script:
