@@ -2,7 +2,8 @@ from __future__ import with_statement
 
 from django.conf import settings
 from django.http import QueryDict
-from djangocms_text_ckeditor.models import Text
+from django.contrib.auth import get_user_model
+from django.utils.http import urlencode
 
 from cms.api import create_page, add_plugin
 from cms.models.pluginmodel import CMSPlugin
@@ -11,8 +12,8 @@ from cms.test_utils.testcases import (CMSTestCase, URL_CMS_PLUGIN_ADD,
                                       URL_CMS_PLUGIN_REMOVE)
 from cms.utils.urlutils import admin_reverse
 from cms.utils.compat import DJANGO_1_6
-from cms.utils.compat.dj import get_user_model
-from cms.utils.compat.urls import urlencode
+
+from djangocms_text_ckeditor.models import Text
 
 
 class SecurityTests(CMSTestCase):

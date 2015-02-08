@@ -6,13 +6,15 @@ import time
 
 from django.conf import settings
 from django.contrib.auth import login, authenticate
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 from django.contrib.sites.models import Site
 from django.core.cache import cache
 from django.core.urlresolvers import clear_url_caches
-from django.test import LiveServerTestCase
+from django.test.utils import override_settings
 from django.utils import unittest
 from django.utils.importlib import import_module
+from django.utils.six.moves.urllib.parse import urlparse
 from djangocms_link.models import Link
 from djangocms_style.models import Style
 from selenium import webdriver
@@ -29,19 +31,21 @@ from cms.api import create_page, create_title, add_plugin
 from cms.appresolver import clear_app_resolvers
 from cms.apphook_pool import apphook_pool
 from cms.exceptions import AppAlreadyRegistered
-from cms.models import Page, CMSPlugin
+from cms.models import CMSPlugin, Page
 from cms.test_utils.project.placeholderapp.cms_app import Example1App
 from cms.test_utils.project.placeholderapp.models import Example1
-from cms.test_utils.testcases import SettingsOverrideTestCase
-from cms.test_utils.util.context_managers import SettingsOverride
-from cms.test_utils.util.mock import AttributeObject
 from cms.test_utils.testcases import CMSTestCase
-from cms.utils.compat.dj import get_user_model
-from cms.utils.compat.urls import urlparse
+from cms.test_utils.util.mock import AttributeObject
+from cms.utils.compat import DJANGO_1_6
 from cms.utils.conf import get_cms_setting
 
+if DJANGO_1_6:
+    from django.test import LiveServerTestCase as StaticLiveServerTestCase
+else:
+    from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
-class CMSLiveTests(LiveServerTestCase, CMSTestCase):
+
+class CMSLiveTests(StaticLiveServerTestCase, CMSTestCase):
     @classmethod
     def setUpClass(cls):
         super(CMSLiveTests, cls).setUpClass()
@@ -289,48 +293,46 @@ class ToolbarBasicTests(CMSLiveTests):
         self.wait_page_loaded()
         self.assertTrue(self.driver.find_element_by_class_name('cms_error'))
 
+    @override_settings(DEBUG=True)
     def test_basic_add_pages(self):
-        with SettingsOverride(DEBUG=True):
-            User = get_user_model()
-            self.assertEqual(Page.objects.all().count(), 0)
-            self.assertTrue(User.objects.all().count(), 1)
-            driver = self.driver
-            driver.get(self.base_url + "/de/")
-            driver.find_element_by_id("add-page").click()
-            driver.find_element_by_id("id_username").clear()
-            driver.find_element_by_id("id_username").send_keys(getattr(self.user, User.USERNAME_FIELD))
-            driver.find_element_by_id("id_password").clear()
-            driver.find_element_by_id("id_password").send_keys(getattr(self.user, User.USERNAME_FIELD))
-            driver.find_element_by_css_selector("input[type=\"submit\"]").click()
-            driver.find_element_by_name("_save").click()
-            driver.find_element_by_link_text(u"Seite hinzufügen").click()
-            driver.find_element_by_id("id_title").clear()
-            driver.find_element_by_id("id_title").send_keys("SubPage")
-            driver.find_element_by_name("_save").click()
+        User = get_user_model()
+        self.assertEqual(Page.objects.all().count(), 0)
+        self.assertTrue(User.objects.all().count(), 1)
+        driver = self.driver
+        driver.get(self.base_url + "/de/")
+        driver.find_element_by_id("add-page").click()
+        driver.find_element_by_id("id_username").clear()
+        driver.find_element_by_id("id_username").send_keys(getattr(self.user, User.USERNAME_FIELD))
+        driver.find_element_by_id("id_password").clear()
+        driver.find_element_by_id("id_password").send_keys(getattr(self.user, User.USERNAME_FIELD))
+        driver.find_element_by_css_selector("input[type=\"submit\"]").click()
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_link_text(u"Seite hinzufügen").click()
+        driver.find_element_by_id("id_title").clear()
+        driver.find_element_by_id("id_title").send_keys("SubPage")
+        driver.find_element_by_name("_save").click()
 
 
-class PlaceholderBasicTests(CMSLiveTests, SettingsOverrideTestCase):
-    settings_overrides = {
-        'LANGUAGE_CODE': 'en',
-        'LANGUAGES': (('en', 'English'),
-                      ('it', 'Italian')),
-        'CMS_LANGUAGES': {
-            1: [{
-                'code': 'en',
-                'name': 'English',
-                'public': True
-            }, {
-                'code': 'it',
-                'name': 'Italian',
-                'public': True
-            }],
-            'default': {
-                'public': True,
-                'hide_untranslated': False,
-            }
+@override_settings(
+    LANGUAGE_CODE='en',
+    LANGUAGES=(('en', 'English'),
+               ('it', 'Italian')),
+    CMS_LANGUAGES={
+        1: [{'code' : 'en',
+             'name': 'English',
+             'public': True},
+            {'code': 'it',
+             'name': 'Italian',
+             'public': True},
+        ],
+        'default': {
+            'public': True,
+            'hide_untranslated': False,
         },
-        'SITE_ID': 1,
-    }
+    },
+    SITE_ID=1,
+)
+class PlaceholderBasicTests(CMSLiveTests):
 
     def setUp(self):
         Site.objects.create(domain='example.org', name='example.org')
@@ -349,6 +351,20 @@ class PlaceholderBasicTests(CMSLiveTests, SettingsOverrideTestCase):
         self.driver.implicitly_wait(5)
 
         super(PlaceholderBasicTests, self).setUp()
+
+    def _login(self):
+        url = '%s/?%s' % (self.live_server_url, get_cms_setting('CMS_TOOLBAR_URL__EDIT_ON'))
+        self.driver.get(url)
+
+        self.assertRaises(NoSuchElementException, self.driver.find_element_by_class_name, 'cms_toolbar-item_logout')
+        username_input = self.driver.find_element_by_id("id_cms-username")
+        username_input.send_keys(getattr(self.user, get_user_model().USERNAME_FIELD))
+        password_input = self.driver.find_element_by_id("id_cms-password")
+        password_input.send_keys(getattr(self.user, get_user_model().USERNAME_FIELD))
+        password_input.submit()
+        self.wait_page_loaded()
+
+        self.assertTrue(self.driver.find_element_by_class_name('cms_toolbar-item-navigation'))
 
     def test_copy_from_language(self):
         self._login()
@@ -419,7 +435,7 @@ class PlaceholderBasicTests(CMSLiveTests, SettingsOverrideTestCase):
 
         drag = ActionChains(self.driver).click_and_hold(
             clipboard.find_element_by_css_selector('.cms_draggable:nth-child(1)')
-        );
+        )
 
         drag.perform()
 
@@ -447,11 +463,11 @@ class PlaceholderBasicTests(CMSLiveTests, SettingsOverrideTestCase):
         self.assertEqual(len(plugins), 2)
 
 
-class StaticPlaceholderPermissionTests(CMSLiveTests, SettingsOverrideTestCase):
-    settings_overrides = {
-        'SITE_ID': 1,
-        'CMS_PERMISSION': False,
-    }
+@override_settings(
+    SITE_ID=1,
+    CMS_PERMISSION=False,
+)
+class StaticPlaceholderPermissionTests(CMSLiveTests):
 
     def setUp(self):
         Site.objects.create(domain='example.org', name='example.org')

@@ -8,6 +8,7 @@ from cms.api import create_page
 
 from django import http
 from django.conf import settings
+from django.conf.urls import url
 from django.contrib import admin
 from django.core import urlresolvers
 from django.core.cache import cache
@@ -36,7 +37,6 @@ from cms.test_utils.testcases import (
     CMSTestCase, URL_CMS_PAGE, URL_CMS_PLUGIN_MOVE, URL_CMS_PAGE_ADD,
     URL_CMS_PLUGIN_ADD, URL_CMS_PLUGIN_EDIT, URL_CMS_PAGE_CHANGE,
     URL_CMS_PLUGIN_REMOVE, URL_CMS_PAGE_PUBLISH)
-from cms.test_utils.util.context_managers import SettingsOverride
 from cms.test_utils.util.fuzzy_int import FuzzyInt
 from cms.toolbar.toolbar import CMSToolbar
 from cms.utils.conf import get_cms_setting
@@ -85,10 +85,9 @@ class DumbFixturePluginWithUrls(DumbFixturePlugin):
         return http.HttpResponse("It works")
 
     def get_plugin_urls(self):
-        from django.conf.urls import patterns, url
-        return patterns('',
+        return [
             url(r'^testview/$', admin.site.admin_view(self._test_view), name='dumbfixtureplugin'),
-        )
+        ]
 plugin_pool.register_plugin(DumbFixturePluginWithUrls)
 
 
@@ -190,7 +189,7 @@ class PluginsTestCase(PluginsTestBaseCase):
         Test that plugin position is saved after creation
         """
         page_en = api.create_page("PluginOrderPage", "col_two.html", "en",
-                              slug="page1", published=True, in_navigation=True)
+                                  slug="page1", published=True, in_navigation=True)
         ph_en = page_en.placeholders.get(slot="col_left")
 
         # We check created objects and objects from the DB to be sure the position value
@@ -200,7 +199,7 @@ class PluginsTestCase(PluginsTestBaseCase):
         db_plugin_1 = CMSPlugin.objects.get(pk=text_plugin_1.pk)
         db_plugin_2 = CMSPlugin.objects.get(pk=text_plugin_2.pk)
 
-        with SettingsOverride(CMS_PERMISSION=False):
+        with self.settings(CMS_PERMISSION=False):
             self.assertEqual(text_plugin_1.position, 0)
             self.assertEqual(db_plugin_1.position, 0)
             self.assertEqual(text_plugin_2.position, 1)
@@ -208,6 +207,51 @@ class PluginsTestCase(PluginsTestBaseCase):
             ## Finally we render the placeholder to test the actual content
             rendered_placeholder = ph_en.render(self.get_context(page_en.get_absolute_url(), page=page_en), None)
             self.assertEqual(rendered_placeholder, "I'm the firstI'm the second")
+
+    def test_plugin_order_alt(self):
+        """
+        Test that plugin position is saved after creation
+        """
+        draft_page = api.create_page("PluginOrderPage", "col_two.html", "en",
+                                     slug="page1", published=False, in_navigation=True)
+        placeholder = draft_page.placeholders.get(slot="col_left")
+
+        # We check created objects and objects from the DB to be sure the position value
+        # has been saved correctly
+        text_plugin_2 = api.add_plugin(placeholder, "TextPlugin", "en", body="I'm the second")
+        text_plugin_3 = api.add_plugin(placeholder, "TextPlugin", "en", body="I'm the third")
+        # Publish to create a 'live' version
+        draft_page.publish('en')
+        draft_page = draft_page.reload()
+        placeholder = draft_page.placeholders.get(slot="col_left")
+
+        # Add a plugin and move it to the first position
+        text_plugin_1 = api.add_plugin(placeholder, "TextPlugin", "en", body="I'm the first")
+        data = {
+            'placeholder_id': placeholder.id,
+            'plugin_id': text_plugin_1.id,
+            'plugin_parent': '',
+            'plugin_language': 'en',
+            'plugin_order[]': [text_plugin_1.id, text_plugin_2.id, text_plugin_3.id],
+        }
+        self.client.post(URL_CMS_PLUGIN_MOVE, data)
+
+        draft_page.publish('en')
+        draft_page = draft_page.reload()
+        live_page = draft_page.get_public_object()
+        placeholder = draft_page.placeholders.get(slot="col_left")
+        live_placeholder = live_page.placeholders.get(slot="col_left")
+
+        with self.settings(CMS_PERMISSION=False):
+            self.assertEqual(CMSPlugin.objects.get(pk=text_plugin_1.pk).position, 0)
+            self.assertEqual(CMSPlugin.objects.get(pk=text_plugin_2.pk).position, 1)
+            self.assertEqual(CMSPlugin.objects.get(pk=text_plugin_3.pk).position, 2)
+
+            ## Finally we render the placeholder to test the actual content
+            rendered_placeholder = placeholder.render(self.get_context(draft_page.get_absolute_url(), page=draft_page), None)
+            self.assertEqual(rendered_placeholder, "I'm the firstI'm the secondI'm the third")
+            rendered_live_placeholder = live_placeholder.render(self.get_context(live_page.get_absolute_url(), page=live_page), None)
+            self.assertEqual(rendered_live_placeholder, "I'm the firstI'm the secondI'm the third")
 
     def test_extract_images_from_text(self):
         page = api.create_page(
@@ -665,8 +709,7 @@ class PluginsTestCase(PluginsTestBaseCase):
             placeholder=placeholder,
             position=0,
             language=self.FIRST_LANG)
-        plugin_base.add_root(instance=plugin_base)
-        plugin_base = CMSPlugin.objects.get(pk=plugin_base.pk)
+        plugin_base = plugin_base.add_root(instance=plugin_base)
         plugin = Text(body='')
         plugin_base.set_base_attr(plugin)
         plugin.save()
@@ -676,15 +719,13 @@ class PluginsTestCase(PluginsTestBaseCase):
             placeholder=placeholder,
             position=0,
             language=self.FIRST_LANG)
-        plugin_base.add_child(instance=plugin_ref_1_base)
-        plugin_ref_1_base = CMSPlugin.objects.get(pk=plugin_ref_1_base.pk)
+        plugin_ref_1_base = plugin_base.add_child(instance=plugin_ref_1_base)
         plugin_ref_2_base = CMSPlugin(
             plugin_type='TextPlugin',
             placeholder=placeholder,
             position=1,
             language=self.FIRST_LANG)
-        plugin_base.add_child(instance=plugin_ref_2_base)
-        plugin_ref_2_base = CMSPlugin.objects.get(pk=plugin_ref_2_base.pk)
+        plugin_ref_2_base = plugin_base.add_child(instance=plugin_ref_2_base)
         plugin_ref_2 = Text(body='')
         plugin_ref_2_base.set_base_attr(plugin_ref_2)
 
@@ -810,7 +851,6 @@ class PluginsTestCase(PluginsTestBaseCase):
         self.assertTrue(a.set_translatable_content({'body': 'world'}))
         b = Link(name="hello")
         self.assertTrue(b.set_translatable_content({'name': 'world'}))
-
 
     def test_editing_plugin_changes_page_modification_time_in_sitemap(self):
         now = timezone.now()
@@ -1048,9 +1088,9 @@ class PluginsTestCase(PluginsTestBaseCase):
                     }
                 }
             }
-            with SettingsOverride(CMS_PLACEHOLDER_CONF=CMS_PLACEHOLDER_CONF):
+            with self.settings(CMS_PLACEHOLDER_CONF=CMS_PLACEHOLDER_CONF):
                 self.assertEqual(['LinkPlugin', 'PicturePlugin'],
-                                    plugin.get_child_classes(placeholder.slot, page))
+                                 plugin.get_child_classes(placeholder.slot, page))
 
     def test_plugin_parent_classes_from_settings(self):
         page = api.create_page("page", "nav_playground.html", "en", published=True)
@@ -1071,9 +1111,9 @@ class PluginsTestCase(PluginsTestBaseCase):
                     }
                 }
             }
-            with SettingsOverride(CMS_PLACEHOLDER_CONF=CMS_PLACEHOLDER_CONF):
+            with self.settings(CMS_PLACEHOLDER_CONF=CMS_PLACEHOLDER_CONF):
                 self.assertEqual(['TestPlugin'],
-                                    plugin.get_parent_classes(placeholder.slot, page))
+                                 plugin.get_parent_classes(placeholder.slot, page))
 
     def test_plugin_translatable_content_getter_setter(self):
         """
@@ -1480,18 +1520,9 @@ class BrokenPluginTests(TestCase):
         exist.
         """
         new_apps = ['cms.test_utils.project.brokenpluginapp']
-        try:
-            from django.apps import apps
-            apps.set_installed_apps(new_apps)
-
+        with self.settings(INSTALLED_APPS=new_apps):
             plugin_pool.discovered = False
             self.assertRaises(ImportError, plugin_pool.discover_plugins)
-
-            apps.unset_installed_apps()
-        except ImportError:
-            with SettingsOverride(INSTALLED_APPS=new_apps):
-                plugin_pool.discovered = False
-                self.assertRaises(ImportError, plugin_pool.discover_plugins)
 
 
 class MTIPluginsTestCase(PluginsTestBaseCase):

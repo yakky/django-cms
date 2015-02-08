@@ -6,7 +6,7 @@ import dj_database_url
 import django
 from django.utils import six
 
-from cms.utils.compat import DJANGO_1_5, DJANGO_1_6
+from cms.utils.compat import DJANGO_1_6
 
 
 gettext = lambda s: s
@@ -214,12 +214,13 @@ def configure(db_url, **extra):
         CMS_PLACEHOLDER_CONF={
             'col_sidebar': {
                 'plugins': ('FilePlugin', 'FlashPlugin', 'LinkPlugin', 'PicturePlugin',
-                'TextPlugin', 'SnippetPlugin'),
+                            'TextPlugin', 'MultiColumnPlugin', 'SnippetPlugin'),
                 'name': gettext("sidebar column")
             },
             'col_left': {
                 'plugins': ('FilePlugin', 'FlashPlugin', 'LinkPlugin', 'PicturePlugin',
-                'TextPlugin', 'SnippetPlugin', 'GoogleMapPlugin', 'MultiColumnPlugin', 'StylePlugin'),
+                            'TextPlugin', 'SnippetPlugin', 'GoogleMapPlugin',
+                            'MultiColumnPlugin', 'StylePlugin'),
                 'name': gettext("left column"),
                 'plugin_modules': {
                     'LinkPlugin': 'Different Grouper'
@@ -230,7 +231,8 @@ def configure(db_url, **extra):
             },
             'col_right': {
                 'plugins': ('FilePlugin', 'FlashPlugin', 'LinkPlugin', 'PicturePlugin',
-                'TextPlugin', 'SnippetPlugin', 'GoogleMapPlugin', 'MultiColumnPlugin', 'StylePlugin'),
+                            'TextPlugin', 'SnippetPlugin', 'GoogleMapPlugin', 'MultiColumnPlugin',
+                            'StylePlugin'),
                 'name': gettext("right column")
             },
             'extra_context': {
@@ -325,10 +327,8 @@ def configure(db_url, **extra):
             'objectpermissionsapp': 'cms.test_utils.project.objectpermissionsapp.migrations',
             'mti_pluginapp': 'cms.test_utils.project.mti_pluginapp.migrations',
         }
-    if DJANGO_1_5:
-        defaults['MIDDLEWARE_CLASSES'].append('django.middleware.transaction.TransactionMiddleware')
 
-    if django.VERSION >= (1, 5) and 'AUTH_USER_MODEL' in extra:
+    if 'AUTH_USER_MODEL' in extra:
         custom_user_app = 'cms.test_utils.project.' + extra['AUTH_USER_MODEL'].split('.')[0]
         defaults['INSTALLED_APPS'].insert(defaults['INSTALLED_APPS'].index('cms'), custom_user_app)
 
@@ -336,7 +336,7 @@ def configure(db_url, **extra):
     defaults.update(extra)
     # add data from env
     extra_settings = os.environ.get("DJANGO_EXTRA_SETTINGS", None)
-    
+
     if extra_settings:
         from json import load, loads
 
@@ -345,7 +345,7 @@ def configure(db_url, **extra):
                 defaults.update(load(fobj))
         else:
             defaults.update(loads(extra_settings))
-    
+
     settings.configure(**defaults)
     if DJANGO_1_6:
         from south.management.commands import patch_for_test_db_setup
