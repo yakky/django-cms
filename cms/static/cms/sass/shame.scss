@@ -2,13 +2,34 @@
 @import "compass/css3/border-radius";
 @import "compass/css3/box-sizing";
 @import "compass/css3/box-shadow";
+@import "compass/css3/transition";
+@import "includes/font-awesome/font-awesome";
+
+.icon {
+    @include fa-icon;
+    margin-right: 5px;
+}
+
+#cms_toolbar .cms_structure .cms_dragbar .cms_dragbar-title {
+    cursor: auto !important;
+
+    &.cms_dragbar-arrow {
+        padding-left: 0;
+
+        &:before {
+            background: none;
+            //@include fa-icon;
+            //content: "\f0dc";
+        }
+    }
+}
 
 #cms_toolbar .cms_structure .cms_dragarea {
     @include border-radius(4px);
     @include box-sizing(border-box);
-    background: #f1f1f1;
+    background: #e0e0e0;
     margin: 0 0 5px;
-    padding: 15px;
+    padding: 0 10px 10px 10px;
     position: absolute;
 }
 
@@ -51,30 +72,42 @@
 
 #cms_toolbar .cms_structure .cms_draggable {
     @include box-shadow(0px 2px 0px 0px rgba(50, 50, 50, 0.2));
+    @include border-radius(4px);
     z-index: 100;
     color: #5e5e5e;
     border: 0;
-    //padding: 10px 10px 10px 20px;
     padding: 0;
-    background: white url("../img/toolbar/sprite_toolbar.png") no-repeat 5px -454px;
+    background-image: none;
 
     &:hover {
         @include box-shadow(0px 2px 0px 0px rgba(50, 50, 50, 0.2));
     }
 
-    .cms_draggable_toolbar {
-        position: absolute;
-        right: 0;
+    .cms_dragitem {
+        height: 40px;
+        padding: 0 0 0 20px;
     }
 
     .cms_dragitem-text {
         color: #5e5e5e;
+        line-height: 40px;
+        height: 40px;
         font-style: italic;
 
         > strong:first-child {
             margin-right: 10px;
             font-style: normal;
         }
+
+        &:before {
+            @extend .icon;
+            content: "\f105";
+        }
+    }
+
+    > .cms_draggables {
+        background: #bfbfbf;
+        padding: 10px;
     }
 }
 
@@ -83,110 +116,99 @@
 }
 
 div.cms_draggable_toolbar {
-    padding-right: 10px;
+    position: absolute;
+    height: 40px;
+    right: 0;
+    top: 0;
 
     > a, > a:hover, > a:active, > a:focus {
-        @include border-radius(3px);
         text-transform: uppercase;
-        font-size: 10px;
+        font-size: 11px;
         font-weight: 700;
-        color: #333;
-        background: #f1f1f1;
-        padding: 5px 7px 5px 22px;
-        line-height: 1;
+        color: #575757;
+        padding: 0 10px;
+        line-height: 40px;
         float: left;
-        margin-right: 4px;
+        margin: 0;
+        height: 100%;
+
+        &:before {
+            @extend .icon;
+        }
+
+        &:hover, &:active {
+            background-color: #f1f1f1;
+        }
+
+        &:focus {
+        }
     }
 }
 
 div.cms_draggable_toolbar {
     > a[data-rel=add-plugin] {
-        background: url('../img/add.png') no-repeat 7px center;
-        background-color: #2ecc71;
-        color: white;
-
-        &:hover {
-            background-color: lighten(#2ecc71, 10);
+        &:before {
+            content: "\f067";
         }
 
-        &:active {
-            background-color: lighten(#2ecc71, 10);
-        }
-
-        &:focus {
-            background-color: #2ecc71;
+        &:hover, &:active, &:focus {
+            background-color: #27AE60;
+            color: white;
         }
     }
 
     > a[data-rel=edit] {
-        background: #f1f1f1 url('../img/edit.png') no-repeat 7px center;
-
-        &:hover {
-            background-color: #f1f1f1;
+        &:before {
+            content: "\f040";
         }
 
-        &:active {
-            background-color: #f1f1f1;
-        }
-
-        &:focus {
-            background-color: #f1f1f1;
+        &:hover, &:active, &:focus {
         }
     }
 
     > a[data-rel=delete] {
-        background: #f1f1f1 url('../img/delete.png') no-repeat 7px center;
-
-        &:hover {
-            background-color: #f1f1f1;
+        &:before {
+            content: "\f1f8";
         }
 
-        &:active {
-            background-color: #f1f1f1;
-        }
-
-        &:focus {
-            background-color: #f1f1f1;
+        &:hover, &:active, &:focus {
         }
     }
 
     > a[data-rel=edit-menu] {
-        @include border-radius(3px 3px 0 0);
-        background: url('../img/hamburger.png') no-repeat 5px center;
-        background-color: none;
-        color: white;
         width: 20px;
-        height: 20px;
-        overflow: hidden;
-        padding: 5px 7px;
-        padding: 0;
-        margin: 0;
+        text-align: center;
+        @include border-radius(0 4px 4px 0);
 
-        &:focus {
-            background-color: none;
+        &:before {
+            content: "\f0c9";
+            margin-right: 0;
         }
 
-        &.active, &:active {
-            background-color: #828282;
-            background: #828282 url('../img/hamburger.png') no-repeat -35px center;
+        &:hover, &:active, &:focus {
+        }
+
+        &.active {
+            @include border-radius(0 4px 0 0);
+            background-color: #f1f1f1;
         }
     }
 }
 
 .cms_draggable_toolbar .cms_edit-menu-dropdown {
     display: none;
-    background-color: #828282;
+    background-color: #f1f1f1;
     position: absolute;
-    right: 10px;
-    top: 20px;
+    right: 0;
+    top: 40px;
     padding: 0;
+    z-index: 999;
 
     > div > a {
         display: block;
-        color: white;
         text-transform: uppercase;
         font-size: 10px;
-        padding: 1px 5px;
+        padding: 5px 15px;
 
         &:hover {
             background-color: #a8a9ad;
@@ -196,8 +218,63 @@ div.cms_draggable_toolbar {
     &.active {
         display: block;
     }
+
+    a[data-rel=cut]:before {
+        @extend .icon;
+        content: "\f0c4";
+    }
+
+    a[data-rel=copy]:before {
+        @extend .icon;
+        content: "\f0c5";
+    }
+
+    a[data-rel=paste]:before {
+        @extend .icon;
+        content: "\f0ea";
+    }
+
+    a[data-rel=ajax]:before {
+        @extend .icon;
+        content: "\f0ec";
+    }
 }
 
 .cms_child_plugins {
     display: none;
 }
+
+#cms_toolbar .cms_structure .cms_draggable-expanded > .cms_draggable_toolbar {
+    a {
+        color: white;
+    }
+}
+
+#cms_toolbar .cms_structure .cms_dragitem-collapsable {
+    background-image: none;
+    background-color: transparent;
+    @include transition(background-color .1s);
+}
+
+#cms_toolbar .cms_structure .cms_dragitem-collapsable.cms_dragitem-expanded {
+    background: none;
+    background-color: #34495E;
+    @include border-radius(3px 3px 0 0);
+    @include transition(background-color .1s);
+
+    .cms_dragitem-text {
+        color: white;
+    }
+
+    .cms_draggable_toolbar {
+        a:hover, a:active, a:focus {
+            background-color: #333;
+        }
+    }
+}
+
+#cms_toolbar .cms_structure .cms_draggable .cms_draggable-submenu-open {
+    z-index: 999;
+}
+
+
