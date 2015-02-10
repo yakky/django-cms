@@ -281,3 +281,22 @@ div.cms_draggable_toolbar {
 #cms_toolbar .cms_structure .cms_draggables>.cms_draggable:last-child {
     margin-bottom: 0;
 }
+
+#cms_toolbar .cms_clipboard .cms_draggable {
+    position: relative;
+    left: 0;
+    top: 0;
+    z-index: 99;
+    cursor: move;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    padding: 4px 5px 3px 5px;
+    margin: 0 0 2px;
+    background: #fafafa;
+    border: 1px solid #454545;
+
+    .cms_draggable_toolbar {
+        display: none;
+    }
+}
