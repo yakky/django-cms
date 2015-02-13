@@ -10,7 +10,6 @@ $dark-grey: #505050;
 $placeholder-body: #D0D0D0;
 $main-text-color: #505050;
 
-$dragbar-h: 44px;
 
 @mixin squared {
     @include border-radius(0);
@@ -22,17 +21,50 @@ $dragbar-h: 44px;
 }
 
 // Placeholder menu
-.cms_dragbar .cms_submenu {
+#cms_toolbar .cms_structure .cms_dragbar .cms_submenu {
     [data-rel=add]:before {
         background: url("../img/toolbar/djangocms_icons_sprite.png") no-repeat 0px -223px;
         padding-right: 12px;
         content: " ";
     }
 
+    [data-rel=edit-menu].active,
+    [data-rel=edit-menu].active:hover {
+        background: $dark-grey;
+    }
+
     [data-rel=edit-menu]:before {
         background: url("../img/toolbar/djangocms_icons_sprite.png") no-repeat 0px -159px;
         padding-right: 12px;
         content: " ";
+    }
+
+    .cms_submenu-dropdown {
+        min-width: 250px;
+
+        [data-rel=copy]:before {
+            background: url("../img/toolbar/djangocms_icons_sprite.png") no-repeat 0px -730px;
+            padding-right: 22px;
+            content: " ";
+        }
+
+        [data-rel=modal]:before {
+            background: url("../img/toolbar/djangocms_icons_sprite.png") no-repeat 0px -603px;
+            padding-right: 22px;
+            content: " ";
+        }
+
+        [data-rel=ajax]:before {
+            background: url("../img/toolbar/djangocms_icons_sprite.png") no-repeat 0px -96px;
+            padding-right: 22px;
+            content: " ";
+        }
+
+        [data-rel=copy-lang]:before {
+            background: url("../img/toolbar/djangocms_icons_sprite.png") no-repeat 0px -666px;
+            padding-right: 22px;
+            content: " ";
+        }
     }
 }
 
@@ -151,7 +183,7 @@ $dragbar-h: 44px;
                     display: block;
                     float: left;
                     text-transform: uppercase;
-                    color: #505050;
+                    color: $dark-grey;
 
                     &:hover {
                         background: #eee;
@@ -172,7 +204,6 @@ $dragbar-h: 44px;
                 .cms_submenu {
                     background: none;
                     width: auto;
-                    height: $dragbar-h;
                     cursor: default;
                     position: absolute;
                     right: 0;
@@ -200,12 +231,14 @@ $dragbar-h: 44px;
     }
 }
 
-#cms_toolbar .cms_structure .cms_draggable .cms_draggable_toolbar .cms_edit-menu-dropdown {
+#cms_toolbar .cms_structure .cms_draggable .cms_draggable_toolbar .cms_edit-menu-dropdown,
+#cms_toolbar .cms_structure .cms_dragarea .cms_dragbar .cms_submenu-dropdown {
     background: $dark-grey;
     z-index: 9999;
     position: absolute;
     right: 0;
     top: 100%;
+    border: 0;
 
     &.active {
         display: block;
@@ -218,6 +251,7 @@ $dragbar-h: 44px;
         color: white;
         font-size: 11px;
         letter-spacing: 1px;
+        float: none;
 
         &:hover {
             background: lighten($dark-grey, 5);
@@ -335,4 +369,9 @@ $dragbar-h: 44px;
 [data-tooltip]:hover:after {
     visibility: visible;
     @include opacity(1);
+}
+
+
+#cms_toolbar .cms_submenu-dropdown .cms_submenu-item a:hover, #cms_toolbar .cms_submenu-dropdown .cms_submenu-item a:focus {
+    background: none;
 }
