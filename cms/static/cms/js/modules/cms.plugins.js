@@ -81,6 +81,21 @@ $(document).ready(function () {
 			dragbar.find(title).bind(this.click, function () {
 				($(this).hasClass(expanded)) ? that._collapseAll($(this)) : that._expandAll($(this));
 			});
+
+            dragbar.find('.cms_submenu a').on('click', function(e){
+                e.preventDefault();
+                e.stopPropagation();
+
+                switch($(this).attr('data-rel')) {
+                    case 'edit-menu':
+                        $('.cms_draggable-' + that.options.plugin_id + ' > .cms_dragitem > .cms_child_plugins').toggle();
+                        $(this).toggleClass('active');
+                        $(this).next().toggleClass('active');
+                        break;
+                    default:
+                        break;
+                }
+            });
 		},
 
 		_setPlugin: function () {
