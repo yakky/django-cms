@@ -14,12 +14,17 @@
 			{% endif %}{% endfor %}
 			<div class="cms_submenu-item"><a data-rel="modal" href="{{ placeholder.get_clear_url }}?language={{ LANGUAGE_CODE }}" data-name="{{ placeholder.get_label }}">{% trans "Empty all" %}</a></div>
             {% extra_menu_items placeholder %}
-            {% plugin_child_classes placeholder %}
 		</div>
 	</div>
 	{% endlanguage %}
 
 	<div class="cms_dragbar-title">{{ placeholder.get_label }}</div>
+	<div class="cms_child-plugins">
+		<div>
+			<input type="text" name="subject" class="quicksearch"/>
+			{% plugin_child_classes placeholder %}
+		</div>
+	</div>
 </div>
 
 <div class="cms_dragbar-empty-wrapper">

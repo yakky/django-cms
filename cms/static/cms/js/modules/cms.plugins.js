@@ -558,6 +558,29 @@ $(document).ready(function () {
 				}
 			});
 
+			var dragbar = $('.cms_dragbar-' + this.options.placeholder_id);
+
+			$('.cms_dragbar-' + this.options.placeholder_id + ' > .cms_child-plugins a').bind('click.cms tap.cms', function (e) {
+				e.preventDefault();
+				e.stopPropagation();
+
+				// show loader and make sure scroll doesn't jump
+				CMS.API.Toolbar._loader(true);
+				CMS.API.Helpers.preventScroll(false);
+
+				var el = $(this);
+				// set switch for subnav entries
+				switch(el.attr('data-rel')) {
+					case 'add':
+						that.addPlugin(el.attr('href').replace('#', ''), el.text(), that._getId(el.closest('.cms_draggable')));
+						break;
+					default:
+						CMS.API.Toolbar._loader(false);
+						CMS.API.Toolbar._delegate(el);
+						break;
+				}
+			});
+
 			nav.find('a').bind('click.cms tap.cms', function (e) {
 				e.preventDefault();
 				e.stopPropagation();
@@ -571,7 +594,8 @@ $(document).ready(function () {
 				// set switch for subnav entries
 				switch(el.attr('data-rel')) {
 					case 'add':
-						that.addPlugin(el.attr('href').replace('#', ''), el.text(), that._getId(el.closest('.cms_draggable')));
+						var child_plugins_el = el.closest('.cms_dragbar').find('.cms_child-plugins').toggle();
+						$(child_plugins_el).find('.quicksearch').focus();
 						break;
 					case 'edit':
 						that.editPlugin(that.options.urls.edit_plugin, that.options.plugin_name, that.options.plugin_breadcrumb);
