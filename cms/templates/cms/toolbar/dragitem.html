@@ -18,7 +18,9 @@
 		{% if show_language %}<span class="cms_submenu-lang">{{ plugin.language }}</span>{% endif %}
 		<span class="cms_dragitem-text"><strong>{{ plugin.get_plugin_name }}</strong> {{ plugin.get_short_description }}</span>
         <div class='cms_draggable_toolbar'>
+            {% if not plugin.disable_child_plugins %}
             <a data-rel="add" data-tooltip="{% trans "Add plugin" %}" href="#"></a>
+            {% endif %}
             <a data-rel="edit" data-tooltip="{% trans "Edit plugin" %}" href="#"></a>
             <a data-rel="delete" data-tooltip="{% trans "Delete plugin" %}" href="#"></a>
             <a data-rel="edit-menu" href="#"></a>
