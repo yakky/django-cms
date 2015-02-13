@@ -53,7 +53,7 @@ class CMSLiveTests(StaticLiveServerTestCase, CMSTestCase):
         if os.environ.get('SELENIUM', '') == '0':
             #  skip selenium tests
             raise unittest.SkipTest("Selenium env is set to 0")
-        if os.environ.get("TRAVIS_BUILD_NUMBER"):
+        if os.environ.get("ATRAVIS_BUILD_NUMBER"):
             capabilities = webdriver.DesiredCapabilities.CHROME
             capabilities['version'] = '31'
             capabilities['platform'] = 'OS X 10.9'
