@@ -14,7 +14,7 @@
 			{% endif %}{% endfor %}
 			<div class="cms_submenu-item"><a data-rel="modal" href="{{ placeholder.get_clear_url }}?language={{ LANGUAGE_CODE }}" data-name="{{ placeholder.get_label }}">{% trans "Empty all" %}</a></div>
             {% extra_menu_items placeholder %}
-			{# plugin_child_classes placeholder #}
+            {% plugin_child_classes placeholder %}
 		</div>
 	</div>
 	{% endlanguage %}
