@@ -4,7 +4,9 @@
 <div class="cms_dragbar cms_dragbar-{{ placeholder.pk|unlocalize }}">
 	{% language request.toolbar.toolbar_language %}
 	<div class="cms_submenu">
-		<div class="cms_submenu-quicksearch"><label><input type="text" placeholder="{% trans 'Quicksearch' %}" /></label></div>
+        <a data-rel="add" href="#">{# trans "Add" #}</a>
+        <a data-rel="edit-menu" href="#"></a>
+		<!-- div class="cms_submenu-quicksearch"><label><input type="text" placeholder="{% trans 'Quicksearch' %}" /></label></div -->
 		<div class="cms_submenu-dropdown">
 			<div class="cms_submenu-item cms_submenu-item-title"><span>{% trans "Settings" %}</span></div>
 			<div class="cms_submenu-item"><a data-rel="copy" href="#">{% trans "Copy all" %}</a></div>

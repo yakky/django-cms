@@ -3,300 +3,336 @@
 @import "compass/css3/box-sizing";
 @import "compass/css3/box-shadow";
 @import "compass/css3/transition";
-@import "includes/font-awesome/font-awesome";
+@import "compass/css3/opacity";
 
-.icon {
-    @include fa-icon;
-    margin-right: 5px;
-}
+$blue: #20ACE7;
+$dark-grey: #505050;
+$placeholder-body: #D0D0D0;
+$main-text-color: #505050;
 
-#cms_toolbar .cms_structure .cms_dragbar .cms_dragbar-title {
-    padding: 10px 15px !important;
-    background: rgb(139, 139, 139);
-    border-radius: 4px 4px 0 0;
-    box-shadow: 0 2px 0px #bbb;
-    letter-spacing: 1px;
-    font-size: 12px;
-    line-height: 17px;
-    text-transform: uppercase;
-    height: 16px;
-    cursor: pointer;
-    color: white;
-    text-shadow: none;
-    font-weight: 500;
+$dragbar-h: 44px;
 
-    &.cms_dragbar-arrow {
-        padding-left: 0;
-
-        &:before {
-            background: none;
-            //@include fa-icon;
-            //content: "\f0dc";
-        }
-    }
-}
-
-#cms_toolbar .cms_structure .cms_dragarea {
-    @include border-radius(4px);
-    @include box-sizing(border-box);
-    background: #e0e0e0;
-    margin: 0 0 5px;
-    padding: 0;
-    position: absolute;
-}
-
-#cms_toolbar .cms_submenu-quicksearch {
+@mixin squared {
     @include border-radius(0);
-    position: absolute;
-    right: -5px;
-    top: -5px;
-    z-index: 1000;
-    cursor: default;
-    text-align: right;
-    height: 25px;
-    background: white url("../img/toolbar/sprite_toolbar.png") no-repeat right -326px;
 }
 
-#cms_toolbar .cms_submenu-quicksearch input {
-    display: block;
-    font-size: 12px;
-    color: #5e5e5e;
-    text-align: right;
-    width: 109px;
-    height: 20px;
-    padding: 3px 1px 1px 5px;
-    margin-right: 25px;
-    border: 0;
-    background: white;
+// Overlay
+#cms_toolbar .cms_structure .cms_structure-dimmer {
+    background: rgba(#000, .8);
 }
 
-#cms_toolbar .cms_structure .cms_draggable {
-    @include box-shadow(0px 2px 0px 0px rgba(50, 50, 50, 0.2));
-    @include border-radius(4px);
-    z-index: 100;
-    color: #5e5e5e;
-    border: 0;
-    padding: 0;
-    background-image: none;
-    margin: 0 0 5px 0;
-
-    &:hover {
-        @include box-shadow(0px 2px 0px 0px rgba(50, 50, 50, 0.2));
+// Placeholder menu
+.cms_dragbar .cms_submenu {
+    [data-rel=add]:before {
+        background: url("../img/toolbar/djangocms_icons_sprite.png") no-repeat 0px -223px;
+        padding-right: 12px;
+        content: " ";
     }
 
-    .cms_dragitem {
-        height: 40px;
-        padding: 0 0 0 20px;
+    [data-rel=edit-menu]:before {
+        background: url("../img/toolbar/djangocms_icons_sprite.png") no-repeat 0px -159px;
+        padding-right: 12px;
+        content: " ";
+    }
+}
+
+
+
+
+// Placeholder
+#cms_toolbar {
+    * {
+        line-height: 1 !important;
     }
 
-    .cms_dragitem-text {
-        color: #5e5e5e;
-        line-height: 40px;
-        height: 40px;
-        font-style: italic;
+    *,
+    *:before,
+    *:after {
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing:    border-box;
+        box-sizing:         border-box;
+    }
 
-        > strong:first-child {
-            margin-right: 10px;
-            font-style: normal;
+    .cms_structure {
+        .cms_dragarea {
+            @include squared;
+            padding: 0;
+            background: $placeholder-body;
         }
 
-        &:before {
-            @extend .icon;
-            content: "\f105";
+        .cms_dragbar {
+            @include squared;
+            background: $blue;
+            line-height: 1;
+
+            &:after {
+                clear: both;
+                display: table;
+                content: "";
+            }
+
+            .cms_dragbar-title {
+                cursor: auto;
+                padding: 15px 0 0 15px;
+                font-size: 12px;
+                line-height: 1;
+                text-transform: uppercase;
+                font-weight: 700;
+                color: white;
+                text-shadow: none;
+                height: auto;
+
+                &.cms_dragbar-arrow {
+                    &:before {
+                        background: none;
+                    }
+                }
+            }
+
+            .cms_submenu {
+                position: relative;
+                float: right;
+                width: auto;
+                height: auto;
+                background: none;
+                right: 0;
+
+                a {
+                    line-height: 1;
+                    padding: 15px;
+                    font-size: 11px;
+                    display: block;
+                    float: left;
+                    text-transform: uppercase;
+                    color: white;
+
+                    &:hover {
+                        background-color: lighten($blue, 10);
+                    }
+                }
+            }
         }
     }
 
+    .cms_structure {
+        .cms_draggable:first-child {
+            margin-top: 2px !important;
+        }
+
+        .cms_draggable {
+            @include squared;
+            margin: 0 0 2px 0 !important;
+            padding: 0;
+            border: 0;
+            background-color: white;
+
+            &:after {
+                clear: both;
+                display: table;
+                content: "";
+            }
+
+            &:hover .cms_draggable_toolbar > a {
+                @include opacity(1);
+            }
+
+            .cms_draggable_toolbar {
+                position: relative;
+                height: 100%;
+                width: auto;
+                float: right;
+
+                .cms_edit-menu-dropdown { display: none; }
+
+                > a {
+                    @include opacity(.2);
+                    padding: 15px;
+                    font-size: 11px;
+                    display: block;
+                    float: left;
+                    text-transform: uppercase;
+                    color: #505050;
+
+                    &:hover {
+                        background: #eee;
+                    }
+
+                    &.active {
+                        @include opacity(1);
+                    }
+                }
+            }
+
+            .cms_dragitem {
+                padding: 0;
+                cursor: -moz-grab;
+                cursor: -webkit-grab;
+                width: 100%;
+
+                .cms_submenu {
+                    background: none;
+                    width: auto;
+                    height: $dragbar-h;
+                    cursor: default;
+                    position: absolute;
+                    right: 0;
+                }
+            }
+
+            .cms_dragitem-text {
+                color: $main-text-color;
+                font-style: italic;
+                width: auto;
+                padding: 15px 0 15px 15px;
+                font-size: 12px;
+
+                > strong {
+                    margin-right: 10px;
+                    text-transform: uppercase;
+                    font-style: normal;
+                }
+            }
+        }
+
+        .cms_draggables >.cms_draggable:last-child {
+            margin-bottom: 0;
+        }
+    }
 }
 
-#cms_toolbar .cms_structure .cms_draggables {
-    padding: 10px;
-}
-
-.cms_submenu-quicksearch, .cms_submenu {
-    display: none !important;
-}
-
-div.cms_draggable_toolbar {
+#cms_toolbar .cms_structure .cms_draggable .cms_draggable_toolbar .cms_edit-menu-dropdown {
+    background: $dark-grey;
+    z-index: 9999;
     position: absolute;
-    height: 40px;
     right: 0;
-    top: 0;
-
-    > a, > a:hover, > a:active, > a:focus {
-        text-transform: uppercase;
-        font-size: 11px;
-        font-weight: 700;
-        color: #575757;
-        padding: 0 10px;
-        line-height: 40px;
-        float: left;
-        margin: 0;
-        height: 100%;
-
-        &:before {
-            @extend .icon;
-        }
-
-        &:hover, &:active {
-            background-color: #f1f1f1;
-        }
-
-        &:focus {
-        }
-    }
-}
-
-div.cms_draggable_toolbar {
-    > a[data-rel=add-plugin] {
-        &:before {
-            content: "\f067";
-        }
-
-        &:hover, &:active, &:focus {
-            background-color: #27AE60;
-            color: white;
-        }
-    }
-
-    > a[data-rel=edit] {
-        &:before {
-            content: "\f040";
-        }
-
-        &:hover, &:active, &:focus {
-        }
-    }
-
-    > a[data-rel=delete] {
-        &:before {
-            content: "\f1f8";
-        }
-
-        &:hover, &:active, &:focus {
-        }
-    }
-
-    > a[data-rel=edit-menu] {
-        width: 20px;
-        text-align: center;
-        @include border-radius(0 4px 4px 0);
-
-        &:before {
-            content: "\f0c9";
-            margin-right: 0;
-        }
-
-        &:hover, &:active, &:focus {
-        }
-
-        &.active {
-            @include border-radius(0 4px 0 0);
-            background-color: #f1f1f1;
-        }
-    }
-}
-
-.cms_draggable_toolbar .cms_edit-menu-dropdown {
-    display: none;
-    background-color: #f1f1f1;
-    position: absolute;
-    right: 0;
-    top: 40px;
-    padding: 0;
-    z-index: 999;
-
-    > div > a {
-        display: block;
-        text-transform: uppercase;
-        font-size: 10px;
-        padding: 5px 15px;
-
-        &:hover {
-            background-color: #a8a9ad;
-        }
-    }
+    top: 100%;
 
     &.active {
         display: block;
     }
 
-    a[data-rel=cut]:before {
-        @extend .icon;
-        content: "\f0c4";
-    }
-
-    a[data-rel=copy]:before {
-        @extend .icon;
-        content: "\f0c5";
-    }
-
-    a[data-rel=paste]:before {
-        @extend .icon;
-        content: "\f0ea";
-    }
-
-    a[data-rel=ajax]:before {
-        @extend .icon;
-        content: "\f0ec";
-    }
-}
-
-.cms_child_plugins {
-    display: none;
-}
-
-#cms_toolbar .cms_structure .cms_draggable-expanded > .cms_draggable_toolbar {
     a {
+        display: block;
+        padding: 10px;
+        text-transform: uppercase;
         color: white;
-    }
-}
+        font-size: 11px;
+        letter-spacing: 1px;
 
-#cms_toolbar .cms_structure .cms_dragitem-collapsable {
-    background-image: none;
-    background-color: transparent;
-    @include transition(background-color .1s);
-}
-
-#cms_toolbar .cms_structure .cms_dragitem-collapsable.cms_dragitem-expanded {
-    background: none;
-    background-color: #34495E;
-    @include border-radius(3px 3px 0 0);
-    @include transition(background-color .1s);
-
-    .cms_dragitem-text {
-        color: white;
-    }
-
-    .cms_draggable_toolbar {
-        a:hover, a:active, a:focus {
-            background-color: #333;
+        &:hover {
+            background: lighten($dark-grey, 5);
         }
     }
 }
 
-#cms_toolbar .cms_structure .cms_draggable .cms_draggable-submenu-open {
-    z-index: 999;
-}
 
-#cms_toolbar .cms_structure .cms_draggables>.cms_draggable:last-child {
-    margin-bottom: 0;
-}
-
-#cms_toolbar .cms_clipboard .cms_draggable {
-    position: relative;
-    left: 0;
-    top: 0;
-    z-index: 99;
-    cursor: move;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
-    border-radius: 3px;
-    padding: 4px 5px 3px 5px;
-    margin: 0 0 2px;
-    background: #fafafa;
-    border: 1px solid #454545;
-
-    .cms_draggable_toolbar {
-        display: none;
+// Plugin menu
+#cms_toolbar .cms_structure .cms_dragitem .cms_draggable_toolbar {
+    [data-rel=add]:before {
+        background: url("../img/toolbar/djangocms_icons_sprite.png") no-repeat 0px -191px;
+        padding-right: 12px;
+        content: " ";
     }
+
+    [data-rel=edit]:before {
+        background: url("../img/toolbar/djangocms_icons_sprite.png") no-repeat 0px -256px;
+        padding-right: 12px;
+        content: " ";
+    }
+
+    [data-rel=delete]:before {
+        background: url("../img/toolbar/djangocms_icons_sprite.png") no-repeat 0px -762px;
+        padding-right: 12px;
+        content: " ";
+    }
+
+    [data-rel=edit-menu]:before {
+        background: url("../img/toolbar/djangocms_icons_sprite.png") no-repeat 0px -128px;
+        padding-right: 12px;
+        content: " ";
+    }
+
+    [data-rel=edit-menu].active,
+    [data-rel=edit-menu].active:hover {
+        background: $dark-grey;
+    }
+
+    [data-rel=edit-menu].active:before {
+        background: url("../img/toolbar/djangocms_icons_sprite.png") no-repeat 0px -160px;
+        padding-right: 12px;
+        content: " ";
+    }
+
+    .cms_edit-menu-dropdown {
+
+        [data-rel=cut]:before {
+            background: url("../img/toolbar/djangocms_icons_sprite.png") no-repeat 0px -62px;
+            padding-right: 22px;
+            content: " ";
+        }
+
+        [data-rel=copy]:before {
+            background: url("../img/toolbar/djangocms_icons_sprite.png") no-repeat 0px 0px;
+            padding-right: 22px;
+            content: " ";
+        }
+
+        [data-rel=paste]:before {
+            background: url("../img/toolbar/djangocms_icons_sprite.png") no-repeat 0px -31px;
+            padding-right: 22px;
+            content: " ";
+        }
+
+        [data-rel=ajax]:before {
+            background: url("../img/toolbar/djangocms_icons_sprite.png") no-repeat 0px -96px;
+            padding-right: 22px;
+            content: " ";
+        }
+    }
+}
+
+
+#cms_toolbar .cms_structure .cms_draggable.cms_draggable-submenu-open {
+    z-index: 9999;
+}
+
+.cms_clipboard .cms_draggable_toolbar {
+    display: none !important;
+}
+
+// Tooltip
+[data-tooltip] {
+    position: relative;
+    z-index: 999999;
+    cursor: pointer;
+}
+
+[data-tooltip]:after {
+    @include opacity(0);
+    visibility: hidden;
+    pointer-events: none;
+}
+
+[data-tooltip]:after {
+    @include border-radius(3px);
+    display: block;
+    z-index: 999999;
+    position: absolute;
+    bottom: -26px;
+    left: 50%;
+    margin-left: -70px;
+    letter-spacing: 1px;
+    padding: 10px 5px;
+    width: 140px;
+    background-color: rgba(#000, .8);
+    color: #fff;
+    content: attr(data-tooltip);
+    text-align: center;
+    font-size: 11px;
+    height: 30px;
+}
+
+[data-tooltip]:hover:after {
+    visibility: visible;
+    @include opacity(1);
 }
