@@ -76,12 +76,12 @@ class CMSLiveTests(StaticLiveServerTestCase, CMSTestCase):
                 command_executor=hub_url
             )
             cls.driver.implicitly_wait(30)
-        elif os.environ.get("CIRCLE_BUILD_NUM"):
+        elif os.environ.get("SAUCE_USERNAME"):
             capabilities = webdriver.DesiredCapabilities.CHROME
             capabilities['version'] = '31'
             capabilities['platform'] = 'OS X 10.9'
             capabilities['name'] = 'django CMS'
-            capabilities['build'] = os.environ.get("CIRCLE_BUILD_NUM")
+            capabilities['build'] = os.environ.get("LOCAL_BUILD")
             capabilities['tags'] = [
                 "2.7", "CI"
             ]
@@ -90,6 +90,9 @@ class CMSLiveTests(StaticLiveServerTestCase, CMSTestCase):
             hub_url = "http://{0}:{1}@ondemand.saucelabs.com:80/wd/hub".format(
                 username,
                 access_key
+            )
+            capabilities["tunnel-identifier"] = os.environ.get(
+                "SAUCE_TUNNEL"
             )
             cls.driver = webdriver.Remote(
                 desired_capabilities=capabilities,
