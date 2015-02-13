@@ -465,7 +465,18 @@ $(document).ready(function () {
 		_setSubnav: function (nav) {
 			var that = this;
 			nav.bind('mousedown', function (e) { e.stopPropagation(); });  // avoid starting the longclick event when using the drag bar
-			$('.cms_draggable-' + this.options.plugin_id + ' > .cms_draggable_toolbar a').bind('click.cms tap.cms', function (e) {
+
+
+			$('.cms_draggable-' + this.options.plugin_id + ' > .cms_dragitem .cms_draggable_toolbar')
+                .on('mouseenter', function(){
+                $('.cms_draggable-' + that.options.plugin_id).css('z-index', '999999999');
+            });
+			$('.cms_draggable-' + this.options.plugin_id + ' > .cms_dragitem .cms_draggable_toolbar')
+                .on('mouseleave', function(){
+                $('.cms_draggable-' + that.options.plugin_id).css('z-index', '');
+            });
+
+			$('.cms_draggable-' + this.options.plugin_id + ' > .cms_dragitem .cms_draggable_toolbar a').bind('click.cms tap.cms', function (e) {
 				e.preventDefault();
 				e.stopPropagation();
 
