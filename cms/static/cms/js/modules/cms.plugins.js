@@ -502,7 +502,7 @@ $(document).ready(function () {
 				var el = $(this);
 				// set switch for subnav entries
 				switch(el.attr('data-rel')) {
-					case 'add-plugin':
+					case 'add':
 						$('.cms_draggable-' + that.options.plugin_id + ' > .cms_dragitem > .cms_child_plugins').toggle();
 						break;
 					case 'edit':
