@@ -88,7 +88,7 @@ $(document).ready(function () {
 
                 switch($(this).attr('data-rel')) {
                     case 'edit-menu':
-                        $('.cms_draggable-' + that.options.plugin_id + ' > .cms_dragitem > .cms_child_plugins').toggle();
+                        $('.cms_draggable-' + that.options.plugin_id + ' > .cms_dragitem > .cms_child_plugins').toggleClass('active');
                         $(this).toggleClass('active');
                         $(this).next().toggleClass('active');
                         break;
@@ -503,7 +503,7 @@ $(document).ready(function () {
 				// set switch for subnav entries
 				switch(el.attr('data-rel')) {
 					case 'add':
-						$('.cms_draggable-' + that.options.plugin_id + ' > .cms_dragitem > .cms_child_plugins').toggle();
+						$('.cms_draggable-' + that.options.plugin_id + ' > .cms_dragitem > .cms_child_plugins').toggleClass('active');
 						$('.cms_draggable-' + that.options.plugin_id + ' .quicksearch').focus();
 						break;
 					case 'edit':
@@ -572,6 +572,9 @@ $(document).ready(function () {
 				var el = $(this);
 				// set switch for subnav entries
 				switch(el.attr('data-rel')) {
+                    case 'close':
+                        el.parents('.cms_child-plugins').removeClass('active');
+                        break;
 					case 'add':
 						that.addPlugin(el.attr('href').replace('#', ''), el.text(), that._getId(el.closest('.cms_draggable')));
 						break;
@@ -595,7 +598,7 @@ $(document).ready(function () {
 				// set switch for subnav entries
 				switch(el.attr('data-rel')) {
 					case 'add':
-						var child_plugins_el = el.closest('.cms_dragbar').find('.cms_child-plugins').toggle();
+						var child_plugins_el = el.closest('.cms_dragbar').find('.cms_child-plugins').toggleClass('active');
 						$(child_plugins_el).find('.quicksearch').focus();
 						break;
 					case 'edit':

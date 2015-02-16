@@ -6,7 +6,6 @@
 	<div class="cms_submenu">
         <a data-rel="add" data-tooltip="{% trans "Add plugin" %}" href="#"></a>
         <a data-rel="edit-menu" href="#"></a>
-		<!-- div class="cms_submenu-quicksearch"><label><input type="text" placeholder="{% trans 'Quicksearch' %}" /></label></div -->
 		<div class="cms_submenu-dropdown">
 			<div class="cms_submenu-item"><a data-rel="copy" href="#">{% trans "Copy all" %}</a></div>
 			{% for language in placeholder.get_filled_languages %}{% if language.code != LANGUAGE_CODE %}
@@ -21,8 +20,11 @@
 	<div class="cms_dragbar-title">{{ placeholder.get_label }}</div>
 	<div class="cms_child-plugins">
 		<div>
+            <h2>{% trans "Add plugin" %}</h2>
 			<input type="text" name="subject" class="quicksearch"/>
 			{% plugin_child_classes placeholder %}
+
+            <a href="#" data-rel="close">{% trans "Cancel" %}</a>
 		</div>
 	</div>
 </div>
