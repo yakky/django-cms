@@ -504,6 +504,7 @@ $(document).ready(function () {
 				switch(el.attr('data-rel')) {
 					case 'add':
 						$('.cms_draggable-' + that.options.plugin_id + ' > .cms_dragitem > .cms_child_plugins').toggle();
+						$('.cms_draggable-' + that.options.plugin_id + ' .quicksearch').focus();
 						break;
 					case 'edit':
 						that.editPlugin(that.options.urls.edit_plugin, that.options.plugin_name, that.options.plugin_breadcrumb);
@@ -618,17 +619,15 @@ $(document).ready(function () {
 				}
 			});
 
-			nav.find('input').bind('keyup keydown focus blur click', function (e) {
-				if(e.type === 'focus') that.focused = true;
-				if(e.type === 'blur' && !that.traverse) {
-					that.focused = false;
-					that._hideSubnav(nav);
-				}
+			$('.cms_dragbar-' + that.options.placeholder_id).find('.cms_child-plugins input').bind('keyup', function (e) {
 				if(e.type === 'keyup') {
-					clearTimeout(that.timer);
-					that._showSubnav(nav);
-					// keybound is not required
-					that._searchSubnav(nav, $(e.currentTarget).val());
+					that._searchPlugin($(this).parent(), $(e.currentTarget).val());
+				}
+			});
+
+			$('.cms_child_plugins > input').bind('keyup', function (e) {
+				if(e.type === 'keyup') {
+					that._searchPlugin($(this).parent(), $(e.currentTarget).val());
 				}
 			});
 
@@ -742,48 +741,16 @@ $(document).ready(function () {
 			$('.cms_dragbar').css('position', '');
 		},
 
-		_searchSubnav: function (nav, value) {
-			var items = nav.find('.cms_submenu-item');
-			var titles = nav.find('.cms_submenu-item-title');
+		_searchPlugin: function (plugin_container, value) {
+			var items = plugin_container.find('.cms_submenu-item');
+			var titles = plugin_container.find('.cms_submenu-item-title');
 
-			// cancel if value is zero
-			if(value === '') {
-				this._hideSubnav(nav);
-				return false;
-			}
-
-			// loop through items and figure out if we need to hide items
 			items.find('a, span').each(function (index, item) {
 				item = $(item);
 				var text = item.text().toLowerCase();
 				var search = value.toLowerCase();
-
 				(text.indexOf(search) >= 0) ? item.parent().show() : item.parent().hide();
 			});
-
-			// check if a title is matching
-			titles.filter(':visible').each(function (index, item) {
-				titles.hide();
-				$(item).nextUntil('.cms_submenu-item-title').show();
-			});
-
-			// always display title of a category
-			items.filter(':visible').each(function (index, item) {
-				if($(item).prev().hasClass('cms_submenu-item-title')) {
-					$(item).prev().show();
-				} else {
-					$(item).prevUntil('.cms_submenu-item-title').last().prev().show();
-				}
-			});
-
-			// if there is no element visible, show only first categoriy
-			nav.find('.cms_submenu-dropdown').show();
-			if(items.add(titles).filter(':visible').length <= 0) {
-				nav.find('.cms_submenu-dropdown').hide();
-			}
-
-			// hide scrollHint
-			nav.find('.cms_submenu-scroll-hint').hide();
 		},
 
 		_collapsables: function () {

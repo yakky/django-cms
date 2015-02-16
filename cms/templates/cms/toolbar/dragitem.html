@@ -6,13 +6,13 @@
 		{% language request.toolbar.toolbar_language %}
 		<div class="cms_switcher"></div>
 		<div class="cms_submenu">
-			<!-- div class="cms_submenu-quicksearch"><label><input type="text" placeholder="{% trans "Quicksearch" %}" /></label></div -->
 			<div class="cms_submenu-dropdown">
 				<div class="cms_submenu-item cms_submenu-item-title"><span>{% trans "Settings" %}</span></div>
 				{% plugin_child_classes plugin %}
 			</div>
 		</div>
 		<div class="cms_child_plugins">
+			<input type="text" name="subject" class="quicksearch"/>
 			{% plugin_child_classes plugin %}
 		</div>
 		{% if show_language %}<span class="cms_submenu-lang">{{ plugin.language }}</span>{% endif %}
