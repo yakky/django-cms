@@ -484,7 +484,10 @@ $(document).ready(function () {
 
 			$('.cms_draggable-' + this.options.plugin_id + ' > .cms_dragitem .cms_draggable_toolbar')
                 .on('mouseenter', function(){
-                $('.cms_draggable-' + that.options.plugin_id).css('z-index', '999999999');
+                $('.cms_draggable-' + that.options.plugin_id)
+                    .css('z-index', '999999999')
+                    .parents('.cms_draggable')
+                    .css('z-index', '999999999');
             });
 			$('.cms_draggable-' + this.options.plugin_id + ' > .cms_dragitem .cms_draggable_toolbar')
                 .on('mouseleave', function(){
