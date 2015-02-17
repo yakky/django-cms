@@ -101,7 +101,6 @@ $main-text-color: #505050;
             }
 
             .cms_dragbar-title {
-                cursor: auto;
                 padding: 15px 0 0 15px;
                 font-size: 12px;
                 line-height: 1;
@@ -111,11 +110,6 @@ $main-text-color: #505050;
                 text-shadow: none;
                 height: auto;
 
-                &.cms_dragbar-arrow {
-                    &:before {
-                        background: none;
-                    }
-                }
             }
 
             .cms_submenu {
@@ -150,10 +144,14 @@ $main-text-color: #505050;
 
         .cms_draggable {
             @include squared;
-            margin: 0 0 2px 0 !important;
+            margin: 0 0 2px 0;
             padding: 0;
             border: 0;
-            background-color: white;
+            background: transparent;
+
+            .cms_dragitem {
+                background-color: white;
+            }
 
             &:after {
                 clear: both;
@@ -472,4 +470,76 @@ $main-text-color: #505050;
     &.active {
         display: block;
     }
+}
+
+#cms_toolbar .cms_structure .cms_draggable .cms_dragitem {
+    //overflow: hidden;
+    &:after {
+        content: " ";
+        display: table;
+        clear: both;
+    }
+
+    &.cms_dragitem-collapsable {
+        background-image: none;
+        border-left: 5px solid $blue;
+        //overflow: hidden;
+
+        .cms_dragitem-text:before {
+            background: url("../img/toolbar/djangocms_icons_sprite.png") no-repeat 0px -448px;
+            padding-right: 22px;
+            content: " ";
+        }
+
+        .cms_child_plugins {
+            display: none;
+        }
+    }
+
+    &.cms_dragitem-expanded {
+        .cms_dragitem-text:before {
+            background: url("../img/toolbar/djangocms_icons_sprite.png") no-repeat 0px -512px;
+            padding-right: 22px;
+            content: " ";
+        }
+
+        + .cms_draggables .cms_draggable {
+            margin-left: 10px !important;
+        }
+    }
+}
+
+#cms_toolbar .cms_structure .cms_dragbar {
+    .cms_dragbar-title {
+        display: block;
+
+        &:after {
+            content: " ";
+            display: table;
+            clear: both;
+        }
+
+        &.cms_dragbar-arrow {
+            padding-left: 30px;
+
+            &.cms_dragbar-title-expanded:before {
+                background: url("../img/toolbar/djangocms_icons_sprite.png") no-repeat 0px -544px;
+                top: 14px;
+                left: 10px;
+            }
+
+            &:before {
+                background: url("../img/toolbar/djangocms_icons_sprite.png") no-repeat 0px -480px;
+                top: 14px;
+                left: 10px;
+            }
+        }
+    }
+}
+
+#cms_toolbar .cms_structure .cms_dragbar .cms_dragbar-title.cms_dragbar-arrow:hover:before {
+    background-position: 0px -480px;
+}
+#cms_toolbar .cms_structure .cms_dragbar .cms_dragbar-title.cms_dragbar-arrow.cms_dragbar-title-expanded:hover:before {
+    background-position: 0px -544px !important;
 }
