@@ -525,13 +525,12 @@ $(document).ready(function () {
 						that.deletePlugin(that.options.urls.delete_plugin, that.options.plugin_name, that.options.plugin_breadcrumb);
 						break;
 					case 'edit-menu':
-                        var a ;
-                        if(el.hasClass('active'))
-                            a = true;
+                        var was_active ;
+                        el.hasClass('active') ? was_active = true : was_active = false ;
                         $('.cms_edit-menu-dropdown').removeClass('active');
                         $('a[data-rel=edit-menu]').removeClass('active');
                         $('.cms_draggable').removeClass('cms_draggable-submenu-open');
-                        if(!a)
+                        if(!was_active)
 						    el.addClass('active').next().addClass('active').closest('.cms_draggable').addClass('cms_draggable-submenu-open');
 						break;
 					default:
