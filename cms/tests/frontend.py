@@ -23,6 +23,7 @@ from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
+from sauceclient import SauceClient
 from selenium.common.exceptions import NoAlertPresentException
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import TimeoutException
@@ -54,51 +55,108 @@ class CMSLiveTests(StaticLiveServerTestCase, CMSTestCase):
             #  skip selenium tests
             raise unittest.SkipTest("Selenium env is set to 0")
         if os.environ.get("TRAVIS_BUILD_NUMBER"):
-            capabilities = webdriver.DesiredCapabilities.CHROME
-            capabilities['version'] = '31'
-            capabilities['platform'] = 'OS X 10.9'
-            capabilities['name'] = 'django CMS'
-            capabilities['build'] = os.environ.get("TRAVIS_BUILD_NUMBER")
-            capabilities['tags'] = [
-                os.environ.get("TRAVIS_PYTHON_VERSION"), "CI"
-            ]
+            # capabilities = webdriver.DesiredCapabilities.CHROME
+            # capabilities['version'] = '31'
+            # capabilities['platform'] = 'OS X 10.9'
+            # capabilities['name'] = 'django CMS'
+            # capabilities['build'] = os.environ.get("TRAVIS_BUILD_NUMBER")
+            # capabilities['tags'] = [
+            #     os.environ.get("TRAVIS_PYTHON_VERSION"), "CI"
+            # ]
+            # username = os.environ.get("SAUCE_USERNAME")
+            # access_key = os.environ.get("SAUCE_ACCESS_KEY")
+            # capabilities["tunnel-identifier"] = os.environ.get(
+            #     "TRAVIS_JOB_NUMBER"
+            # )
+            # hub_url = "http://{0}:{1}@ondemand.saucelabs.com:80/wd/hub".format(
+            #     username,
+            #     access_key
+            # )
+            # cls.driver = webdriver.Remote(
+            #     desired_capabilities=capabilities,
+            #     command_executor=hub_url
+            # )
+            # cls.driver.implicitly_wait(30)
+
+            desired_capabilities = {
+                'platform': "Mac OS X 10.9",
+                'browserName': "chrome",
+                'version': "40",
+                'name': "django CMS",
+                'build': os.environ.get("TRAVIS_BUILD_NUMBER"),
+                'tags': [
+                    os.environ.get("TRAVIS_PYTHON_VERSION"),
+                    os.environ.get("TRAVIS_PULL_REQUEST"),
+                    os.environ.get("TRAVIS_BRANCH"),
+                    "CI"
+                ],
+                'tunnel-identifier': os.environ.get("TRAVIS_JOB_NUMBER"),
+            }
             username = os.environ.get("SAUCE_USERNAME")
             access_key = os.environ.get("SAUCE_ACCESS_KEY")
-            capabilities["tunnel-identifier"] = os.environ.get(
-                "TRAVIS_JOB_NUMBER"
-            )
-            hub_url = "http://{0}:{1}@ondemand.saucelabs.com:80/wd/hub".format(
+            sauce_url = "http://{0}:{1}@ondemand.saucelabs.com:80/wd/hub".format(
                 username,
                 access_key
             )
             cls.driver = webdriver.Remote(
-                desired_capabilities=capabilities,
-                command_executor=hub_url
+                desired_capabilities=desired_capabilities,
+                command_executor=sauce_url
             )
+            sauce_client = SauceClient(
+                username,
+                access_key
+            )
+            sauce_client.jobs.update_job(cls.driver.session_id, passed=True)
             cls.driver.implicitly_wait(30)
         elif os.environ.get("SAUCE_USERNAME"):
-            capabilities = webdriver.DesiredCapabilities.CHROME
-            capabilities['version'] = '31'
-            capabilities['platform'] = 'OS X 10.9'
-            capabilities['name'] = 'django CMS'
-            capabilities['build'] = os.environ.get("LOCAL_BUILD")
-            capabilities['tags'] = [
-                "2.7", "CI"
-            ]
+            desired_capabilities = {
+                'platform': "Windows 8.1",
+                'browserName': "chrome",
+                'version': "40",
+                'name': "django CMS",
+                'build': os.environ.get("LOCAL_BUILD"),
+                'tags': ["2.7", "CI"],
+                'tunnel-identifier': os.environ.get("SAUCE_TUNNEL"),
+            }
             username = os.environ.get("SAUCE_USERNAME")
             access_key = os.environ.get("SAUCE_ACCESS_KEY")
-            hub_url = "http://{0}:{1}@ondemand.saucelabs.com:80/wd/hub".format(
+            sauce_url = "http://{0}:{1}@ondemand.saucelabs.com:80/wd/hub".format(
                 username,
                 access_key
             )
-            capabilities["tunnel-identifier"] = os.environ.get(
-                "SAUCE_TUNNEL"
-            )
             cls.driver = webdriver.Remote(
-                desired_capabilities=capabilities,
-                command_executor=hub_url
+                desired_capabilities=desired_capabilities,
+                command_executor=sauce_url
             )
+            sauce_client = SauceClient(
+                username,
+                access_key
+            )
+            sauce_client.jobs.update_job(cls.driver.session_id, passed=True)
             cls.driver.implicitly_wait(30)
+
+            # capabilities = webdriver.DesiredCapabilities.CHROME
+            # capabilities['version'] = '31'
+            # capabilities['platform'] = 'OS X 10.9'
+            # capabilities['name'] = 'django CMS'
+            # capabilities['build'] = os.environ.get("LOCAL_BUILD")
+            # capabilities['tags'] = [
+            #     "2.7", "CI"
+            # ]
+            # username = os.environ.get("SAUCE_USERNAME")
+            # access_key = os.environ.get("SAUCE_ACCESS_KEY")
+            # hub_url = "http://{0}:{1}@ondemand.saucelabs.com:80/wd/hub".format(
+            #     username,
+            #     access_key
+            # )
+            # capabilities["tunnel-identifier"] = os.environ.get(
+            #     "SAUCE_TUNNEL"
+            # )
+            # cls.driver = webdriver.Remote(
+            #     desired_capabilities=capabilities,
+            #     command_executor=hub_url
+            # )
+            # cls.driver.implicitly_wait(30)
         else:
             driver = os.environ.get('SELENIUM_DRIVER_CLASS', 'Firefox')
             cls.driver = getattr(webdriver, driver)()

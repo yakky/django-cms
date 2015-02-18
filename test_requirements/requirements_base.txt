@@ -11,6 +11,9 @@ django-sekizai>=0.7
 argparse
 dj-database-url
 selenium
+pytest
+pytest-xdist
+sauceclient
 django-debug-toolbar
 -e git+git://github.com/divio/djangocms-admin-style.git#egg=djangocms-admin-style
 -e git+git://github.com/divio/djangocms-text-ckeditor.git@develop#egg=djangocms-text-ckeditor
