@@ -481,6 +481,10 @@ $(document).ready(function () {
 			var that = this;
 			nav.bind('mousedown', function (e) { e.stopPropagation(); });  // avoid starting the longclick event when using the drag bar
 
+			$('.cms_draggable-' + this.options.plugin_id).mouseleave(function() {
+				$('.cms_edit-menu-dropdown').removeClass('active');
+				$('a[data-rel=edit-menu]').removeClass('active');
+			});
 
 			$('.cms_draggable-' + this.options.plugin_id + ' > .cms_dragitem .cms_draggable_toolbar')
                 .on('mouseenter', function(){
