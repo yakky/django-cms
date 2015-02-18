@@ -374,7 +374,7 @@ $main-text-color: #505050;
     background: none;
 }
 
-.cms_dragbar .cms_child-plugins {
+.cms_dragbar .cms_child-plugins, .cms_dragitem .cms_child-plugins {
     display: none;
     position: fixed;
     background: rgba(white, .95);

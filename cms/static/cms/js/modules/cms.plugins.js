@@ -88,7 +88,7 @@ $(document).ready(function () {
 
                 switch($(this).attr('data-rel')) {
                     case 'edit-menu':
-                        $('.cms_draggable-' + that.options.plugin_id + ' > .cms_dragitem > .cms_child_plugins').toggleClass('active');
+                        $('.cms_draggable-' + that.options.plugin_id + ' > .cms_dragitem > .cms_child-plugins').toggleClass('active');
                         $(this).toggleClass('active');
                         $(this).next().toggleClass('active');
                         break;
@@ -506,7 +506,7 @@ $(document).ready(function () {
 				// set switch for subnav entries
 				switch(el.attr('data-rel')) {
 					case 'add':
-						$('.cms_draggable-' + that.options.plugin_id + ' > .cms_dragitem > .cms_child_plugins').toggleClass('active');
+						var el = $('.cms_draggable-' + that.options.plugin_id + ' > .cms_dragitem > .cms_child-plugins').toggleClass('active');
 						$('.cms_draggable-' + that.options.plugin_id + ' .quicksearch').focus();
 						break;
 					case 'edit':
@@ -540,7 +540,7 @@ $(document).ready(function () {
 				}
 			});
 
-			$('.cms_draggable-' + this.options.plugin_id + ' > .cms_dragitem > .cms_child_plugins a').bind('click.cms tap.cms', function (e) {
+			$('.cms_draggable-' + this.options.plugin_id + ' > .cms_dragitem > .cms_child-plugins a').bind('click.cms tap.cms', function (e) {
 				e.preventDefault();
 				e.stopPropagation();
 
@@ -554,6 +554,9 @@ $(document).ready(function () {
 					case 'add':
 						that.addPlugin(el.attr('href').replace('#', ''), el.text(), that._getId(el.closest('.cms_draggable')));
 						break;
+                    case 'close':
+                        el.parents('.cms_child-plugins').removeClass('active');
+                        break;
 					default:
 						CMS.API.Toolbar._loader(false);
 						CMS.API.Toolbar._delegate(el);
@@ -630,7 +633,7 @@ $(document).ready(function () {
 				}
 			});
 
-			$('.cms_child_plugins > input').bind('keyup', function (e) {
+			$('.cms_child-plugins > input').bind('keyup', function (e) {
 				if(e.type === 'keyup') {
 					that._searchPlugin($(this).parent(), $(e.currentTarget).val());
 				}
