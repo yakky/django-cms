@@ -56,9 +56,9 @@ class CMSLiveTests(StaticLiveServerTestCase, CMSTestCase):
             raise unittest.SkipTest("Selenium env is set to 0")
         if os.environ.get("TRAVIS_BUILD_NUMBER"):
             desired_capabilities = {
-                'platform': "Mac OS X 10.9",
+                'platform': "Windows 8.1",
                 'browserName': "chrome",
-                'version': "35",
+                'version': "39",
                 'name': "django CMS",
                 'build': os.environ.get("TRAVIS_BUILD_NUMBER"),
                 'tags': [
@@ -84,15 +84,15 @@ class CMSLiveTests(StaticLiveServerTestCase, CMSTestCase):
                 access_key
             )
             sauce_client.jobs.update_job(cls.driver.session_id, passed=True)
-            cls.driver.implicitly_wait(30)
+            cls.driver.implicitly_wait(60)
         elif os.environ.get("SAUCE_USERNAME"):
             desired_capabilities = {
-                'platform': "Windows 8.1",
+                'platform': "Mac OS X 10.9",
                 'browserName': "chrome",
-                'version': "35",
+                'version': "39",
                 'name': "django CMS",
                 'build': os.environ.get("LOCAL_BUILD"),
-                'tags': ["2.7", "CI"],
+                'tags': ["2.7", "local tests", os.environ.get("SAUCE_TUNNEL")],
                 'tunnel-identifier': os.environ.get("SAUCE_TUNNEL"),
             }
             username = os.environ.get("SAUCE_USERNAME")
@@ -110,7 +110,7 @@ class CMSLiveTests(StaticLiveServerTestCase, CMSTestCase):
                 access_key
             )
             sauce_client.jobs.update_job(cls.driver.session_id, passed=True)
-            cls.driver.implicitly_wait(30)
+            cls.driver.implicitly_wait(40)
         else:
             driver = os.environ.get('SELENIUM_DRIVER_CLASS', 'Firefox')
             cls.driver = getattr(webdriver, driver)()
