@@ -387,7 +387,7 @@ $(document).ready(function () {
 				'helper': 'clone',
 				'appendTo': 'body',
 				'cursor': 'move',
-				'opacity': 0.4,
+				//'opacity': 0.4,
 				'zIndex': 9999999,
 				'delay': 100,
 				'refreshPositions': true,

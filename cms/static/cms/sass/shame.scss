@@ -543,3 +543,42 @@ $main-text-color: #505050;
 #cms_toolbar .cms_structure .cms_dragbar .cms_dragbar-title.cms_dragbar-arrow.cms_dragbar-title-expanded:hover:before {
     background-position: 0px -544px !important;
 }
+
+// Dragging state
+body > .cms_draggable {
+    @include opacity(.7);
+    @include border-radius(0);
+    height: auto !important;
+    border: 2px dashed $blue;
+    background: white;
+    color: #333;
+    padding: 15px 0 15px 15px;
+    font-size: 12px;
+
+    .cms_draggable_toolbar {
+        display: none !important;
+    }
+
+    * {
+        font: normal 13px/20px Helvetica,Arial,sans-serif !important;
+    }
+}
+
+#cms_toolbar .cms_structure .cms_droppable {
+    margin: 0;
+
+
+    &.cms_draggable-allowed {
+        background: #666;
+        color: white;
+        border-top: 2px dashed rgba(white, .8);
+        border-bottom: 2px dashed rgba(white, .8);
+        border-left: 0;
+        border-right: 0;
+        padding: 10px;
+
+        &.cms_draggable-hover-allowed {
+            background: #27AE60;
+        }
+    }
+}
