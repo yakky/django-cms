@@ -6,7 +6,7 @@ django CMS acceptance tests
 Installation
 ************
 
-See `django CMS docs for unning and writing tests <http://docs.django-cms.org/en/latest/contributing/testing.html>`_
+See `django CMS docs for running and writing tests <http://docs.django-cms.org/en/latest/contributing/testing.html>`_
 
 1. Setting up the project:
 
@@ -36,9 +36,14 @@ See `django CMS docs for unning and writing tests <http://docs.django-cms.org/en
 
 where ``-i`` is tunnel-identifier - it can be changed to any value, but then don't forget to change it while launching tests in step 5 (SAUCE_TUNNEL=1111)
 
-4. When you see "Connection established", you are ready - open the new terminal tab and go to the root folder (``cd ../``)
+4. When you see "Connection established", you are ready - open the new terminal tab and go to the root folder
+
+    cd ..
 
 5. Launch the acceptance tests:
 
     SAUCE_USERNAME='django-cms' SAUCE_ACCESS_KEY='06764b40-367e-4182-aefb-6e47baef4ec2' SAUCE_TUNNEL=1111 LOCAL_BUILD=887788 python develop.py test cms.ToolbarBasicTests
 
+6. To launch all tests (unit + acceptance) run:
+
+    SAUCE_USERNAME='django-cms' SAUCE_ACCESS_KEY='06764b40-367e-4182-aefb-6e47baef4ec2' SAUCE_TUNNEL=1111 LOCAL_BUILD=887788 python develop.py test
