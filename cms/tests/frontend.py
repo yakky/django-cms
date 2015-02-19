@@ -53,56 +53,9 @@ class CMSLiveTests(StaticLiveServerTestCase, CMSTestCase):
         if os.environ.get('SELENIUM', '') == '0':
             #  skip selenium tests
             raise unittest.SkipTest("Selenium env is set to 0")
-        if os.environ.get("ATRAVIS_BUILD_NUMBER"):
-            capabilities = webdriver.DesiredCapabilities.CHROME
-            capabilities['version'] = '31'
-            capabilities['platform'] = 'OS X 10.9'
-            capabilities['name'] = 'django CMS'
-            capabilities['build'] = os.environ.get("TRAVIS_BUILD_NUMBER")
-            capabilities['tags'] = [
-                os.environ.get("TRAVIS_PYTHON_VERSION"), "CI"
-            ]
-            username = os.environ.get("SAUCE_USERNAME")
-            access_key = os.environ.get("SAUCE_ACCESS_KEY")
-            capabilities["tunnel-identifier"] = os.environ.get(
-                "TRAVIS_JOB_NUMBER"
-            )
-            hub_url = "http://{0}:{1}@ondemand.saucelabs.com:80/wd/hub".format(
-                username,
-                access_key
-            )
-            cls.driver = webdriver.Remote(
-                desired_capabilities=capabilities,
-                command_executor=hub_url
-            )
-            cls.driver.implicitly_wait(30)
-        elif os.environ.get("SAUCE_USERNAME"):
-            capabilities = webdriver.DesiredCapabilities.CHROME
-            capabilities['version'] = '31'
-            capabilities['platform'] = 'OS X 10.9'
-            capabilities['name'] = 'django CMS'
-            capabilities['build'] = os.environ.get("LOCAL_BUILD")
-            capabilities['tags'] = [
-                "2.7", "CI"
-            ]
-            username = os.environ.get("SAUCE_USERNAME")
-            access_key = os.environ.get("SAUCE_ACCESS_KEY")
-            hub_url = "http://{0}:{1}@ondemand.saucelabs.com:80/wd/hub".format(
-                username,
-                access_key
-            )
-            capabilities["tunnel-identifier"] = os.environ.get(
-                "SAUCE_TUNNEL"
-            )
-            cls.driver = webdriver.Remote(
-                desired_capabilities=capabilities,
-                command_executor=hub_url
-            )
-            cls.driver.implicitly_wait(30)
-        else:
-            driver = os.environ.get('SELENIUM_DRIVER_CLASS', 'Firefox')
-            cls.driver = getattr(webdriver, driver)()
-            cls.driver.implicitly_wait(5)
+        driver = os.environ.get('SELENIUM_DRIVER_CLASS', 'Firefox')
+        cls.driver = getattr(webdriver, driver)()
+        cls.driver.implicitly_wait(5)
         cls.accept_next_alert = True
 
     @classmethod
