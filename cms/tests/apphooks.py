@@ -563,7 +563,8 @@ class ApphooksTestCase(CMSTestCase):
     )
     def test_toolbar_staff(self):
         self.create_base_structure('Example1App', 'en')
-        ex1 = Example1.objects.create(char_1='1', char_2='2', char_3='3', char_4='4', date_field=now())
+        ex1 = Example1.objects.create(char_1='1', char_2='2', char_3='3', char_4='4',
+                                      date_field=now(), publish=True)
         path = reverse('example_detail', kwargs={'pk': ex1.pk})
 
         self.user = self._create_user('admin_staff', True, True)
@@ -581,7 +582,7 @@ class ApphooksTestCase(CMSTestCase):
         self.user = self._create_user('staff', True, False)
         with self.login_user_context(self.user):
             response = self.client.get(path+"?edit")
-        response.context['request'].user = self.user
+        response.context['request'].user = get_user_model().objects.get(pk=self.user.pk)
         toolbar = CMSToolbar(response.context['request'])
         toolbar.populate()
         placeholder_toolbar = PlaceholderToolbar(response.context['request'], toolbar, True, path)
@@ -593,7 +594,7 @@ class ApphooksTestCase(CMSTestCase):
         self.user.user_permissions.add(Permission.objects.get(codename='change_example1'))
         with self.login_user_context(self.user):
             response = self.client.get(path+"?edit")
-        response.context['request'].user = self.user
+        response.context['request'].user = get_user_model().objects.get(pk=self.user.pk)
         toolbar = CMSToolbar(response.context['request'])
         toolbar.populate()
         response.context['request'].user = self.user
@@ -605,8 +606,11 @@ class ApphooksTestCase(CMSTestCase):
 
         permission = Permission.objects.get(codename='use_structure')
         self.user.user_permissions.add(permission)
-
+        with self.login_user_context(self.user):
+            response = self.client.get(path+"?edit")
         response.context['request'].user = get_user_model().objects.get(pk=self.user.pk)
+        toolbar = CMSToolbar(response.context['request'])
+        toolbar.populate()
         placeholder_toolbar = PlaceholderToolbar(response.context['request'], toolbar, True, path)
         placeholder_toolbar.populate()
         placeholder_toolbar.init_placeholders_from_request()
