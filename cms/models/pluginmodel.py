@@ -474,6 +474,13 @@ class CMSPlugin(with_metaclass(PluginModelBase, MPTTModel)):
         """
         return None
 
+    @property
+    def copy_url(self):
+        """
+        Returns a custom url to copy plugin instances
+        """
+        return None
+
 reversion_register(CMSPlugin)
 
 
