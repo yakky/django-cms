@@ -46,5 +46,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.AlterModelOptions(
+            name='placeholder',
+            options={'permissions': (('use_structure', 'Can use Structure mode'),)},
+        ),
         migrations.RunPython(forwards, backwards)
     ]
