@@ -147,25 +147,33 @@ class Placeholder(models.Model):
         """
         Returns an ITERATOR of all non-cmsplugin reverse foreign key related fields.
         """
-        from cms.models import CMSPlugin
         if not hasattr(self, '_attached_fields_cache'):
+            from .pluginmodel import CMSPlugin
+            from ..admin.placeholderadmin import PlaceholderAdminMixin
             self._attached_fields_cache = []
             for rel in self._meta.get_all_related_objects():
                 if issubclass(rel.model, CMSPlugin):
                     continue
-                from cms.admin.placeholderadmin import PlaceholderAdminMixin
                 if rel.model in admin.site._registry and isinstance(admin.site._registry[rel.model], PlaceholderAdminMixin):
                     field = getattr(self, rel.get_accessor_name())
+                    # this is required by Django 1.7 with sqlite backend as
+                    # migrantions patches the db_table in certain circumstances
+                    # and this patched db_table is preserved when contributing
+                    # model to the field
+                    field.model._meta.db_table = rel.model._meta.db_table
                     try:
-                        if field.count():
+                        if field.exists():
                             self._attached_fields_cache.append(rel.field)
                     except:
                         pass
         return self._attached_fields_cache
 
     def _get_attached_field(self):
-        from cms.models import CMSPlugin, StaticPlaceholder, Page
         if not hasattr(self, '_attached_field_cache'):
+            from .pluginmodel import CMSPlugin
+            from .static_placeholder import StaticPlaceholder
+            from .pagemodel import Page
+            from ..admin.placeholderadmin import PlaceholderAdminMixin
             self._attached_field_cache = None
             relations = self._meta.get_all_related_objects()
 
@@ -175,11 +183,15 @@ class Placeholder(models.Model):
             for rel in relations:
                 if issubclass(rel.model, CMSPlugin):
                     continue
-                from cms.admin.placeholderadmin import PlaceholderAdminMixin
                 if rel.model in admin.site._registry and isinstance(admin.site._registry[rel.model], PlaceholderAdminMixin):
                     field = getattr(self, rel.get_accessor_name())
+                    # this is required by Django 1.7 with sqlite backend as
+                    # migrantions patches the db_table in certain circumstances
+                    # and this patched db_table is preserved when contributing
+                    # model to the field
+                    field.model._meta.db_table = rel.model._meta.db_table
                     try:
-                        if field.count():
+                        if field.exists():
                             self._attached_field_cache = rel.field
                             break
                     except:
