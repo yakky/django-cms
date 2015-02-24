@@ -20,6 +20,7 @@ class PlaceholderPlugin(CMSPluginBase):
     #require_parent = True
     render_plugin = False
     admin_preview = False
+    system = True
 
     model = PlaceholderReference
 
@@ -32,6 +33,7 @@ class AliasPlugin(CMSPluginBase):
     allow_children = False
     model = AliasPluginModel
     render_template = "cms/plugins/alias.html"
+    system = True
 
     def render(self, context, instance, placeholder):
         context['instance'] = instance
