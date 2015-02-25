@@ -55,6 +55,7 @@ class CMSLiveTests(LiveServerTestCase, CMSTestCase):
             capabilities['platform'] = 'OS X 10.9'
             capabilities['name'] = 'django CMS'
             capabilities['build'] = os.environ["TRAVIS_BUILD_NUMBER"]
+            capabilities['tunnel-identifier'] = os.environ.get("TRAVIS_JOB_NUMBER")
             capabilities['tags'] = [
                 os.environ.get("TRAVIS_PYTHON_VERSION"), "CI"
             ]
