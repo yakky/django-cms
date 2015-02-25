@@ -69,6 +69,31 @@ class CMSLiveTests(LiveServerTestCase, CMSTestCase):
                 command_executor=hub_url
             )
             cls.driver.implicitly_wait(30)
+        elif os.environ.get("SAUCE_USERNAME"):
+            if not all([
+                    os.environ.get('SAUCE_USERNAME', None),
+                    os.environ.get('SAUCE_ACCESS_KEY', None)
+            ]):
+                raise unittest.SkipTest("Cannot connect to Sauce Labs")
+            capabilities = dict(**webdriver.DesiredCapabilities.CHROME)
+            capabilities['version'] = '31'
+            capabilities['platform'] = 'OS X 10.9'
+            capabilities['name'] = 'django CMS'
+            capabilities['build'] = os.environ["BUILD_NUMBER"]
+            capabilities['tags'] = [
+                os.environ.get("PYTHON_VERSION", "custom"), "CI"
+            ]
+            username = os.environ["SAUCE_USERNAME"]
+            access_key = os.environ["SAUCE_ACCESS_KEY"]
+            hub_url = "http://{0}:{1}@ondemand.saucelabs.com/wd/hub".format(
+                username,
+                access_key
+            )
+            cls.driver = webdriver.Remote(
+                desired_capabilities=capabilities,
+                command_executor=hub_url
+            )
+            cls.driver.implicitly_wait(30)
         else:
             driver = os.environ.get('SELENIUM_DRIVER_CLASS', 'Firefox')
             cls.driver = getattr(webdriver, driver)()
