@@ -480,6 +480,10 @@ $(document).ready(function () {
 		_setSubnav: function (nav) {
 			var that = this;
 			nav.bind('mousedown', function (e) { e.stopPropagation(); });  // avoid starting the longclick event when using the drag bar
+			$('.cms_dragbar-' + this.options.placeholder_id).mouseleave(function() {
+				$('.cms_submenu-dropdown').removeClass('active');
+				$('a[data-rel=edit-menu]').removeClass('active');
+			});
 
 			$('.cms_draggable-' + this.options.plugin_id).mouseleave(function() {
 				$('.cms_edit-menu-dropdown').removeClass('active');
