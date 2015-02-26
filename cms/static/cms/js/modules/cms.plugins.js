@@ -631,25 +631,27 @@ $(document).ready(function () {
 				}
 			});
 
-			$('.cms_dragbar-' + that.options.placeholder_id + ' > .cms_child-plugins input').unbind('keyup');
-			$('.cms_dragbar-' + that.options.placeholder_id + ' > .cms_child-plugins input').bind('keyup', function (e) {
+			var events = 'keyup keydown';
+
+			$('.cms_dragbar-' + that.options.placeholder_id + ' > .cms_child-plugins input').unbind(events);
+			$('.cms_dragbar-' + that.options.placeholder_id + ' > .cms_child-plugins input').bind(events, function (e) {
 				if (!that._keyCommand(this, nav, e)) {
 					that._startSearch(this, nav, e);
 				}
 			});
 
-			$('.cms_dragbar-' + that.options.placeholder_id + ' .cms_submenu-item a').unbind('keyup');
-			$('.cms_dragbar-' + that.options.placeholder_id + ' .cms_submenu-item a').bind('keyup', function (e) {
+			$('.cms_dragbar-' + that.options.placeholder_id + ' .cms_submenu-item a').unbind(events);
+			$('.cms_dragbar-' + that.options.placeholder_id + ' .cms_submenu-item a').bind(events, function (e) {
 				that._keyCommand(this, nav, e);
 			});
 
-			$('.cms_draggable-' + this.options.plugin_id + ' > .cms_dragitem > .cms_child-plugins input').bind('keyup', function (e) {
+			$('.cms_draggable-' + this.options.plugin_id + ' > .cms_dragitem > .cms_child-plugins input').bind(events, function (e) {
 				if (!that._keyCommand(this, nav, e)) {
 					that._startSearch(this, nav, e);
 				}
 			});
 
-			$('.cms_draggable-' + this.options.plugin_id + ' > .cms_dragitem > .cms_child-plugins .cms_submenu-item a').bind('keyup', function (e) {
+			$('.cms_draggable-' + this.options.plugin_id + ' > .cms_dragitem > .cms_child-plugins .cms_submenu-item a').bind(events, function (e) {
 				that._keyCommand(this, nav, e);
 			});
 
@@ -667,12 +669,14 @@ $(document).ready(function () {
 		_keyCommand: function (el, nav, e) {
 			var anchors = $(el).parent().parent().find('.cms_submenu-item:visible a');
 			var index = anchors.index(anchors.filter(':focus'));
-			if(e.type === 'keyup') {
+			if(e.type === 'keydown') {
 				if (e.keyCode === 27) {
+					e.preventDefault();
 					$(el).parents('.cms_child-plugins').removeClass('active');
 					return true;
 				}
 				if (e.keyCode === 38) {
+					e.preventDefault();
 					if (index == 0) {
 						$(el).parent().parent().find('input').focus();
 					} else if (index == -1) {
@@ -682,7 +686,8 @@ $(document).ready(function () {
 					}
 					return true;
 				}
-				if(e.keyCode === 40) {
+				if(e.keyCode === 40 || e.keyCode === 9) {
+					e.preventDefault();
 					if (index == anchors.length - 1) {
 						$(el).parent().parent().find('input').focus();
 					} else {
