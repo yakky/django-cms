@@ -480,10 +480,24 @@ $(document).ready(function () {
 		_setSubnav: function (nav) {
 			var that = this;
 			nav.bind('mousedown', function (e) { e.stopPropagation(); });  // avoid starting the longclick event when using the drag bar
+
 			$('.cms_dragbar-' + this.options.placeholder_id).mouseleave(function() {
 				$('.cms_submenu-dropdown').removeClass('active');
 				$('a[data-rel=edit-menu]').removeClass('active');
 			});
+
+			$('.cms_dragbar-' + this.options.placeholder_id + ' > .cms_submenu')
+                .on('mouseenter', function(){
+                $('.cms_dragbar-' + that.options.placeholder_id)
+                    .css('z-index', '999999999')
+                    .parents('.cms_draggable')
+                    .css('z-index', '999999999');
+            });
+
+			$('.cms_dragbar-' + this.options.placeholder_id + ' > .cms_submenu')
+                .on('mouseleave', function(){
+                $('.cms_dragbar-' + that.options.placeholder_id ).css('z-index', '');
+            });
 
 			$('.cms_draggable-' + this.options.plugin_id).mouseleave(function() {
 				$('.cms_edit-menu-dropdown').removeClass('active');
@@ -497,6 +511,7 @@ $(document).ready(function () {
                     .parents('.cms_draggable')
                     .css('z-index', '999999999');
             });
+
 			$('.cms_draggable-' + this.options.plugin_id + ' > .cms_dragitem .cms_draggable_toolbar')
                 .on('mouseleave', function(){
                 $('.cms_draggable-' + that.options.plugin_id).css('z-index', '');
