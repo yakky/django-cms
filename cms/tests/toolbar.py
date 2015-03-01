@@ -170,6 +170,93 @@ class ToolbarTests(ToolbarTestBase):
         self.assertContains(response,
                             '<div class="cms_submenu-item cms_submenu-item-title"><span>Different Grouper</span>')
 
+    def test_markup_menu_items(self):
+        superuser = self.get_superuser()
+        create_page("toolbar-page", "col_two.html", "en", published=True)
+        with self.login_user_context(superuser):
+            response = self.client.get('/en/?%s' % get_cms_setting('CMS_TOOLBAR_URL__EDIT_ON'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response,
+                            '<div class="cms_submenu-item"><a href="/some/url/" data-rel="ajax"')
+        self.assertContains(response,
+                            '<div class="cms_submenu-item"><a href="/some/other/url/" data-rel="ajax_add"')
+
+    def test_markup_toolbar_url_page(self):
+        superuser = self.get_superuser()
+        page_1 = create_page("top-page", "col_two.html", "en", published=True)
+        page_2 = create_page("sec-page", "col_two.html", "en", published=True, parent=page_1)
+        page_3 = create_page("trd-page", "col_two.html", "en", published=False, parent=page_1)
+
+        # page with publish = draft
+        # check when in draft mode
+        with self.login_user_context(superuser):
+            response = self.client.get('%s?%s' % (
+                page_2.get_absolute_url(), get_cms_setting('CMS_TOOLBAR_URL__EDIT_ON')))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'href="%s?%s"' % (
+            page_2.get_public_url(), get_cms_setting('CMS_TOOLBAR_URL__EDIT_OFF')
+        ))
+        # check when in live mode
+        with self.login_user_context(superuser):
+            response = self.client.get('%s?%s' % (
+                page_2.get_absolute_url(), get_cms_setting('CMS_TOOLBAR_URL__EDIT_OFF')))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'href="%s?%s"' % (
+            page_2.get_draft_url(), get_cms_setting('CMS_TOOLBAR_URL__EDIT_ON')
+        ))
+        self.assertEqual(page_2.get_draft_url(), page_2.get_public_url())
+
+        # page with publish != draft
+        page_2.get_title_obj().slug = 'mod-page'
+        page_2.get_title_obj().save()
+        # check when in draft mode
+        with self.login_user_context(superuser):
+            response = self.client.get('%s?%s' % (
+                page_2.get_absolute_url(), get_cms_setting('CMS_TOOLBAR_URL__EDIT_ON')))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'href="%s?%s"' % (
+            page_2.get_public_url(), get_cms_setting('CMS_TOOLBAR_URL__EDIT_OFF')
+        ))
+        # check when in live mode
+        with self.login_user_context(superuser):
+            response = self.client.get('%s?%s' % (
+                page_2.get_public_url(), get_cms_setting('CMS_TOOLBAR_URL__EDIT_OFF')))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'href="%s?%s"' % (
+            page_2.get_draft_url(), get_cms_setting('CMS_TOOLBAR_URL__EDIT_ON')
+        ))
+        self.assertNotEqual(page_2.get_draft_url(), page_2.get_public_url())
+
+        # not published page
+        # check when in draft mode
+        with self.login_user_context(superuser):
+            response = self.client.get('%s?%s' % (
+                page_3.get_absolute_url(), get_cms_setting('CMS_TOOLBAR_URL__EDIT_ON')))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'cms_toolbar-item_switch')
+        self.assertEqual(page_3.get_public_url(), '')
+        self.assertNotEqual(page_3.get_draft_url(), page_3.get_public_url())
+
+    def test_markup_plugin_template(self):
+        page = create_page("toolbar-page-1", "col_two.html", "en", published=True)
+        plugin_1 = add_plugin(page.placeholders.get(slot='col_left'), language='en',
+                              plugin_type='TestPluginAlpha', alpha='alpha')
+        plugin_2 = add_plugin(page.placeholders.get(slot='col_left'), language='en',
+                              plugin_type='TextPlugin', body='text')
+        superuser = self.get_superuser()
+        with self.login_user_context(superuser):
+            response = self.client.get('/en/?%s' % get_cms_setting('CMS_TOOLBAR_URL__EDIT_ON'))
+        self.assertEqual(response.status_code, 200)
+        response_text = response.render().rendered_content
+        self.assertTrue(re.search('edit_plugin.+/admin/custom/view/%s' % plugin_1.pk, response_text))
+        self.assertTrue(re.search('move_plugin.+/admin/custom/move/', response_text))
+        self.assertTrue(re.search('delete_plugin.+/admin/custom/delete/%s/' % plugin_1.pk, response_text))
+        self.assertTrue(re.search('add_plugin.+/admin/custom/view/', response_text))
+        self.assertTrue(re.search('copy_plugin.+/admin/custom/copy/', response_text))
+
+        self.assertTrue(re.search('edit_plugin.+/en/admin/cms/page/edit-plugin/%s' % plugin_2.pk, response_text))
+        self.assertTrue(re.search('delete_plugin.+/en/admin/cms/page/delete-plugin/%s/' % plugin_2.pk, response_text))
+
     def test_show_toolbar_to_staff(self):
         page = create_page("toolbar-page", "nav_playground.html", "en",
                            published=True)
