@@ -7,6 +7,7 @@ from cms.utils.urlutils import admin_reverse
 from django.utils.translation import ugettext_lazy as _
 from .models import Example1, CharPksExample
 
+
 SAMPLEAPP_BREAK = 'Example1 App Break'
 
 
