@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-cms\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-14 14:06-0500\n"
+"POT-Creation-Date: 2015-03-04 15:39-0500\n"
 "PO-Revision-Date: 2009-11-10 22:37+0100\n"
 "Last-Translator: Benjamin Wohlwend <piquadrat@gmail.com>\n"
 "Language-Team: divio.ch <developers@divio.ch>\n"
@@ -74,7 +74,7 @@ msgstr ""
 msgid "Logout"
 msgstr ""
 
-#: cms_toolbar.py:173 admin/forms.py:64 admin/forms.py:174 admin/forms.py:216
+#: cms_toolbar.py:173 admin/forms.py:65 admin/forms.py:175 admin/forms.py:218
 #: models/settingmodels.py:12
 msgid "Language"
 msgstr ""
@@ -205,7 +205,7 @@ msgstr ""
 msgid "Revert to live"
 msgstr ""
 
-#: cms_toolbar.py:530
+#: cms_toolbar.py:531
 msgid "View history"
 msgstr ""
 
@@ -221,149 +221,153 @@ msgstr ""
 msgid "There are no further settings for this plugin. Please press save."
 msgstr ""
 
-#: admin/forms.py:65 admin/forms.py:175 admin/forms.py:217
+#: admin/forms.py:66 admin/forms.py:176 admin/forms.py:219
 msgid "The current language of the content fields."
 msgstr ""
 
-#: admin/forms.py:66
+#: admin/forms.py:67
 msgid "Page type"
 msgstr ""
 
-#: admin/forms.py:67
+#: admin/forms.py:68
 msgid "Title"
 msgstr ""
 
-#: admin/forms.py:68
+#: admin/forms.py:69
 msgid "The default title"
 msgstr ""
 
-#: admin/forms.py:69
+#: admin/forms.py:70
 msgid "Slug"
 msgstr ""
 
-#: admin/forms.py:70
+#: admin/forms.py:71
 msgid "The part of the title that is used in the URL"
 msgstr ""
 
-#: admin/forms.py:71
+#: admin/forms.py:72
 msgid "Menu Title"
 msgstr ""
 
-#: admin/forms.py:72
+#: admin/forms.py:73
 msgid "Overwrite what is displayed in the menu"
 msgstr ""
 
-#: admin/forms.py:73
+#: admin/forms.py:74
 msgid "Page Title"
 msgstr ""
 
-#: admin/forms.py:74
+#: admin/forms.py:75
 msgid "Overwrites what is displayed at the top of your browser or in bookmarks"
 msgstr ""
 
-#: admin/forms.py:76
+#: admin/forms.py:77
 msgid "Description meta tag"
 msgstr ""
 
-#: admin/forms.py:78
+#: admin/forms.py:79
 #, fuzzy
 msgid "A description of the page used by search engines."
 msgstr "A list of comma separated keywords sometimes used by search engines."
 
-#: admin/forms.py:135
+#: admin/forms.py:136
 msgid "Another page with this slug already exists"
 msgstr ""
 
-#: admin/forms.py:163
+#: admin/forms.py:164
 msgid "Slug must not be empty."
 msgstr ""
 
-#: admin/forms.py:197
+#: admin/forms.py:198
 msgid "Application"
 msgstr ""
 
-#: admin/forms.py:199
+#: admin/forms.py:200
 msgid "Hook application to this page."
 msgstr ""
 
-#: admin/forms.py:200
+#: admin/forms.py:201
 msgid "Overwrite URL"
 msgstr ""
 
-#: admin/forms.py:201
+#: admin/forms.py:202
 msgid "Keep this field empty if standard path should be used."
 msgstr ""
 
-#: admin/forms.py:205
+#: admin/forms.py:206
 msgid "X Frame Options"
 msgstr ""
 
-#: admin/forms.py:206
+#: admin/forms.py:207
 msgid "Whether this page can be embedded in other pages or websites"
 msgstr ""
 
-#: admin/forms.py:211
+#: admin/forms.py:212
 msgid "Redirect"
 msgstr ""
 
-#: admin/forms.py:212
+#: admin/forms.py:213
 msgid "Redirects to this URL."
 msgstr ""
 
-#: admin/forms.py:212
+#: admin/forms.py:214
 msgid "Start typing..."
 msgstr ""
 
-#: admin/forms.py:269
+#: admin/forms.py:223
+msgid "Application configurations"
+msgstr ""
+
+#: admin/forms.py:305
 msgid "A page with this reverse URL id exists already."
 msgstr ""
 
-#: admin/forms.py:287
+#: admin/forms.py:332
 msgid ""
 "You selected an apphook with an \"app_name\".\n"
-"                            You must enter a unique instance name."
+"                                You must enter a unique instance name."
 msgstr ""
 
-#: admin/forms.py:307
+#: admin/forms.py:355
 msgid "A instance name with this name already exists."
 msgstr ""
 
-#: admin/forms.py:347 models/permissionmodels.py:71
+#: admin/forms.py:395 models/permissionmodels.py:71
 #: test_utils/project/customuserapp/models.py:60
 msgid "user"
 msgstr ""
 
-#: admin/forms.py:411
+#: admin/forms.py:459
 msgid ""
 "Add page permission requires also access to children, or descendants, "
 "otherwise added page can't be changed by its creator."
 msgstr ""
 
-#: admin/forms.py:416
+#: admin/forms.py:464
 msgid "Add page permission also requires edit page permission."
 msgstr ""
 
-#: admin/forms.py:443
+#: admin/forms.py:491
 msgid "can_view"
 msgstr ""
 
-#: admin/forms.py:454
+#: admin/forms.py:502
 msgid "Please select user or group first."
 msgstr ""
 
-#: admin/forms.py:461 admin/forms.py:468 admin/forms.py:472
+#: admin/forms.py:509 admin/forms.py:516 admin/forms.py:520
 #: templates/admin/cms/usersettings/change_form.html:17
-#: templatetags/cms_tags.py:768
+#: templatetags/cms_tags.py:749
 msgid "Add"
 msgstr ""
 
-#: admin/forms.py:462 admin/forms.py:469 admin/forms.py:473
+#: admin/forms.py:510 admin/forms.py:517 admin/forms.py:521
 #: templates/cms/toolbar/toolbar.html:36
 #: templates/cms/toolbar/items/live_draft.html:7
 msgid "Change"
 msgstr ""
 
-#: admin/forms.py:463 admin/forms.py:470 admin/forms.py:474
+#: admin/forms.py:511 admin/forms.py:518 admin/forms.py:522
 #: templates/admin/cms/extensions/change_form.html:8
 #: templates/admin/cms/page/submit_row.html:7
 #: templates/admin/cms/page/tree/menu_item.html:66
@@ -371,43 +375,43 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
-#: admin/forms.py:464
+#: admin/forms.py:512
 msgid "Recover (any) pages"
 msgstr ""
 
-#: admin/forms.py:492
+#: admin/forms.py:540
 msgid "Notify user"
 msgstr ""
 
-#: admin/forms.py:494
+#: admin/forms.py:542
 msgid ""
 "Send email notification to user about username or password change. Requires "
 "user email."
 msgstr ""
 
-#: admin/forms.py:514
+#: admin/forms.py:562
 msgid "New password"
 msgstr ""
 
-#: admin/forms.py:516
+#: admin/forms.py:564
 msgid "New password confirmation"
 msgstr ""
 
-#: admin/forms.py:541
+#: admin/forms.py:589
 msgid "Email notification requires valid email address."
 msgstr ""
 
-#: admin/forms.py:543
+#: admin/forms.py:591
 msgid ""
 "The permission to add new pages requires the permission to change pages!"
 msgstr ""
 
-#: admin/forms.py:545
+#: admin/forms.py:593
 msgid ""
 "The permission to add new users requires the permission to change users!"
 msgstr ""
 
-#: admin/forms.py:547
+#: admin/forms.py:595
 msgid "To add permissions you also need to edit them!"
 msgstr ""
 
@@ -665,119 +669,119 @@ msgstr ""
 msgid "Select a valid page"
 msgstr ""
 
-#: forms/widgets.py:221
+#: forms/widgets.py:222 forms/widgets.py:309
 msgid "Add Another"
 msgstr ""
 
-#: models/pagemodel.py:38
+#: models/pagemodel.py:39
 msgid "for logged in users only"
 msgstr ""
 
-#: models/pagemodel.py:39
+#: models/pagemodel.py:40
 msgid "for anonymous users only"
 msgstr ""
 
-#: models/pagemodel.py:48
+#: models/pagemodel.py:49
 msgid "Inherit from parent page"
 msgstr ""
 
-#: models/pagemodel.py:49
+#: models/pagemodel.py:50
 msgid "Deny"
 msgstr ""
 
-#: models/pagemodel.py:50
+#: models/pagemodel.py:51
 msgid "Only this website"
 msgstr ""
 
-#: models/pagemodel.py:51
+#: models/pagemodel.py:52
 msgid "Allow"
 msgstr ""
 
-#: models/pagemodel.py:56
+#: models/pagemodel.py:57
 msgid "created by"
 msgstr ""
 
-#: models/pagemodel.py:57
+#: models/pagemodel.py:58
 msgid "changed by"
 msgstr ""
 
-#: models/pagemodel.py:62 templates/admin/cms/page/tree/menu_item.html:73
+#: models/pagemodel.py:63 templates/admin/cms/page/tree/menu_item.html:73
 msgid "publication date"
 msgstr ""
 
-#: models/pagemodel.py:63
+#: models/pagemodel.py:64
 msgid ""
 "When the page should go live. Status must be \"Published\" for page to go "
 "live."
 msgstr ""
 
-#: models/pagemodel.py:64 templates/admin/cms/page/tree/menu_item.html:74
+#: models/pagemodel.py:65 templates/admin/cms/page/tree/menu_item.html:74
 msgid "publication end date"
 msgstr ""
 
-#: models/pagemodel.py:65
+#: models/pagemodel.py:66
 msgid "When to expire the page. Leave empty to never expire."
 msgstr ""
 
-#: models/pagemodel.py:71
+#: models/pagemodel.py:72
 msgid "in navigation"
 msgstr ""
 
-#: models/pagemodel.py:72
+#: models/pagemodel.py:73
 msgid "soft root"
 msgstr ""
 
-#: models/pagemodel.py:73
+#: models/pagemodel.py:74
 msgid "All ancestors will not be displayed in the navigation"
 msgstr ""
 
-#: models/pagemodel.py:74
+#: models/pagemodel.py:75
 msgid "id"
 msgstr ""
 
-#: models/pagemodel.py:75
+#: models/pagemodel.py:76
 msgid ""
 "A unique identifier that is used with the page_url templatetag for linking "
 "to this page"
 msgstr ""
 
-#: models/pagemodel.py:76
+#: models/pagemodel.py:77
 msgid "attached menu"
 msgstr ""
 
-#: models/pagemodel.py:77 templates/admin/cms/page/tree/menu_item.html:77
+#: models/pagemodel.py:78 templates/admin/cms/page/tree/menu_item.html:77
 msgid "template"
 msgstr ""
 
-#: models/pagemodel.py:78
+#: models/pagemodel.py:79
 msgid "The template used to render the content."
 msgstr ""
 
-#: models/pagemodel.py:80
+#: models/pagemodel.py:81
 msgid "The site the page is accessible at."
 msgstr ""
 
-#: models/pagemodel.py:80
+#: models/pagemodel.py:81
 msgid "site"
 msgstr ""
 
-#: models/pagemodel.py:83
+#: models/pagemodel.py:84
 msgid "login required"
 msgstr ""
 
-#: models/pagemodel.py:84
+#: models/pagemodel.py:85
 msgid "menu visibility"
 msgstr ""
 
-#: models/pagemodel.py:86
+#: models/pagemodel.py:87
 msgid "limit when this page is visible in the menu"
 msgstr ""
 
-#: models/pagemodel.py:88
+#: models/pagemodel.py:89
 msgid "application"
 msgstr ""
 
-#: models/pagemodel.py:89
+#: models/pagemodel.py:90
 msgid "application instance name"
 msgstr ""
 
@@ -790,11 +794,11 @@ msgstr ""
 msgid "pages"
 msgstr ""
 
-#: models/pagemodel.py:823
+#: models/pagemodel.py:828
 msgid "Empty"
 msgstr ""
 
-#: models/pagemodel.py:944
+#: models/pagemodel.py:949
 msgid "default"
 msgstr ""
 
@@ -1203,8 +1207,7 @@ msgid "An error occured. Please reload the page"
 msgstr "An error occurred. Please reload the page"
 
 #: templates/admin/cms/page/tree/base.html:57
-#, python-format
-msgid "Are you sure you want to %%s this page?"
+msgid "Are you sure you want to § this page?"
 msgstr ""
 
 #: templates/admin/cms/page/tree/base.html:73
@@ -1408,8 +1411,8 @@ msgstr ""
 msgid "Drop a plugin here"
 msgstr ""
 
-#: templates/cms/toolbar/dragitem.html:14 templatetags/cms_tags.py:759
-#: templatetags/cms_tags.py:762
+#: templates/cms/toolbar/dragitem.html:14 templatetags/cms_tags.py:740
+#: templatetags/cms_tags.py:743
 msgid "Edit"
 msgstr ""
 
@@ -1521,12 +1524,12 @@ msgstr ""
 msgid "<span>%(icon)s</span>"
 msgstr ""
 
-#: templatetags/cms_tags.py:109
+#: templatetags/cms_tags.py:110
 #, python-format
 msgid "Page not found on %(domain)s"
 msgstr ""
 
-#: templatetags/cms_tags.py:110
+#: templatetags/cms_tags.py:111
 #, python-format
 msgid ""
 "A template tag couldn't find the page with lookup arguments `"
@@ -1655,7 +1658,7 @@ msgstr ""
 msgid "Example1 App"
 msgstr ""
 
-#: test_utils/project/placeholderapp/cms_app.py:13
+#: test_utils/project/placeholderapp/cms_app.py:14
 msgid "MultilingualExample1 App"
 msgstr ""
 

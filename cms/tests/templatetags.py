@@ -12,6 +12,7 @@ from django.template import RequestContext, Context
 from django.test import RequestFactory, TestCase
 from django.template.base import Template
 from django.utils.html import escape
+from django.utils.timezone import now
 from djangocms_text_ckeditor.cms_plugins import TextPlugin
 
 from cms.api import create_page, create_title, add_plugin
@@ -20,6 +21,7 @@ from cms.models.pagemodel import Page, Placeholder
 from cms.templatetags.cms_tags import (_get_page_by_untyped_arg,
                                        _show_placeholder_for_page,
                                        _get_placeholder, RenderPlugin)
+from cms.templatetags.cms_js_tags import json_filter
 from cms.test_utils.fixtures.templatetags import TwoPagesFixture
 from cms.test_utils.testcases import SettingsOverrideTestCase, CMSTestCase
 from cms.test_utils.util.context_managers import SettingsOverride
@@ -70,6 +72,18 @@ class TemplatetagTests(TestCase):
         output = template.render(context)
         self.assertNotEqual(script, output)
         self.assertEqual(escape(script), output)
+
+    def test_json_encoder(self):
+        self.assertEqual(json_filter(True), 'true')
+        self.assertEqual(json_filter(False), 'false')
+        self.assertEqual(json_filter([1, 2, 3]), '[1, 2, 3]')
+        self.assertEqual(json_filter((1, 2, 3)), '[1, 2, 3]')
+        filtered_dict = json_filter({'item1': 1, 'item2': 2, 'item3': 3})
+        self.assertTrue('"item1": 1' in filtered_dict)
+        self.assertTrue('"item2": 2' in filtered_dict)
+        self.assertTrue('"item3": 3' in filtered_dict)
+        today = now().today()
+        self.assertEqual('"%s"' % today.isoformat()[:-3], json_filter(today))
 
 
 class TemplatetagDatabaseTests(TwoPagesFixture, SettingsOverrideTestCase):
@@ -382,3 +396,72 @@ class NoFixtureDatabaseTemplateTagTests(CMSTestCase):
         with self.assertNumQueries(4):
             template.render(context)
 
+    def test_render_model_add(self):
+        from django.core.cache import cache
+        from cms.test_utils.project.sampleapp.models import Category
+
+        cache.clear()
+        page = create_page('Test', 'col_two.html', 'en', published=True)
+        template = Template(
+            "{% load cms_tags %}{% render_model_add category %}")
+        user = self._create_user("admin", True, True)
+        request = RequestFactory().get('/')
+        request.user = user
+        request.current_page = page
+        request.session = {}
+        request.toolbar = CMSToolbar(request)
+        request.toolbar.edit_mode = True
+        request.toolbar.is_staff = True
+        context = RequestContext(request, {'category': Category()})
+        with self.assertNumQueries(0):
+            output = template.render(context)
+        expected = 'cms_plugin cms_plugin-sampleapp-category-add-0 '
+        'cms_render_model_add'
+        self.assertIn(expected, output)
+
+        # Now test that it does NOT render when not in edit mode
+        request = RequestFactory().get('/')
+        request.user = user
+        request.current_page = page
+        request.session = {}
+        request.toolbar = CMSToolbar(request)
+        context = RequestContext(request, {'category': Category()})
+        with self.assertNumQueries(0):
+            output = template.render(context)
+        expected = ''
+        self.assertEqual(expected, output)
+
+    def test_render_model_add_block(self):
+        from django.core.cache import cache
+        from cms.test_utils.project.sampleapp.models import Category
+
+        cache.clear()
+        page = create_page('Test', 'col_two.html', 'en', published=True)
+        template = Template(
+            "{% load cms_tags %}{% render_model_add_block category %}wrapped{% endrender_model_add_block %}")
+        user = self._create_user("admin", True, True)
+        request = RequestFactory().get('/')
+        request.user = user
+        request.current_page = page
+        request.session = {}
+        request.toolbar = CMSToolbar(request)
+        request.toolbar.edit_mode = True
+        request.toolbar.is_staff = True
+        context = RequestContext(request, {'category': Category()})
+        with self.assertNumQueries(0):
+            output = template.render(context)
+        expected = 'cms_plugin cms_plugin-sampleapp-category-add-0 '
+        'cms_render_model_add'
+        self.assertIn(expected, output)
+
+        # Now test that it does NOT render when not in edit mode
+        request = RequestFactory().get('/')
+        request.user = user
+        request.current_page = page
+        request.session = {}
+        request.toolbar = CMSToolbar(request)
+        context = RequestContext(request, {'category': Category()})
+        with self.assertNumQueries(0):
+            output = template.render(context)
+        expected = 'wrapped'
+        self.assertEqual(expected, output)
