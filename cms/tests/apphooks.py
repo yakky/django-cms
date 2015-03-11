@@ -2,7 +2,6 @@
 from __future__ import with_statement
 import sys
 
-from django.contrib.auth.models import Permission
 from django.contrib.admin.models import CHANGE
 from django.contrib.admin.models import LogEntry
 from django.contrib.auth.models import Permission

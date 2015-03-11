@@ -11,7 +11,6 @@ from django.core.urlresolvers import reverse
 from django.template.defaultfilters import truncatewords
 from django.test import TestCase
 from django.test.client import RequestFactory
-from django.test.utils import override_settings
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _, override
 
