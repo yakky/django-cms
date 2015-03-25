@@ -14,7 +14,7 @@ try:
 except ImportError:
     get_user_model = lambda: User
 
-from cms.api import get_page_draft
+from cms.api import get_page_draft, can_change_page
 from cms.constants import TEMPLATE_INHERITANCE_MAGIC, PUBLISHER_STATE_PENDING
 from cms.models import Title, Page
 from cms.toolbar.items import TemplateItem
@@ -252,13 +252,7 @@ class PageToolbar(CMSToolbar):
 
     def has_page_change_permission(self):
         if not hasattr(self, 'page_change_permission'):
-            # check global permissions if CMS_PERMISSIONS is active
-            global_permission = self.permissions_activated and has_page_change_permission(self.request)
-
-            # check if user has page edit permission
-            page_permission = self.page and self.page.has_change_permission(self.request)
-
-            self.page_change_permission = global_permission or page_permission
+            self.page_change_permission = can_change_page(self.request)
 
         return self.page_change_permission
 
