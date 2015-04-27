@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from collections import defaultdict
 from logging import getLogger
 from os.path import join
 
@@ -119,6 +120,8 @@ class Page(six.with_metaclass(PageMetaClass, MP_Node)):
     objects = PageManager()
     permissions = PagePermissionsPermissionManager()
 
+    _as_data_ignored = ('id', 'publisher_public_id', 'revision_id', 'published')
+
     class Meta:
         permissions = (
             ('view_page', 'Can view page'),
@@ -148,6 +151,19 @@ class Page(six.with_metaclass(PageMetaClass, MP_Node)):
         # This is needed to solve the infinite recursion when
         # adding new pages.
         return object.__repr__(self)
+
+    def as_data(self):
+        data = {'titles': {}, 'placeholders': defaultdict(list)}
+        if self.publisher_is_draft:
+            for field in self._meta.fields:
+                if field.column not in self._as_data_ignored:
+                    data[field.column] = getattr(self, field.column)
+            for lang in self.get_languages():
+                data['titles'][lang] = self.get_title_obj(language=lang, fallback=False).as_data()
+            for ph in self.placeholders.all():
+                for plugin in ph.get_plugins_list():
+                    data['placeholders'][ph.slot].append(plugin.as_data())
+        return data
 
     def is_dirty(self, language):
         state = self.get_publisher_state(language)

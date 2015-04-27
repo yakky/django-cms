@@ -38,12 +38,22 @@ class Title(models.Model):
 
     objects = TitleManager()
 
+    _as_data_ignored = ('id', 'publisher_public_id', 'revision_id', 'published')
+
     class Meta:
         unique_together = (('language', 'page'),)
         app_label = 'cms'
 
     def __str__(self):
         return u"%s (%s, %s)" % (self.title, self.slug, self.language)
+
+    def as_data(self):
+        data = {}
+        if self.publisher_is_draft:
+            for field in self._meta.fields:
+                if field.column not in self._as_data_ignored:
+                    data[field.column] = getattr(self, field.column)
+        return data
 
     def update_path(self):
         # Build path from parent page's path and slug
@@ -56,7 +66,6 @@ class Title(models.Model):
                 parent_title = Title.objects.get_title(parent_page, language=self.language, language_fallback=True)
                 if parent_title:
                     self.path = u'%s/%s' % (parent_title.path, slug)
-
 
     @property
     def overwrite_url(self):
@@ -108,6 +117,11 @@ class Title(models.Model):
             return False
         return True
 
+    def reload(self):
+        """
+        Reload a title from the database
+        """
+        return Title.objects.get(pk=self.pk)
 
 class EmptyTitle(object):
 

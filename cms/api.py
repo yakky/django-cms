@@ -246,12 +246,11 @@ def create_page(title, template, language, menu_title=None, slug=None,
     create_title(
         language=language,
         title=title,
+        page=page,
         menu_title=menu_title,
-        page_title=page_title,
         slug=slug,
         redirect=redirect,
         meta_description=meta_description,
-        page=page,
         overwrite_url=overwrite_url,
         creation_date=title_creation_date
     )

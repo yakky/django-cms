@@ -83,6 +83,8 @@ class CMSPlugin(six.with_metaclass(PluginModelBase, MP_Node)):
     child_plugin_instances = None
     translatable_content_excluded_fields = []
 
+    _as_data_ignored = ('placeholder_id',)
+
     class Meta:
         app_label = 'cms'
 
@@ -112,6 +114,14 @@ class CMSPlugin(six.with_metaclass(PluginModelBase, MP_Node)):
 
     def __str__(self):
         return force_text(self.pk)
+
+    def as_data(self):
+        data = {}
+        instance = self.get_plugin_instance()[0]
+        for field in instance._meta.fields:
+            if field.column not in instance._as_data_ignored:
+                data[field.column] = getattr(instance, field.column)
+        return data
 
     def get_plugin_name(self):
         from cms.plugin_pool import plugin_pool
