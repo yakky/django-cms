@@ -18,7 +18,8 @@ from cms.test_utils.testcases import CMSTestCase
 from cms.test_utils.util.fuzzy_int import FuzzyInt
 from cms.utils.compat import DJANGO_1_7
 from cms.utils.conf import get_cms_setting
-from cms.views import _handle_no_page, details
+from cms.views import details
+from cms.page_rendering import _handle_no_page
 from menus.menu_pool import menu_pool
 
 

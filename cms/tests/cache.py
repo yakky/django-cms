@@ -10,7 +10,7 @@ from cms.utils import get_cms_setting
 from django.core.cache import cache
 from django.template import Template, RequestContext
 from django.conf import settings
-from cms.views import _get_cache_version
+from cms.page_rendering import _get_cache_version
 
 
 class CacheTestCase(CMSTestCase):
