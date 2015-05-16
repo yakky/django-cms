@@ -94,13 +94,3 @@ def import_pages(data, root=None):
                         plugin_data[attr] = plugin[attr]
                 new_plugin = add_plugin(**plugin_data)
                 plugin_tree[plugin['cmsplugin_ptr_id']] = new_plugin
-
-
-def pretty_print_pages(pages_list):
-    tree = {}
-    for page in pages_list:
-        tree[page.path] = page
-    paths = sorted(tree.keys())
-    for path in paths:
-        page = tree[path]
-        print('%s%s (%s)' % ('\t' * page.depth, page.get_title(), page.languages))

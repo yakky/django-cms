@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 from collections import defaultdict
-from django.utils.encoding import force_text
 from cms.models import Page, CMSPlugin
 from cms.api import create_page, create_title, add_plugin
 from cms.test_utils.testcases import CMSTestCase
-from cms.utils.export import export_pages, import_pages, pretty_print_pages
+from cms.utils.export import export_pages, import_pages
 from cms.page_rendering import render_page
 
 
