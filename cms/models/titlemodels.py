@@ -38,7 +38,7 @@ class Title(models.Model):
 
     objects = TitleManager()
 
-    _as_data_ignored = ('id', 'publisher_public_id', 'revision_id', 'published')
+    _to_data_ignored = ('id', 'publisher_public_id', 'revision_id', 'published')
 
     class Meta:
         unique_together = (('language', 'page'),)
@@ -47,13 +47,33 @@ class Title(models.Model):
     def __str__(self):
         return u"%s (%s, %s)" % (self.title, self.slug, self.language)
 
-    def as_data(self):
+    def to_data(self):
         data = {}
         if self.publisher_is_draft:
             for field in self._meta.fields:
-                if field.column not in self._as_data_ignored:
+                if field.column not in self._to_data_ignored:
                     data[field.column] = getattr(self, field.column)
         return data
+
+    @classmethod
+    def from_data(cls, title, language, page_obj):
+        from cms.api import create_title
+        title_data = dict(
+            language=language,
+            title=title['title'],
+            page=page_obj,
+            menu_title=title['menu_title'],
+            page_title=title['page_title'],
+            slug=title['slug'],
+            redirect=title['redirect'],
+            meta_description=title['meta_description'],
+        )
+        if title['has_url_overwrite']:
+            title_data['overwrite_url'] = title['path']
+        title_obj = create_title(**title_data)
+        title_obj.creation_date = title['creation_date']
+        title_obj.save()
+        return title_obj.reload()
 
     def update_path(self):
         # Build path from parent page's path and slug

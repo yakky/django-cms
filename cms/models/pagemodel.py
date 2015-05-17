@@ -120,7 +120,7 @@ class Page(six.with_metaclass(PageMetaClass, MP_Node)):
     objects = PageManager()
     permissions = PagePermissionsPermissionManager()
 
-    _as_data_ignored = ('id', 'publisher_public_id', 'revision_id', 'published')
+    _to_data_ignored = ('id', 'publisher_public_id', 'revision_id', 'published')
 
     class Meta:
         permissions = (
@@ -152,18 +152,55 @@ class Page(six.with_metaclass(PageMetaClass, MP_Node)):
         # adding new pages.
         return object.__repr__(self)
 
-    def as_data(self):
+    def to_data(self):
         data = {'titles': {}, 'placeholders': defaultdict(list)}
         if self.publisher_is_draft:
             for field in self._meta.fields:
-                if field.column not in self._as_data_ignored:
+                if field.column not in self._to_data_ignored:
                     data[field.column] = getattr(self, field.column)
             for lang in self.get_languages():
-                data['titles'][lang] = self.get_title_obj(language=lang, fallback=False).as_data()
+                data['titles'][lang] = self.get_title_obj(language=lang, fallback=False).to_data()
             for ph in self.placeholders.all():
                 for plugin in ph.get_plugins_list():
-                    data['placeholders'][ph.slot].append(plugin.as_data())
+                    data['placeholders'][ph.slot].append(plugin.to_data())
         return data
+
+    @classmethod
+    def from_data(cls, page, title, language, imported):
+        from cms.api import create_page
+        page_data = dict(
+            title=title['title'],
+            template=page['template'],
+            language=language,
+            menu_title=title['menu_title'],
+            page_title=title['page_title'],
+            slug=title['slug'],
+            apphook=page['application_urls'],
+            apphook_namespace=page['application_namespace'],
+            redirect=title['redirect'],
+            meta_description=title['meta_description'],
+            created_by=page['created_by'],
+            changed_by=page['changed_by'],
+            publication_date=page['publication_date'],
+            publication_end_date=page['publication_end_date'],
+            changed_date=page['changed_date'],
+            in_navigation=page['in_navigation'],
+            soft_root=page['soft_root'],
+            reverse_id=page['reverse_id'],
+            navigation_extenders=page['navigation_extenders'],
+            site=Site.objects.get(pk=page['site_id']),
+            login_required=page['login_required'],
+            limit_visibility_in_menu=page['limit_visibility_in_menu'],
+            xframe_options=page['xframe_options'],
+        )
+        if title['has_url_overwrite']:
+            page_data['overwrite_url'] = title['path']
+        if page['parent_id']:
+            page_data['parent'] = imported[page['parent_id']]
+        page_obj = create_page(**page_data)
+        page_obj.creation_date = page['creation_date']
+        page_obj.save()
+        return page_obj.reload()
 
     def is_dirty(self, language):
         state = self.get_publisher_state(language)

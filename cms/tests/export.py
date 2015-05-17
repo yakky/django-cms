@@ -19,17 +19,29 @@ class ExportTest(CMSTestCase):
         create_title(title='page3', language='fr', page=self.pages['3'])
         self.pages['4'] = create_page(title='page4', language='en', template='col_two.html', published=True, parent=self.pages['2'])
         create_title(title='page4', language='fr', page=self.pages['4'])
+        self.pages['6'] = create_page(title='page6', language='en', template='col_two.html', published=True, parent=self.pages['4'])
+        create_title(title='page6', language='fr', page=self.pages['6'])
         self.pages['5'] = create_page(title='page5', language='en', template='col_two.html', published=True, parent=self.pages['1'])
         create_title(title='page5', language='fr', page=self.pages['5'])
 
         for page in self.pages.values():
+            col_left = page.placeholders.get(slot='col_left')
+            col_side = page.placeholders.get(slot='col_sidebar')
             for lang in page.get_languages():
-                add_plugin(placeholder=page.placeholders.get(slot='col_left'), plugin_type='TextPlugin', body='some text', language=lang)
-                link = add_plugin(placeholder=page.placeholders.get(slot='col_left'), plugin_type='LinkPlugin', url='http://www.example.com', language=lang)
-                add_plugin(placeholder=page.placeholders.get(slot='col_left'), plugin_type='TextPlugin', body='link text', language=lang, target=link)
-                add_plugin(placeholder=page.placeholders.get(slot='col_sidebar'), plugin_type='TextPlugin', body='sidebar text', language=lang)
-                link = add_plugin(placeholder=page.placeholders.get(slot='col_sidebar'), plugin_type='LinkPlugin', url='http://www.example.com', language=lang)
-                add_plugin(placeholder=page.placeholders.get(slot='col_sidebar'), plugin_type='TextPlugin', body='sidebar link', language=lang, target=link)
+                add_plugin(placeholder=col_left, plugin_type='TextPlugin', body='some text', language=lang)
+                link = add_plugin(placeholder=col_left, plugin_type='LinkPlugin', url='http://www.example.com', language=lang)
+                add_plugin(placeholder=col_left, plugin_type='TextPlugin', body='link text', language=lang, target=link)
+                add_plugin(placeholder=col_side, plugin_type='TextPlugin', body='sidebar text', language=lang)
+                link = add_plugin(placeholder=col_side, plugin_type='LinkPlugin', url='http://www.example.com', language=lang)
+                add_plugin(placeholder=col_side, plugin_type='TextPlugin', body='sidebar link', language=lang, target=link)
+                columns = add_plugin(col_left, "MultiColumnPlugin", lang)
+                column_1 = add_plugin(col_left, "ColumnPlugin", lang, target=columns, width='10%')
+                add_plugin(col_left, "TextPlugin", lang, target=column_1, body="I am in a column")
+                column_2 = add_plugin(col_left, "ColumnPlugin", lang, target=columns, width='10%')
+                add_plugin(col_left, "TextPlugin", lang, target=column_2, body="Me too")
+
+                if not page.is_home:
+                    add_plugin(col_left, 'InheritPagePlaceholderPlugin', lang, from_page=self.pages['1'], from_language='en')
                 page.publish(lang)
 
         for key, page in self.pages.items():

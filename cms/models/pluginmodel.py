@@ -83,7 +83,7 @@ class CMSPlugin(six.with_metaclass(PluginModelBase, MP_Node)):
     child_plugin_instances = None
     translatable_content_excluded_fields = []
 
-    _as_data_ignored = ('placeholder_id',)
+    _to_data_ignored = ('placeholder_id',)
 
     class Meta:
         app_label = 'cms'
@@ -115,13 +115,33 @@ class CMSPlugin(six.with_metaclass(PluginModelBase, MP_Node)):
     def __str__(self):
         return force_text(self.pk)
 
-    def as_data(self):
+    def to_data(self):
         data = {}
         instance = self.get_plugin_instance()[0]
         for field in instance._meta.fields:
-            if field.column not in instance._as_data_ignored:
+            if field.column not in instance._to_data_ignored:
                 data[field.column] = getattr(instance, field.column)
         return data
+
+    @classmethod
+    def from_data(cls, plugin, placeholder_obj, plugin_tree):
+        from cms.api import add_plugin
+        plugin_data = dict(
+            placeholder=placeholder_obj,
+            plugin_type=plugin['plugin_type'],
+            language=plugin['language']
+        )
+        excluded = ('changed_date', 'language', 'numchild', 'creation_date', 'parent_id',
+                    'depth', 'cmsplugin_ptr_id', 'position', 'path', 'id',
+                    'plugin_type')
+
+        if plugin['parent_id']:
+            plugin_data['target'] = plugin_tree[plugin['parent_id']]
+        for attr in plugin:
+            if attr not in excluded:
+                plugin_data[attr] = plugin[attr]
+        new_plugin = add_plugin(**plugin_data)
+        return new_plugin
 
     def get_plugin_name(self):
         from cms.plugin_pool import plugin_pool
