@@ -13,7 +13,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import six
 from django.utils.encoding import force_text, python_2_unicode_compatible
 from django.utils.timezone import now
-from django.utils.translation import get_language, ugettext_lazy as _
+from django.utils.translation import get_language, ugettext_lazy as _, override
 
 from cms import constants
 from cms.constants import PUBLISHER_STATE_DEFAULT, PUBLISHER_STATE_PENDING, PUBLISHER_STATE_DIRTY, TEMPLATE_INHERITANCE_MAGIC
@@ -156,7 +156,7 @@ class Page(six.with_metaclass(PageMetaClass, MP_Node)):
     def get_absolute_url(self, language=None, fallback=True):
         if not language:
             language = get_language()
-        with i18n.force_language(language):
+        with override(language):
             if self.is_home:
                 return reverse('pages-root')
             path = self.get_path(language, fallback) or self.get_slug(language, fallback)
