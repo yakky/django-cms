@@ -1692,3 +1692,23 @@ class MTIPluginsTestCase(PluginsTestBaseCase):
         plugin_model = TestPluginBetaModel.objects.all()[0]
         self.assertEqual("ALPHA", plugin_model.alpha)
         self.assertEqual("BETA", plugin_model.beta)
+
+
+class SimplePluginTestCase(CMSTestCase):
+
+    def test_render_method(self):
+        """
+        Tests the CMSPluginBase.render method by checking that the appropriate variables
+        are set in the returned context
+        """
+        from cms.api import create_page
+        my_page = create_page('home', language='en', template='col_two.html')
+        placeholder = my_page.placeholders.get(slot='col_left')
+        context = self.get_context('/', page=my_page)
+        plugin = CMSPluginBase()
+
+        new_context = plugin.render(context, None, placeholder)
+        self.assertTrue('placeholder' in new_context)
+        self.assertEqual(placeholder, context['placeholder'])
+        self.assertTrue('instance' in new_context)
+        self.assertIsNone(new_context['instance'])
