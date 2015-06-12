@@ -346,6 +346,35 @@ $(document).ready(function () {
 			});
 		},
 
+		isAllowed: function(placeholder, originalItem, dropzone) {
+			// cancel if action is excecuted
+			if(CMS.API.locked) return false;
+			// getting restriction array
+			var bounds = [];
+			// save original state events
+			var original = $('.cms_plugin-' + this.getId(originalItem));
+			// cancel if item has no settings
+			if(original.length === 0 || original.data('settings') === null) return false;
+			var type = original.data('settings').plugin_type;
+			// prepare variables for bound
+			var holderId = this.getId(placeholder.closest('.cms_dragarea'));
+			var holder = $('.cms_placeholder-' + holderId);
+			var plugin = $('.cms_plugin-' + this.getId(placeholder.closest('.cms_draggable')));
+
+			// now set the correct bounds
+			if(holder.length) bounds = holder.data('settings').plugin_restriction;
+			if(plugin.length) bounds = plugin.data('settings').plugin_restriction;
+			if(dropzone) bounds = dropzone.data('settings').plugin_restriction;
+
+			// if parent has class disabled, dissalow drop
+			if(placeholder.parent().hasClass('cms_draggable-disabled')) return false;
+
+			// if restrictions is still empty, proceed
+			this.state = (bounds.length <= 0 || $.inArray(type, bounds) !== -1) ? true : false;
+
+			return this.state;
+		},
+
 		_drag: function () {
 			var that = this;
 			var dropped = false;
@@ -364,7 +393,7 @@ $(document).ready(function () {
 				'helper': 'clone',
 				'appendTo': '.cms_structure-content',
 				'cursor': 'move',
-				'opacity': 0.4,
+				//'opacity': 0.4,
 				'zIndex': 9999999,
 				'delay': 100,
 				'refreshPositions': true,
@@ -438,32 +467,7 @@ $(document).ready(function () {
 					});
 				},
 				'isAllowed': function(placeholder, placeholderParent, originalItem) {
-					// cancel if action is excecuted
-					if(CMS.API.locked) return false;
-					// getting restriction array
-					var bounds = [];
-					// save original state events
-					var original = $('.cms_plugin-' + that.getId(originalItem));
-					// cancel if item has no settings
-					if(original.length === 0 || original.data('settings') === null) return false;
-					var type = original.data('settings').plugin_type;
-					// prepare variables for bound
-					var holderId = that.getId(placeholder.closest('.cms_dragarea'));
-					var holder = $('.cms_placeholder-' + holderId);
-					var plugin = $('.cms_plugin-' + that.getId(placeholder.closest('.cms_draggable')));
-
-					// now set the correct bounds
-					if(holder.length) bounds = holder.data('settings').plugin_restriction;
-					if(plugin.length) bounds = plugin.data('settings').plugin_restriction;
-					if(dropzone) bounds = dropzone.data('settings').plugin_restriction;
-
-					// if parent has class disabled, dissalow drop
-					if(placeholder.parent().hasClass('cms_draggable-disabled')) return false;
-
-					// if restrictions is still empty, proceed
-					that.state = (bounds.length <= 0 || $.inArray(type, bounds) !== -1) ? true : false;
-
-					return that.state;
+					return that.isAllowed(placeholder, originalItem, dropzone);
 				}
 			});
 

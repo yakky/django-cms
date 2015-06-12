@@ -74,6 +74,10 @@ $(document).ready(function () {
 
 			var settings = CMS.settings;
 			settings.dragbars = settings.dragbars || [];
+			var items = dragbar.find(title).closest('.cms_dragarea').find('.cms_dragitem-collapsable');
+			if(items.length)  {
+				dragbar.find(title).addClass('cms_dragbar-arrow');
+			}
 
 			// enable expanding/collapsing globally within the placeholder
 			dragbar.find(title).bind(this.click, function () {
@@ -83,6 +87,20 @@ $(document).ready(function () {
 			if ($.inArray(this.options.placeholder_id, settings.dragbars) != -1) {
 				dragbar.find(title).addClass(expanded);
 			}
+            dragbar.find('.cms_submenu a').on('click', function(e){
+                e.preventDefault();
+                e.stopPropagation();
+
+                switch($(this).attr('data-rel')) {
+                    case 'edit-menu':
+                        $('.cms_draggable-' + that.options.plugin_id + ' > .cms_dragitem > .cms_child-plugins').toggleClass('active');
+                        $(this).toggleClass('active');
+                        $(this).next().toggleClass('active');
+                        break;
+                    default:
+                        break;
+                }
+            });
 		},
 
 		_setPlugin: function () {
@@ -146,23 +164,13 @@ $(document).ready(function () {
 				if(e.type === 'mouseenter' || e.type === 'mouseover') $(this).data('active', true);
 				if(e.type === 'mouseleave') {
 					$(this).data('active', false);
-					submenus.hide();
 				}
-
-				// add timeout to determine if we should hide the element
-				setTimeout(function () {
-					if(!$(e.currentTarget).data('active')) {
-						$(e.currentTarget).find('.cms_submenu:eq(0)').hide();
-					}
-				}, 100);
 			});
 
 			// adds event for showing the subnav
 			dragitem.bind('mouseenter', function (e) {
 				e.preventDefault();
 				e.stopPropagation();
-
-				submenus.hide();
 				submenu.show();
 			});
 
@@ -172,6 +180,7 @@ $(document).ready(function () {
 				e.stopPropagation();
 				that.editPlugin(that.options.urls.edit_plugin, that.options.plugin_name, that.options.plugin_breadcrumb);
 			});
+			submenus.show();
 		},
 
 		_setGeneric: function () {
@@ -291,7 +300,7 @@ $(document).ready(function () {
 		},
 
 		cutPlugin: function () {
-			// if cut is once triggered, prevend additional actions
+			// if cut is once triggered, prevent additional actions
 			if(CMS.API.locked) return false;
 			CMS.API.locked = true;
 
@@ -329,6 +338,54 @@ $(document).ready(function () {
 					}
 				});
 			});
+		},
+
+		pastePlugin: function () {
+			if(!CMS.API.StructureBoard.isAllowed($('.cms_draggable-' + this.options.plugin_id + ' > .cms_draggable_toolbar'), $(CMS.API.Clipboard.containers[0]))) {
+				return false;
+			}
+			if(CMS.API.locked) return false;
+			CMS.API.locked = true;
+
+			var that = this;
+			var plugin_id = -1;
+			var containerClasses = CMS.API.Clipboard.containers[0].className.split(/\s+/);
+			for (var i = 0 ; i < containerClasses.length ; i++) {
+				matches = /^cms_draggable-(.*)/.exec(containerClasses[i]);
+				if (matches) {
+					plugin_id = matches[1];
+					break;
+				}
+			}
+
+			var data = {
+				'source_placeholder_id': CMS.config.clipboard.id,
+				'source_plugin_id': plugin_id || '',
+				'source_language': this.options.page_language || '',
+				'target_plugin_id': this.options.plugin_id || '',
+				'target_placeholder_id': this.options.placeholder_id || '',
+				'target_language': this.options.page_language,
+				'csrfmiddlewaretoken': this.csrf
+			};
+			var request = {
+				'type': 'POST',
+				'url': this.options.urls.copy_plugin,
+				'data': data,
+				'success': function () {
+					CMS.API.Clipboard.clear(function () {
+						CMS.API.Toolbar.openMessage(CMS.config.lang.success);
+						// reload
+						CMS.API.Helpers.reloadBrowser();
+					});
+				},
+				'error': function (jqXHR) {
+					CMS.API.locked = false;
+					var msg = CMS.config.lang.error;
+					// trigger error
+					that._showError(msg + jqXHR.responseText || jqXHR.status + ' ' + jqXHR.statusText);
+				}
+			};
+			$.ajax(request);
 		},
 
 		movePlugin: function (options) {
@@ -446,11 +503,138 @@ $(document).ready(function () {
 
 		_setSubnav: function (nav) {
 			var that = this;
+			//nav.bind('mouseenter mouseleave tap.cms', function (e) {
+			nav.bind('mousedown', function (e) { e.stopPropagation(); });  // avoid starting the longclick event when using the drag bar
 
-			nav.bind('mouseenter mouseleave tap.cms', function (e) {
+			$('.cms_dragbar-' + this.options.placeholder_id).mouseleave(function() {
+				$('.cms_submenu-dropdown').removeClass('active');
+				$('a[data-rel=edit-menu]').removeClass('active');
+			});
+
+			$('.cms_dragbar-' + this.options.placeholder_id + ' > .cms_submenu')
+                .on('mouseenter', function(){
+                $('.cms_dragbar-' + that.options.placeholder_id)
+                    .css('z-index', '999999999')
+                    .parents('.cms_draggable')
+                    .css('z-index', '999999999');
+            });
+
+			$('.cms_dragbar-' + this.options.placeholder_id + ' > .cms_submenu')
+                .on('mouseleave', function(){
+                $('.cms_dragbar-' + that.options.placeholder_id ).css('z-index', '');
+            });
+
+			$('.cms_draggable-' + this.options.plugin_id).mouseleave(function() {
+				$('.cms_edit-menu-dropdown').removeClass('active');
+				$('a[data-rel=edit-menu]').removeClass('active');
+			});
+
+			$('.cms_draggable-' + this.options.plugin_id + ' > .cms_dragitem .cms_draggable_toolbar')
+                .on('mouseenter', function(){
+                $('.cms_draggable-' + that.options.plugin_id)
+                    .css('z-index', '999999999')
+                    .parents('.cms_draggable')
+                    .css('z-index', '999999999');
+            });
+
+			$('.cms_draggable-' + this.options.plugin_id + ' > .cms_dragitem .cms_draggable_toolbar')
+                .on('mouseleave', function(){
+                $('.cms_draggable-' + that.options.plugin_id).css('z-index', '');
+            });
+
+			$('.cms_draggable-' + this.options.plugin_id + ' > .cms_dragitem .cms_draggable_toolbar a').bind('click.cms tap.cms', function (e) {
 				e.preventDefault();
 				e.stopPropagation();
-				(e.type === 'mouseenter') ? that._showSubnav($(this)) : that._hideSubnav($(this));
+
+				// show loader and make sure scroll doesn't jump
+				CMS.API.Toolbar._loader(true);
+
+				var el = $(this);
+				// set switch for subnav entries
+				switch(el.attr('data-rel')) {
+					case 'add':
+						var el = $('.cms_draggable-' + that.options.plugin_id + ' > .cms_dragitem > .cms_child-plugins').toggleClass('active');
+						$('.cms_draggable-' + that.options.plugin_id + ' .quicksearch').focus();
+						break;
+					case 'edit':
+						that.editPlugin(that.options.urls.edit_plugin, that.options.plugin_name, that.options.plugin_breadcrumb);
+						break;
+					case 'copy':
+						that.copyPlugin();
+						break;
+					case 'cut':
+						that.cutPlugin();
+						break;
+					case 'paste':
+						that.pastePlugin();
+						break;
+					case 'delete':
+						that.deletePlugin(that.options.urls.delete_plugin, that.options.plugin_name, that.options.plugin_breadcrumb);
+						break;
+					case 'edit-menu':
+                        var was_active ;
+                        el.hasClass('active') ? was_active = true : was_active = false ;
+                        $('.cms_edit-menu-dropdown').removeClass('active');
+                        $('a[data-rel=edit-menu]').removeClass('active');
+                        $('.cms_draggable').removeClass('cms_draggable-submenu-open');
+                        if(!was_active)
+						    el.addClass('active').next().addClass('active').closest('.cms_draggable').addClass('cms_draggable-submenu-open');
+						break;
+					default:
+						CMS.API.Toolbar._loader(false);
+						CMS.API.Toolbar._delegate(el);
+						break;
+				}
+			});
+
+			$('.cms_draggable-' + this.options.plugin_id + ' > .cms_dragitem > .cms_child-plugins a').bind('click.cms tap.cms', function (e) {
+				e.preventDefault();
+				e.stopPropagation();
+
+				// show loader and make sure scroll doesn't jump
+				CMS.API.Toolbar._loader(true);
+
+				var el = $(this);
+				// set switch for subnav entries
+				switch(el.attr('data-rel')) {
+					case 'add':
+						that.addPlugin(el.attr('href').replace('#', ''), el.text(), that._getId(el.closest('.cms_draggable')));
+						break;
+                    case 'close':
+                        el.parents('.cms_child-plugins').removeClass('active');
+                        break;
+					default:
+						CMS.API.Toolbar._loader(false);
+						CMS.API.Toolbar._delegate(el);
+						break;
+				}
+			});
+
+			var dragbar = $('.cms_dragbar-' + this.options.placeholder_id);
+
+			$('.cms_dragbar-' + this.options.placeholder_id + ' > .cms_child-plugins a').bind('click.cms tap.cms', function (e) {
+				e.preventDefault();
+				e.stopPropagation();
+
+				// show loader and make sure scroll doesn't jump
+				CMS.API.Toolbar._loader(true);
+
+				var el = $(this);
+				// set switch for subnav entries
+				switch(el.attr('data-rel')) {
+                    case 'close':
+                        el.parents('.cms_child-plugins').removeClass('active');
+                        break;
+					case 'add':
+						that.addPlugin(el.attr('href').replace('#', ''), el.text(), that._getId(el.closest('.cms_draggable')));
+						break;
+					case 'ajax_add':
+						CMS.API.Toolbar.openAjax(el.attr('href'), JSON.stringify(el.data('post')), el.data('text'), that.editPluginPostAjax(that), el.data('on-success'));
+					default:
+						CMS.API.Toolbar._loader(false);
+						CMS.API.Toolbar._delegate(el);
+						break;
+				}
 			});
 
 			nav.find('a').bind('click.cms tap.cms', function (e) {
@@ -465,10 +649,8 @@ $(document).ready(function () {
 				// set switch for subnav entries
 				switch(el.attr('data-rel')) {
 					case 'add':
-						that.addPlugin(el.attr('href').replace('#', ''), el.text(), that._getId(el.closest('.cms_draggable')));
-						break;
-					case 'ajax_add':
-						CMS.API.Toolbar.openAjax(el.attr('href'), JSON.stringify(el.data('post')), el.data('text'), that.editPluginPostAjax(that), el.data('on-success'));
+						var child_plugins_el = el.closest('.cms_dragbar').find('.cms_child-plugins').toggleClass('active');
+						$(child_plugins_el).find('.quicksearch').focus();
 						break;
 					case 'edit':
 						that.editPlugin(that.options.urls.edit_plugin, that.options.plugin_name, that.options.plugin_breadcrumb);
@@ -491,24 +673,33 @@ $(document).ready(function () {
 				}
 			});
 
-			nav.find('input').bind('keyup keydown focus blur click', function (e) {
-				if(e.type === 'focus') that.focused = true;
-				if(e.type === 'blur' && !that.traverse) {
-					that.focused = false;
-					that._hideSubnav(nav);
+			var events = 'keyup keydown';
+
+			$('.cms_dragbar-' + that.options.placeholder_id + ' > .cms_child-plugins input').unbind(events);
+			$('.cms_dragbar-' + that.options.placeholder_id + ' > .cms_child-plugins input').bind(events, function (e) {
+				if (!that._keyCommand(this, nav, e)) {
+					that._startSearch(this, nav, e);
 				}
-				if(e.type === 'keyup') {
-					clearTimeout(that.timer);
-					// keybound is not required
-					that.timer = setTimeout(function () {
-						that._searchSubnav(nav, $(e.currentTarget).val());
-					}, 100);
+			});
+
+			$('.cms_dragbar-' + that.options.placeholder_id + ' .cms_submenu-item a').unbind(events);
+			$('.cms_dragbar-' + that.options.placeholder_id + ' .cms_submenu-item a').bind(events, function (e) {
+				that._keyCommand(this, nav, e);
+			});
+
+			$('.cms_draggable-' + this.options.plugin_id + ' > .cms_dragitem > .cms_child-plugins input').bind(events, function (e) {
+				if (!that._keyCommand(this, nav, e)) {
+					that._startSearch(this, nav, e);
 				}
+			});
+
+			$('.cms_draggable-' + this.options.plugin_id + ' > .cms_dragitem > .cms_child-plugins .cms_submenu-item a').bind(events, function (e) {
+				that._keyCommand(this, nav, e);
 			});
 
 			// set data attributes for original top positioning
 			nav.find('.cms_submenu-dropdown').each(function () {
-				$(this).data('top', $(this).css('top'))
+				$(this).data('top', $(this).css('top'));
 			});
 
 			// prevent propagnation
@@ -517,16 +708,62 @@ $(document).ready(function () {
 			});
 		},
 
+		_keyCommand: function (el, nav, e) {
+			var anchors = $(el).parent().parent().find('.cms_submenu-item:visible a');
+			var index = anchors.index(anchors.filter(':focus'));
+			if(e.type === 'keydown') {
+				if (e.keyCode === 27) {
+					e.preventDefault();
+					$(el).parents('.cms_child-plugins').removeClass('active');
+					return true;
+				}
+				if (e.keyCode === 38) {
+					e.preventDefault();
+					if (index == 0) {
+						$(el).parent().parent().find('input').focus();
+					} else if (index == -1) {
+						anchors.eq(anchors.length - 1).focus();
+					} else {
+						anchors.eq(index - 1).focus();
+					}
+					return true;
+				}
+				if(e.keyCode === 40 || e.keyCode === 9) {
+					e.preventDefault();
+					if (index == anchors.length - 1) {
+						$(el).parent().parent().find('input').focus();
+					} else {
+						anchors.eq(index + 1).focus();
+					}
+					return true;
+				}
+			}
+			return false;
+		},
+
+		_startSearch: function (el, nav, e) {
+			if(e.type === 'keyup') {
+				if (e.keyCode === 13) {
+					var anchors = $(el).parent().parent().find('.cms_submenu-item:visible a');
+					if (anchors.length == 1) {
+						anchors.eq(0).click();
+					}
+				} else {
+					this._searchPlugin($(el).parent(), $(e.currentTarget).val());
+				}
+			}
+		},
+
 		_showSubnav: function (nav) {
 			var that = this;
 			var dropdown = nav.find('.cms_submenu-dropdown');
 			var offset = parseInt(dropdown.data('top'));
 
-			// clearing
-			clearTimeout(this.timer);
+			if(!dropdown.is(':visible')) {
+				// clearing
+				clearTimeout(this.timer);
 
-			// add small delay before showing submenu
-			this.timer = setTimeout(function () {
+				// add small delay before showing submenu
 				// reset z indexes
 				var reset = $('.cms_submenu').parentsUntil('.cms_dragarea');
 				var scrollHint = nav.find('.cms_submenu-scroll-hint');
@@ -549,7 +786,7 @@ $(document).ready(function () {
 				window.console.log(nav[0], nav[0].scrollHeight);
 				if(nav[0].scrollHeight > 245) scrollHint.show();
 
-			}, 100);
+			}
 
 			// add key events
 			$(document).unbind('keydown.cms');
@@ -602,8 +839,6 @@ $(document).ready(function () {
 			clearTimeout(this.timer);
 
 			var that = this;
-			// cancel if quicksearch is focues
-			if(this.focused) return false;
 
 			// set correct active state
 			nav.closest('.cms_draggable').data('active', false);
@@ -617,52 +852,22 @@ $(document).ready(function () {
 				that._searchSubnav(nav, '');
 			}, this.timeout);
 
+			nav.find('> .cms_submenu-dropdown').hide();
+			nav.find('input').val('');
 			// reset relativity
 			$('.cms_dragbar').css('position', '');
 		},
 
-		_searchSubnav: function (nav, value) {
-			var items = nav.find('.cms_submenu-item');
-			var titles = nav.find('.cms_submenu-item-title');
+		_searchPlugin: function (plugin_container, value) {
+			var items = plugin_container.find('.cms_submenu-item');
+			var titles = plugin_container.find('.cms_submenu-item-title');
 
-			// cancel if value is zero
-			if(value === '') {
-				items.add(titles).show();
-				return false;
-			}
-
-			// loop through items and figure out if we need to hide items
 			items.find('a, span').each(function (index, item) {
 				item = $(item);
 				var text = item.text().toLowerCase();
 				var search = value.toLowerCase();
-
 				(text.indexOf(search) >= 0) ? item.parent().show() : item.parent().hide();
 			});
-
-			// check if a title is matching
-			titles.filter(':visible').each(function (index, item) {
-				titles.hide();
-				$(item).nextUntil('.cms_submenu-item-title').show();
-			});
-
-			// always display title of a category
-			items.filter(':visible').each(function (index, item) {
-				if($(item).prev().hasClass('cms_submenu-item-title')) {
-					$(item).prev().show();
-				} else {
-					$(item).prevUntil('.cms_submenu-item-title').last().prev().show();
-				}
-			});
-
-			// if there is no element visible, show only first categoriy
-			nav.find('.cms_submenu-dropdown').show();
-			if(items.add(titles).filter(':visible').length <= 0) {
-				nav.find('.cms_submenu-dropdown').hide();
-			}
-
-			// hide scrollHint
-			nav.find('.cms_submenu-scroll-hint').hide();
 		},
 
 		_collapsables: function () {
@@ -670,7 +875,6 @@ $(document).ready(function () {
 			var that = this;
 			var settings = CMS.settings;
 			var draggable = $('.cms_draggable-' + this.options.plugin_id);
-
 			// check which button should be shown for collapsemenu
 			this.container.each(function (index, item) {
 				var els = $(item).find('.cms_dragitem-collapsable');
@@ -719,11 +923,6 @@ $(document).ready(function () {
 
 				// save settings
 				CMS.API.Toolbar.setSettings(settings);
-			});
-			// adds double click event
-			draggable.bind('dblclick', function (e) {
-				e.stopPropagation();
-				$('.cms_plugin-' + that._getId($(this))).trigger('dblclick');
 			});
 
 			// only needs to be excecuted once
