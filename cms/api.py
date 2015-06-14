@@ -16,6 +16,7 @@ from django.core.exceptions import ValidationError
 from django.template.defaultfilters import slugify
 from django.template.loader import get_template
 from django.utils import six
+from django.utils.timezone import now
 from django.utils.translation import activate
 
 from cms import constants
@@ -126,7 +127,10 @@ def create_page(title, template, language, menu_title=None, slug=None,
                 in_navigation=False, soft_root=False, reverse_id=None,
                 navigation_extenders=None, published=False, site=None,
                 login_required=False, limit_visibility_in_menu=constants.VISIBILITY_ALL,
-                position="last-child", overwrite_url=None, xframe_options=Page.X_FRAME_OPTIONS_INHERIT):
+                position="last-child", overwrite_url=None,
+                xframe_options=Page.X_FRAME_OPTIONS_INHERIT, page_title=None,
+                creation_date=None, changed_date=None, title_creation_date=None,
+                changed_by='python-api', ):
     """
     Create a CMS Page and it's title for the given language
 
@@ -139,6 +143,9 @@ def create_page(title, template, language, menu_title=None, slug=None,
         created_by = getattr(created_by, get_user_model().USERNAME_FIELD)
     else:
         _thread_locals.user = None
+
+    if not changed_by:
+        changed_by = created_by
 
     # validate template
     if not template == TEMPLATE_INHERITANCE_MAGIC:
@@ -171,6 +178,14 @@ def create_page(title, template, language, menu_title=None, slug=None,
     if publication_end_date:
         assert isinstance(publication_end_date, datetime.date)
 
+    # validate creation date
+    if creation_date:
+        assert isinstance(creation_date, datetime.date)
+
+    # validate changed date
+    if changed_date:
+        assert isinstance(changed_date, datetime.date)
+
     if navigation_extenders:
         raw_menus = menu_pool.get_menus_by_attribute("cms_enabled", True)
         menus = [menu[0] for menu in raw_menus]
@@ -201,7 +216,7 @@ def create_page(title, template, language, menu_title=None, slug=None,
 
     page = Page(
         created_by=created_by,
-        changed_by=created_by,
+        changed_by=changed_by,
         parent_id=parent_id,
         publication_date=publication_date,
         publication_end_date=publication_end_date,
@@ -222,15 +237,23 @@ def create_page(title, template, language, menu_title=None, slug=None,
     if parent:
         page = page.move(target=parent, pos=position)
 
+    if creation_date:
+        page.creation_date = creation_date
+    if changed_date:
+        page.changed_date = changed_date
+    page.save()
+
     create_title(
         language=language,
         title=title,
         menu_title=menu_title,
+        page_title=page_title,
         slug=slug,
         redirect=redirect,
         meta_description=meta_description,
         page=page,
         overwrite_url=overwrite_url,
+        creation_date=title_creation_date
     )
 
     if published:
@@ -242,7 +265,7 @@ def create_page(title, template, language, menu_title=None, slug=None,
 
 def create_title(language, title, page, menu_title=None, slug=None,
                  redirect=None, meta_description=None,
-                 parent=None, overwrite_url=None):
+                 parent=None, overwrite_url=None, page_title=None, creation_date=None):
     """
     Create a title.
 
@@ -260,26 +283,36 @@ def create_title(language, title, page, menu_title=None, slug=None,
     if not slug:
         slug = _generate_valid_slug(title, parent, language)
 
+    # validate title creation date
+    if creation_date:
+        assert isinstance(creation_date, datetime.date)
+    else:
+        creation_date = now()
+
     title = Title.objects.create(
         language=language,
         title=title,
         menu_title=menu_title,
+        page_title=page_title,
         slug=slug,
         redirect=redirect,
         meta_description=meta_description,
-        page=page
+        page=page,
     )
 
     if overwrite_url:
         title.has_url_overwrite = True
         title.path = overwrite_url
-        title.save()
 
-    return title
+    if creation_date:
+        title.creation_date = creation_date
+    title.save()
+
+    return title.reload()
 
 
 def add_plugin(placeholder, plugin_type, language, position='last-child',
-               target=None, **data):
+               target=None, creation_date=None, **data):
     """
     Add a plugin to a placeholder
 
@@ -346,6 +379,8 @@ def add_plugin(placeholder, plugin_type, language, position='last-child',
         plugin_base = plugin_base.move(target, pos=position)
     plugin = plugin_model(**data)
     plugin_base.set_base_attr(plugin)
+    if creation_date:
+        plugin.creation_date = creation_date
     plugin.save()
     return plugin
 
