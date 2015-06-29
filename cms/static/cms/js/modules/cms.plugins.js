@@ -42,7 +42,7 @@ $(document).ready(function () {
 			this.timer = function () {};
 			this.timeout = 250;
 			this.focused = false;
-			this.click = (document.ontouchstart !== null) ? 'click.cms' : 'tap.cms';
+			this.click = (document.ontouchstart !== null) ? 'click.cms' : 'tap.cms click.cms';
 
 			// bind data element to the container
 			this.container.data('settings', this.options);
@@ -72,10 +72,17 @@ $(document).ready(function () {
 			// register the subnav on the placeholder
 			this._setSubnav(dragbar.find('.cms_submenu'));
 
+			var settings = CMS.settings;
+			settings.dragbars = settings.dragbars || [];
+
 			// enable expanding/collapsing globally within the placeholder
 			dragbar.find(title).bind(this.click, function () {
 				($(this).hasClass(expanded)) ? that._collapseAll($(this)) : that._expandAll($(this));
 			});
+
+			if ($.inArray(this.options.placeholder_id, settings.dragbars) != -1) {
+				dragbar.find(title).addClass(expanded);
+			}
 		},
 
 		_setPlugin: function () {
@@ -118,19 +125,6 @@ $(document).ready(function () {
 					data.parent= that._getId(dragitem.parent().closest('.cms_draggable'));
 
 				that.copyPlugin(data);
-			});
-
-			// adds longclick events
-			this.container.bind('mousedown mouseup mousemove', function (e) {
-				if(e.type !== 'mousemove') e.stopPropagation();
-				if(e.type === 'mousedown' && (e.which !== 3 || e.button !== 2)) {
-					// start countdown
-					timer = setTimeout(function () {
-						CMS.API.StructureBoard.setActive(that.options.plugin_id, true);
-					}, 500);
-				} else {
-					clearTimeout(timer);
-				}
 			});
 
 			// variables for dragitems
@@ -177,25 +171,6 @@ $(document).ready(function () {
 				e.preventDefault();
 				e.stopPropagation();
 				that.editPlugin(that.options.urls.edit_plugin, that.options.plugin_name, that.options.plugin_breadcrumb);
-			});
-
-			// adds longclick events
-			dragitem.bind('mousedown mouseup mousemove', function (e) {
-				if(e.type === 'mousedown') {
-					// start countdown
-					timer = setTimeout(function () {
-						CMS.API.StructureBoard.setActive(that.options.plugin_id, false);
-						// prevent dragging
-						$(document).bind('mousemove.keypress', function () {
-							$(document).trigger('keyup.cms', [true]);
-							setTimeout(function () {
-								$(document).unbind('mousemove.keypress');
-							}, 1000);
-						});
-					}, 500);
-				} else {
-					clearTimeout(timer);
-				}
 			});
 		},
 
@@ -401,6 +376,9 @@ $(document).ready(function () {
 
 			// show publish button
 			$('.cms_btn-publish').addClass('cms_btn-publish-active').parent().show();
+
+			// enable revert to live
+			$('.cms_toolbar-revert').removeClass('cms_toolbar-item-navigation-disabled');
 		},
 
 		deletePlugin: function (url, name, breadcrumb) {
@@ -443,10 +421,18 @@ $(document).ready(function () {
 			}
 		},
 
+		editPluginPostAjax: function(caller, toolbar, response){
+			if (typeof toolbar == 'undefined' || typeof response == 'undefined') {
+				return function(toolbar, response) {
+					var that = caller;
+					that.editPlugin(response['url'], that.options.plugin_name, response['breadcrumb']);
+				}
+			}
+			that.editPlugin(response['url'], that.options.plugin_name, response['breadcrumb']);
+		},
+
 		_setSubnav: function (nav) {
 			var that = this;
-
-			nav.bind('mousedown', function (e) { e.stopPropagation(); });  // avoid starting the longclick event when using the drag bar
 
 			nav.bind('mouseenter mouseleave tap.cms', function (e) {
 				e.preventDefault();
@@ -460,7 +446,6 @@ $(document).ready(function () {
 
 				// show loader and make sure scroll doesn't jump
 				CMS.API.Toolbar._loader(true);
-				CMS.API.Helpers.preventScroll(false);
 
 				var el = $(this);
 
@@ -468,6 +453,9 @@ $(document).ready(function () {
 				switch(el.attr('data-rel')) {
 					case 'add':
 						that.addPlugin(el.attr('href').replace('#', ''), el.text(), that._getId(el.closest('.cms_draggable')));
+						break;
+					case 'ajax_add':
+						CMS.API.Toolbar.openAjax(el.attr('href'), JSON.stringify(el.data('post')), el.data('text'), that.editPluginPostAjax(that), el.data('on-success'));
 						break;
 					case 'edit':
 						that.editPlugin(that.options.urls.edit_plugin, that.options.plugin_name, that.options.plugin_breadcrumb);
@@ -545,7 +533,7 @@ $(document).ready(function () {
 				});
 
 				// show scrollHint for FF on OSX
-				if(nav[0].scrollHeight > 230) scrollHint.show();
+				if(nav[0].scrollHeight > 245) scrollHint.show();
 
 			}, 100);
 
@@ -566,8 +554,8 @@ $(document).ready(function () {
 					}
 				}
 
-				// bind arrow up keys
-				if(e.keyCode === 38) {
+				// bind arrow up and shift+tab keys
+				if(e.keyCode === 38 || (e.keyCode === 9 && e.shiftKey)) {
 					e.preventDefault();
 					if(anchors.is(':focus')) {
 						anchors.eq(index - 1).focus();
@@ -594,9 +582,6 @@ $(document).ready(function () {
 				dropdown.css('top', offset);
 				dropdown.css('bottom', 'auto');
 			}
-
-			// enable scroll
-			this.preventScroll(true);
 		},
 
 		_hideSubnav: function (nav) {
@@ -617,9 +602,6 @@ $(document).ready(function () {
 				nav.find('input').val('');
 				that._searchSubnav(nav, '');
 			}, this.timeout);
-
-			// enable scroll
-			this.preventScroll(false);
 
 			// reset relativity
 			$('.cms_dragbar').css('position', '');
@@ -698,10 +680,28 @@ $(document).ready(function () {
 				if(el.hasClass('cms_dragitem-expanded')) {
 					settings.states.splice($.inArray(id, settings.states), 1);
 					el.removeClass('cms_dragitem-expanded').parent().find('> .cms_draggables').hide();
+					if ($(document).data('expandmode')) {
+						var items = draggable.find('.cms_draggable').find('.cms_dragitem-collapsable');
+						if(!items.length) return false;
+						items.each(function () {
+							if($(this).hasClass('cms_dragitem-expanded')) $(this).trigger('click.cms');
+						});
+					}
+
 				} else {
 					settings.states.push(id);
 					el.addClass('cms_dragitem-expanded').parent().find('> .cms_draggables').show();
+					if ($(document).data('expandmode')) {
+						var items = draggable.find('.cms_draggable').find('.cms_dragitem-collapsable');
+						if(!items.length) return false;
+						items.each(function () {
+							if(!$(this).hasClass('cms_dragitem-expanded')) $(this).trigger('click.cms');
+						});
+					}
 				}
+
+				// make sure structurboard gets updated after expanding
+				$(window).trigger('resize.sideframe');
 
 				// save settings
 				CMS.API.Toolbar.setSettings(settings);
@@ -748,6 +748,11 @@ $(document).ready(function () {
 			});
 
 			el.addClass('cms_dragbar-title-expanded');
+
+			var settings = CMS.settings;
+			settings.dragbars = settings.dragbars || [];
+			settings.dragbars.push(this.options.placeholder_id);
+			CMS.API.Toolbar.setSettings(settings);
 		},
 
 		_collapseAll: function (el) {
@@ -757,6 +762,11 @@ $(document).ready(function () {
 			});
 
 			el.removeClass('cms_dragbar-title-expanded');
+
+			var settings = CMS.settings;
+			settings.dragbars = settings.dragbars || [];
+			settings.dragbars.splice($.inArray(this.options.placeholder_id, settings.states), 1);
+			CMS.API.Toolbar.setSettings(settings);
 		},
 
 		_getId: function (el) {
@@ -778,6 +788,8 @@ $(document).ready(function () {
 			tpl.fadeOut(function () {
 				$(this).remove()
 			});
+			// make sure structurboard gets updated after success
+			$(window).trigger('resize.sideframe');
 		}
 
 	});

@@ -34,7 +34,7 @@ $(document).ready(function () {
 			this.clipboard = $('.cms_clipboard');
 
 			// states
-			this.click = (document.ontouchstart !== null) ? 'click.cms' : 'tap.cms';
+			this.click = (document.ontouchstart !== null) ? 'click.cms' : 'tap.cms click.cms';
 			this.timer = function () {};
 			this.interval = function () {};
 			this.state = false;
@@ -54,6 +54,9 @@ $(document).ready(function () {
 			// cancel if there are no dragareas
 			if(!this.dragareas.length) return false;
 
+			// cancel if there is no structure / content switcher
+			if(!this.toolbar.find('.cms_toolbar-item-cms-mode-switcher').length) return false;
+
 			// setup toolbar mode
 			if(this.settings.mode === 'structure') setTimeout(function () { that.show(true); }, 100);
 
@@ -65,7 +68,7 @@ $(document).ready(function () {
 			// add drag & drop functionality
 			this._drag();
 			// prevent click events to detect double click
-			this.preventEvents(this.plugins);
+			// this.preventEvents(this.plugins);
 		},
 
 		_events: function () {
@@ -95,13 +98,26 @@ $(document).ready(function () {
 				var fields = $('*:focus');
 				// 32 = space
 				if(e.keyCode === 32 && that.settings.mode === 'structure' && !fields.length) {
+					// cancel if there is no structure / content switcher
+					if(!that.toolbar.find('.cms_toolbar-item-cms-mode-switcher').length) return false;
 					e.preventDefault();
 					that.hide();
 				} else if(e.keyCode === 32 && that.settings.mode === 'edit' && !fields.length) {
+					// cancel if there is no structure / content switcher
+					if(!that.toolbar.find('.cms_toolbar-item-cms-mode-switcher').length) return false;
 					e.preventDefault();
 					that.show();
+				} else if(e.keyCode === 16) {
+					$(this).data('expandmode', true);
 				}
 			});
+
+			$(document).bind('keyup', function (e) {
+				if(e.keyCode === 16) {
+					$(this).data('expandmode', false);
+				}
+			});
+
 		},
 
 		// public methods
@@ -184,7 +200,6 @@ $(document).ready(function () {
 			// resets
 			this.dragitems.removeClass('cms_draggable-selected');
 			this.plugins.removeClass('cms_plugin-active');
-			this.dragitems.unbind('mousedown.cms.longclick');
 
 			// only reset if no id is provided
 			if(id === false) return false;
@@ -206,12 +221,6 @@ $(document).ready(function () {
 
 				// show single placeholder
 				dragitem.closest('.cms_dragarea').show().css('opacity', 1);
-
-				// attach event to switch to fullmode when dragging
-				this.dragitems.bind('mousedown.cms.longclick', function () {
-					that.show();
-					that.setActive(false);
-				});
 
 			// otherwise hide and reset the board
 			} else {
@@ -262,7 +271,6 @@ $(document).ready(function () {
 		// private methods
 		_showBoard: function () {
 			var that = this;
-			var interval = 10;
 			var timer = function () {};
 
 			// show container
@@ -287,14 +295,25 @@ $(document).ready(function () {
 			this.placeholders.show();
 
 			// attach event
-			$(window).bind('resize.sideframe', function () {
-				that._resizeBoard();
-			}).trigger('resize.sideframe');
-
-			// setup an interval
-			this.interval = setInterval(function () {
-				$(window).trigger('resize.sideframe');
-			}, interval);
+			if (CMS.config.simpleStructureBoard) {
+				var content = $('.cms_structure-content');
+				var areas = content.find('.cms_dragarea');
+				// set correct css attributes for the new mode
+				content.addClass('cms_structure-content-simple');
+				areas.addClass('cms_dragarea-simple');
+				// lets reorder placeholders
+				areas.each(function (index, item) {
+					if ($(item).hasClass('cms_dragarea-static')) {
+						content.append(item)
+					}
+				});
+				// now lets get the first instance and add some padding
+				areas.filter('.cms_dragarea-static').eq(0).css('margin-top', '50px');
+			} else {
+				$(window).bind('resize.sideframe', function () {
+					that._resizeBoard();
+				}).trigger('resize.sideframe');
+			}
 		},
 
 		_hideBoard: function () {
@@ -309,6 +328,8 @@ $(document).ready(function () {
 
 			// clear interval
 			clearInterval(this.interval);
+
+			$(window).trigger('structureboard_hidden.sideframe');
 		},
 
 		_resizeBoard: function () {
@@ -356,7 +377,7 @@ $(document).ready(function () {
 				'dropOnEmpty': true,
 				'forcePlaceholderSize': true,
 				'helper': 'clone',
-				'appendTo': 'body',
+				'appendTo': '.cms_structure-content',
 				'cursor': 'move',
 				'opacity': 0.4,
 				'zIndex': 9999999,
@@ -384,6 +405,11 @@ $(document).ready(function () {
 						if($(this).children().length === 0) {
 							$(this).show();
 						}
+					});
+					// add overflow hidden to body
+					$('.cms_structure-content').css({
+						'height': $(document).height(),
+						'overflow': 'hidden'
 					});
 				},
 
@@ -418,6 +444,12 @@ $(document).ready(function () {
 						if($(this).children().length === 0) {
 							$(this).hide();
 						}
+					});
+
+					// add overflow hidden to body
+					$('.cms_structure-content').css({
+						'height': '',
+						'overflow': ''
 					});
 				},
 				'isAllowed': function(placeholder, placeholderParent, originalItem) {

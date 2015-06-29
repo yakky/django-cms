@@ -1,12 +1,11 @@
+..  _contributing:
+
 ##########################
 Contributing to django CMS
 ##########################
 
 Like every open-source project, django CMS is always looking for motivated
 individuals to contribute to its source code.
-
-There's more guidance on `how to contribute in our documentation
-<http://docs.django-cms.org/en/latest/introduction>`_.
 
 
 Key points:
@@ -53,6 +52,8 @@ only for the stuff we host on GitHub:
 #. When you feel your code is good enough for inclusion, "send us a `pull
    request`_", by using the nice GitHub web interface.
 
+.. _contributing-code:
+
 *****************
 Contributing Code
 *****************
@@ -96,9 +97,9 @@ We try to conform to `PEP8`_ as much as possible. A few highlights:
 HTML, CSS and JavaScript
 ------------------------
 
-As of django CMS 3.1, we will use spaces within frontend code, not tabs as previously. In the
+As of django CMS 3.2, we will use spaces within frontend code, not tabs as previously. In the
 meantime, please continue using tabs - all tabs will be converted to spaces in a single commit
-for 3.1.
+for 3.2.
 
 Frontend code should be formatted for readability. If in doubt, follow existing examples, or ask.
 
@@ -124,6 +125,8 @@ that the fix works.
 
 We have an IRC channel, our `django-cms-developers`_ email list,
 and of course the code reviews mechanism on GitHub - do use them.
+
+.. _contributing-documentation:
 
 **************************
 Contributing Documentation
@@ -197,23 +200,24 @@ We use Python documentation conventions for section marking:
 
 * ``#`` with overline, for parts
 * ``*`` with overline, for chapters
-* ``=``, for sections
-* ``-``, for subsections
-* ``^``, for subsubsections
-* ``"``, for paragraphs
+* ``=`` for sections
+* ``-`` for subsections
+* ``^`` for subsubsections
+* ``"`` for paragraphs
 
 Inline markup
 -------------
 
-* use backticks - ````settings.py```` - for:
-    * literals
-    * filenames
-    * names of fields and other items in the Admin interface:
-* use emphasis - ``*Home*`` around:
-    * the names of available options in the Admin
-    * values in or of fields
-* use strong emphasis - ``**Add page**`` around:
-    * buttons that perform an action
+* use backticks - `````` - for:
+    * literals - ````cms.models.pagemodel````
+    * filenames - ``edit ``settings.py````
+    * names of fields and other specific items in the Admin interface - ``edit ``Redirect````
+* use emphasis - ``*Home*`` - around:
+    * the names of available options in or parts of the Admin - ``the *Toolbar*``
+    * the names of important modes or states - ``switch to *Edit mode*``
+    * values in or of fields - ``enter *Home*``
+* use strong emphasis - ``**`` - around:
+    * buttons that perform an action - ``hit **Save as draft**``
 
 Rules for using technical words
 -------------------------------
@@ -236,6 +240,8 @@ References
 Use absolute links to other documentation pages - ``:doc:`/how_to/toolbar``` -
 rather than relative links - ``:doc:`/../toolbar```. This makes it easier to
 run search-and-replaces when items are moved in the structure.
+
+.. _contributing-translations:
 
 ************
 Translations

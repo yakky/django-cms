@@ -43,7 +43,6 @@ from cms.tests.menu_page_viewperm import *  # nopyflakes
 from cms.tests.menu_page_viewperm_staff import *  # nopyflakes
 from cms.tests.nested_plugins import *  # nopyflakes
 from cms.tests.check import *  # nopyflakes
-from cms.tests.frontend import *  # nopyflakes
 from cms.tests.signals import *  # nopyflakes
 from cms.tests.no_i18n import *  # nopyflakes
 from cms.tests.cache import *  # nopyflakes
