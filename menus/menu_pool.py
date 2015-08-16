@@ -118,8 +118,8 @@ class MenuPool(object):
                 # A Menu **instance** was registered, this is non-standard, but
                 # acceptable. However, it cannot be "expanded", so, just add it
                 # as-is to the list of expanded_menus.
-                expanded_menus[menu_class_name] = menu_cls
-            elif hasattr(menu_cls, "get_instances"):
+                menu_cls = menu_cls.__class__
+            if hasattr(menu_cls, "get_instances"):
                 # It quacks like a CMSAttachMenu, expand away!
                 # If a menu exists but has no instances,
                 # it's included in the available menus as is
@@ -153,8 +153,9 @@ class MenuPool(object):
         else:
             cache_keys = CacheKey.objects.get_keys(site_id, language)
         to_be_deleted = cache_keys.distinct().values_list('key', flat=True)
-        cache.delete_many(to_be_deleted)
-        cache_keys.delete()
+        if to_be_deleted:
+            cache.delete_many(to_be_deleted)
+            cache_keys.delete()
 
     def register_menu(self, menu_cls):
         from menus.base import Menu
@@ -209,6 +210,8 @@ class MenuPool(object):
         for menu_class_name in self.menus:
             menu = self.menus[menu_class_name]
             try:
+                if isinstance(menu, type):
+                    menu = menu()
                 nodes = menu.get_nodes(request)
             except NoReverseMatch:
                 # Apps might raise NoReverseMatch if an apphook does not yet
@@ -279,12 +282,19 @@ class MenuPool(object):
         return nodes
 
     def get_menus_by_attribute(self, name, value):
+        """
+        Returns the list of menus that match the name/value criteria provided.
+        """
+        # Note that we are limiting the output to only single instances of any
+        # specific menu class. This is to address issue (#4041) which has
+        # cropped-up in 3.0.13/3.0.0.
         self.discover_menus()
-        found = []
+        self._expand_menus()
+        found = set()
         for menu in self.menus.items():
             if hasattr(menu[1], name) and getattr(menu[1], name, None) == value:
-                found.append((menu[0], menu[1].name))
-        return found
+                found.add((menu[1].__class__.__name__, menu[1].name))
+        return sorted(list(found))
 
     def get_nodes_by_attribute(self, nodes, name, value):
         found = []

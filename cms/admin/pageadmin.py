@@ -174,6 +174,8 @@ class PageAdmin(PlaceholderAdminMixin, ModelAdmin):
         Move the page in the tree if necessary and save every placeholder
         Content object.
         """
+        from cms.extensions import extension_pool
+
         target = request.GET.get('target', None)
         position = request.GET.get('position', None)
 
@@ -217,6 +219,7 @@ class PageAdmin(PlaceholderAdminMixin, ModelAdmin):
                 obj.move_to(target, position)
         page_type_id = form.cleaned_data.get('page_type')
         copy_target_id = request.GET.get('copy_target')
+        copy_target = None
         if copy_target_id or page_type_id:
             if page_type_id:
                 copy_target_id = page_type_id
@@ -226,9 +229,9 @@ class PageAdmin(PlaceholderAdminMixin, ModelAdmin):
             obj = Page.objects.get(pk=obj.pk) #mptt reload
             copy_target._copy_attributes(obj, clean=True)
             obj.save()
-            for lang in copy_target.languages.split(','):
+            for lang in copy_target.get_languages():
                 copy_target._copy_contents(obj, lang)
-        if not 'permission' in request.path_info:
+        if 'permission' not in request.path_info:
             language = form.cleaned_data['language']
             Title.objects.set_or_create(
                 request,
@@ -236,6 +239,8 @@ class PageAdmin(PlaceholderAdminMixin, ModelAdmin):
                 form,
                 language,
             )
+        if copy_target:
+            extension_pool.copy_extensions(copy_target, obj)
         # is it home? publish it right away
         if new and Page.objects.filter(site_id=obj.site_id).count() == 1:
             obj.publish(language)
@@ -829,6 +834,7 @@ class PageAdmin(PlaceholderAdminMixin, ModelAdmin):
             helpers.make_revision_with_plugins(page, request.user, message)
         return HttpResponse(force_unicode(_("The template was successfully changed")))
 
+    @require_POST
     @wrap_transaction
     def move_page(self, request, page_id, extra_context=None):
         """
@@ -914,6 +920,7 @@ class PageAdmin(PlaceholderAdminMixin, ModelAdmin):
                 helpers.make_revision_with_plugins(page, request.user, message)
             return HttpResponse("ok")
 
+    @require_POST
     @wrap_transaction
     def copy_page(self, request, page_id, extra_context=None):
         """
@@ -947,6 +954,7 @@ class PageAdmin(PlaceholderAdminMixin, ModelAdmin):
         context.update(extra_context or {})
         return HttpResponseRedirect('../../')
 
+    @require_POST
     @wrap_transaction
     @create_revision()
     def publish_page(self, request, page_id, language):
@@ -1047,6 +1055,7 @@ class PageAdmin(PlaceholderAdminMixin, ModelAdmin):
                         revision.delete()
                         deleted.append(revision.pk)
 
+    @require_POST
     @wrap_transaction
     def unpublish(self, request, page_id, language):
         """
@@ -1082,6 +1091,7 @@ class PageAdmin(PlaceholderAdminMixin, ModelAdmin):
             path = "%s?language=%s&page_id=%s" % (path, request.GET.get('redirect_language'), request.GET.get('redirect_page_id'))
         return HttpResponseRedirect(path)
 
+    @require_POST
     @wrap_transaction
     def revert_page(self, request, page_id, language):
         page = get_object_or_404(Page, id=page_id)
@@ -1217,6 +1227,7 @@ class PageAdmin(PlaceholderAdminMixin, ModelAdmin):
             page.site.domain, url)
         return HttpResponseRedirect(url)
 
+    @require_POST
     def change_innavigation(self, request, page_id):
         """
         Switch the in_navigation of a page

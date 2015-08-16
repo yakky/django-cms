@@ -344,3 +344,40 @@ Please see Install/2.4 release notes *before* attempting to upgrade to version 2
 
 - Fixed a typo in JavaScript which prevents page tree from working
 
+=== 3.0.13 (2015-04-15) ===
+
+- Numerous documentation including installation and tutorial updates
+- Numerous improvements to translations
+- Improves reliability of apphooks
+- Improves reliabiliy of Advanced Settings on page when using apphooks
+- Allow page deletion after template removal
+- Improves upstream caching accuracy
+- Improves CMSAttachMenu registration
+- Improves handling of mistyped URLs
+- Improves redirection as a result of changes to page slugs, etc.
+- Improves performance of "watched models"
+- Improves frontend performance relating to resizing the sideframe
+- Corrects an issue where items might not be visible in structue mode menus
+- Limits version of django-mptt used in CMS for 3.0.x
+- Prevent accidental upgrades to Django 1.8, which is not yet supported
+
+=== 3.0.14 (2015-06-27) ===
+
+- Fixed an issue where privileged users could be tricked into performing actions without their knowledge via a CSRF vulnerability
+- Fixed an issue related to "Empty all" Placeholder feature
+- Fix issue with causes menu classes to be duplicated in advanced settings
+- Fix issue with breadcrumbs not showing
+- Fix issues with show_menu templatetags
+- Fix plugin sorting in py3
+- Fix search results number and items alignment in page changelist
+- Fix X-Frame-Options on top-level pages
+- Preserve information regarding the current view when applying the CMS decorator
+- Fix render_model template tag doesn't show correct change list
+- Fix language fallback for nested plugins
+- Fix order of which application urls are injected into urlpatterns
+- Fix delete non existing page language
+- Fix Scanning for placeholders fails on include tags with a variable as an argument
+- Minor documentation fixes
+- Pin South version to 1.0.2
+- Pin Html5lib version to 0.999 until a current bug is fixed
+- Fix language chooser template

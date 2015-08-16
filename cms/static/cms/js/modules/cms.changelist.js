@@ -29,7 +29,9 @@ $(document).ready(function () {
 				initTree();
 			} else {
 				// when filtered is active, prevent tree actions
+				this.setupFunctions();
 				this.setupUIHacks();
+				$.syncCols();
 			}
 		},
 
@@ -178,8 +180,17 @@ $(document).ready(function () {
 				// cancel if not confirmed
 				if(!confirm(that.options.lang.publish.replace('§', $(this).text().toLowerCase()))) return false;
 
-				// publish page and update
-				window.location.href = $(this).attr('href');
+				// send post request to prevent xss attacks
+				$.ajax({
+					'type': 'post',
+					'url': $(this).prop('href'),
+					'success': function () {
+						CMS.API.Helpers.reloadBrowser();
+					},
+					'error': function (request) {
+						throw new Error(request);
+					}
+				});
 			});
 		},
 
