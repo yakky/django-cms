@@ -50,7 +50,7 @@ We use `sphinxcontrib-spelling <https://pypi.python.org/pypi/sphinxcontrib-spell
 turn uses `pyenchant <https://pypi.python.org/pypi/pyenchant/>`_ and `enchant
 <http://www.abisource.com/projects/enchant/>`_ to check the spelling of the documentation.
 
-You need to check your spelling before submittsing documentation.
+You need to check your spelling before submitting documentation.
 
 
 Install the spelling software
