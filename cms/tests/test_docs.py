@@ -70,6 +70,9 @@ class DocsTestCase(CMSTestCase):
 
     @skipIf(has_no_internet(), "No internet")
     @skipIf(enchant is None, "Enchant not installed")
+    @skipUnless(django.VERSION[:2] == (1,8) \
+            and sys.version_info[:2] == (3, 4) \
+            and os.environ.get('DATABASE_URL') == 'sqlite://localhost/:memory:')
     def test_spelling(self):
         status = StringIO()
         with TemporaryDirectory() as OUT_DIR:
