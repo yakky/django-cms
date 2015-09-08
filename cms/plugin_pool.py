@@ -13,6 +13,7 @@ from django.template import TemplateDoesNotExist, TemplateSyntaxError
 from cms.exceptions import PluginAlreadyRegistered, PluginNotRegistered
 from cms.plugin_base import CMSPluginBase
 from cms.models import CMSPlugin
+from cms.utils.conf import get_cms_setting
 from cms.utils.django_load import load
 from cms.utils.helpers import reversion_register, normalize_name
 from cms.utils.placeholder import get_placeholder_conf
@@ -49,6 +50,11 @@ class PluginPool(object):
                 "CMS Plugins must be subclasses of CMSPluginBase, %r is not."
                 % plugin
             )
+
+        # Plugin is not registered
+        if plugin.__name__ in get_cms_setting('PLUGIN_EXCLUDED'):
+            return
+
         if (plugin.render_plugin and not type(plugin.render_plugin) == property
                 or hasattr(plugin.model, 'render_template')
                 or hasattr(plugin, 'get_render_template')):
@@ -164,7 +170,7 @@ class PluginPool(object):
                 include_plugin = not allowed_plugins and setting_key == "plugins" or plugin.__name__ in allowed_plugins
             if plugin.page_only and not include_page_only:
                 include_plugin = False
-            if include_plugin:
+            if include_plugin and plugin.__name__ not in get_cms_setting('PLUGIN_IGNORED'):
                 final_plugins.append(plugin)
 
         if final_plugins or placeholder:

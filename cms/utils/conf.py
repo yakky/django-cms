@@ -49,6 +49,8 @@ DEFAULTS = {
     'PLUGIN_CACHE': True,
     'CACHE_PREFIX': 'cms-',
     'PLUGIN_PROCESSORS': [],
+    'PLUGIN_EXCLUDED': [],
+    'PLUGIN_IGNORED': [],
     'PLUGIN_CONTEXT_PROCESSORS': [],
     'UNIHANDECODE_VERSION': None,
     'UNIHANDECODE_DECODERS': ['ja', 'zh', 'kr', 'vn', 'diacritic'],
