@@ -4,7 +4,11 @@ from django.conf.urls import include, url
 
 from cms.apphook_pool import apphook_pool
 from cms.appresolver import get_app_patterns
+from cms.plugin_pool import plugin_pool
 from cms.views import details
+
+
+plugin_pool.discover_plugins()
 
 # This is a constant, really, but must live here due to import order
 SLUG_REGEXP = '[0-9A-Za-z-_.//]+'
