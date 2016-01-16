@@ -4,10 +4,6 @@ from functools import wraps
 import json
 import sys
 
-from django.utils.formats import localize
-
-from cms.utils.compat import DJANGO_1_7
-
 import django
 from django.contrib.admin.helpers import AdminForm
 from django.conf import settings
@@ -15,16 +11,10 @@ from django.conf.urls import url
 from django.contrib import admin, messages
 from django.contrib.admin.models import LogEntry, CHANGE
 from django.contrib.admin.options import IncorrectLookupParameters
-try:
-    from django.contrib.admin.utils import get_deleted_objects, quote
-except ImportError:
-    from django.contrib.admin.util import get_deleted_objects, quote
+from django.contrib.admin.utils import get_deleted_objects, quote
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
-try:
-    from django.contrib.sites.shortcuts import get_current_site
-except ImportError:
-    from django.contrib.sites.models import get_current_site
+from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import PermissionDenied, ObjectDoesNotExist, ValidationError
 from django.db import router, transaction
 from django.db.models import Q
@@ -32,6 +22,7 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404, HttpRespons
 from django.shortcuts import render, get_object_or_404
 from django.template.defaultfilters import escape
 from django.utils.encoding import force_text
+from django.utils.formats import localize
 from django.utils.six.moves.urllib.parse import unquote
 from django.utils.translation import ugettext_lazy as _, get_language
 from django.utils.decorators import method_decorator
@@ -61,7 +52,7 @@ from cms.utils.urlutils import add_url_parameters, admin_reverse
 require_POST = method_decorator(require_POST)
 
 if is_installed('reversion'):
-    from cms.utils.reversion_hacks import ModelAdmin, create_revision, Version, RollBackRevisionView
+    from cms.utils.reversion_hacks import ModelAdmin, create_revision, Version
 else:  # pragma: no cover
     from django.contrib.admin import ModelAdmin
 
@@ -788,11 +779,7 @@ class PageAdmin(PlaceholderAdminMixin, ModelAdmin):
         return super(PageAdmin, self).history_view(request, object_id, extra_context)
 
     def get_object(self, request, object_id, from_field=None):
-        if from_field:
-            obj = super(PageAdmin, self).get_object(request, object_id, from_field)
-        else:
-            # This is for DJANGO_16
-            obj = super(PageAdmin, self).get_object(request, object_id)
+        obj = super(PageAdmin, self).get_object(request, object_id, from_field)
 
         if is_installed('reversion') and getattr(request, 'original_version_id', None):
             version = get_object_or_404(Version, pk=getattr(request, 'original_version_id', None))
@@ -816,8 +803,8 @@ class PageAdmin(PlaceholderAdminMixin, ModelAdmin):
         obj.version = version
         return obj, version
 
-    # Reversion 1.9+ no longer uses these two methods to save revision, but we still need them
-    # as we do not use signals
+    # Borrowed logic for Reversion 1.8 as 1.9+ does not use these methods anymore to save revision
+    # but we still need them as we do not use signals
     def log_addition(self, request, object):
         """Sets the version meta information."""
         if is_installed('reversion') and not hasattr(self, 'get_revision_data'):
@@ -838,33 +825,6 @@ class PageAdmin(PlaceholderAdminMixin, ModelAdmin):
                 page = object
             helpers.make_revision_with_plugins(page, request.user, message)
         super(PageAdmin, self).log_change(request, object, message)
-
-    # This is just for Django 1.6 / reversion 1.8 compatibility
-    # The handling of recover / revision in 3.3 can be simplified
-    # by using the new reversion semantic and django changeform_view
-    def revisionform_view(self, request, version, template_name, extra_context=None):
-        try:
-            with transaction.atomic():
-                # Revert the revision.
-                version.revision.revert(delete=True)
-                # Run the normal change_view view.
-                with self._create_revision(request):
-                    response = self.change_view(request, version.object_id, request.path, extra_context)
-                    # Decide on whether the keep the changes.
-                    if request.method == "POST" and response.status_code == 302:
-                        self.revision_context_manager.set_comment(_("Reverted to previous version, saved on %(datetime)s") % {"datetime": localize(version.revision.date_created)})
-                    else:
-                        response.template_name = template_name
-                        response.render()
-                        raise RollBackRevisionView
-        except RollBackRevisionView:
-            pass
-        return response
-
-    def render_revision_form(self, request, obj, version, context, revert=False, recover=False):
-        # reset parent to null if parent is not found
-        obj, version = self._reset_parent_during_reversion(obj, version, revert, recover)
-        return super(PageAdmin, self).render_revision_form(request, obj, version, context, revert, recover)
 
     @require_POST
     def undo(self, request, object_id):
@@ -1246,28 +1206,16 @@ class PageAdmin(PlaceholderAdminMixin, ModelAdmin):
             'using': using
         }
 
-        if DJANGO_1_7:
-            deleted_objects, perms_needed = get_deleted_objects(
-                [titleobj],
-                titleopts,
-                **kwargs
-            )[:2]
-            to_delete_plugins, perms_needed_plugins = get_deleted_objects(
-                saved_plugins,
-                pluginopts,
-                **kwargs
-            )[:2]
-        else:
-            deleted_objects, __, perms_needed = get_deleted_objects(
-                [titleobj],
-                titleopts,
-                **kwargs
-            )[:3]
-            to_delete_plugins, __, perms_needed_plugins = get_deleted_objects(
-                saved_plugins,
-                pluginopts,
-                **kwargs
-            )[:3]
+        deleted_objects, __, perms_needed = get_deleted_objects(
+            [titleobj],
+            titleopts,
+            **kwargs
+        )[:3]
+        to_delete_plugins, __, perms_needed_plugins = get_deleted_objects(
+            saved_plugins,
+            pluginopts,
+            **kwargs
+        )[:3]
 
         deleted_objects.append(to_delete_plugins)
         perms_needed = set(list(perms_needed) + list(perms_needed_plugins))

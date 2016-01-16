@@ -1,3 +1,8 @@
+=== 3.3.0 (Unreleased) ===
+
+* Removed support for Django 1.6, 1.7 and python 2.6
+* Set the default value of CMSPlugin.position to 0 instead of null
+
 === 3.2.1 (Unreleased) ===
 
 - Add support for django-reversion 1.10+
@@ -11,7 +16,6 @@
 - Fix messages not being positioned correctly in debug mode
 - Fixed an issue where plugin parent restrictions where not respected when pasting a plugin.
 - Added attr['is_page']=True to CMS Page navigation nodes
-
 
 === 3.2.0 (2015-11-24) ===
 
