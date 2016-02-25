@@ -48,6 +48,10 @@ class PluginModelBase(ModelBase):
         # create a new class (using the super-metaclass)
         new_class = super(PluginModelBase, cls).__new__(cls, name, bases, attrs)
 
+        for field  in new_class._meta.fields:
+            if field.name == 'cmsplugin_ptr':
+                field.rel.related_name = '+'
+
         # if there is a RenderMeta in attrs, use this one
         # else try to use the one from the superclass (if present)
         meta = attr_meta or getattr(new_class, '_render_meta', None)
