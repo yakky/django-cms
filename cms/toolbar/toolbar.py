@@ -144,15 +144,27 @@ class CMSToolbar(ToolbarAPIMixin):
                 )
         return user_settings
 
+    def _reorder_toolbars(self):
+        def toolbar_order_key(x):
+            if x.__class__.__name__ == 'BasicToolbar':
+                return '000-Initial{0}'.format(x.__class__.__name__)
+            else:
+                return x.__class__.__name__
+        self.toolbars.values()
+        sorted_toolbars = list(sorted(self.toolbars.values(), key=toolbar_order_key))
+        return sorted_toolbars
+
     def render_addons(self, context):
         addons = []
-        for toolbar in self.toolbars.values():
+        sorted_toolbars = self._reorder_toolbars()
+        for toolbar in sorted_toolbars:
             addons.extend(toolbar.render_addons(context))
         return ''.join(addons)
 
     def post_template_render_addons(self, context):
         addons = []
-        for toolbar in self.toolbars.values():
+        sorted_toolbars = self._reorder_toolbars()
+        for toolbar in sorted_toolbars:
             addons.extend(toolbar.post_template_render_addons(context))
         return ''.join(addons)
 
