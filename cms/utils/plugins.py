@@ -232,7 +232,7 @@ def assign_plugins(request, placeholders, template, lang=None, is_fallback=False
                     break
             if found:
                 continue
-            elif placeholder and get_placeholder_conf("language_fallback", placeholder.slot, template, False):
+            elif placeholder and get_placeholder_conf("language_fallback", placeholder.slot, template, True):
                 if hasattr(request, 'toolbar') and request.toolbar.edit_mode:
                     continue
                 fallback_languages = get_fallback_languages(lang)
