@@ -972,7 +972,7 @@ class PageAdmin(PlaceholderAdminMixin, ModelAdmin):
                 all_published = False
         statics = request.GET.get('statics', '')
         if not statics and not page:
-            return Http404("No page or stack found for publishing.")
+            raise Http404("No page or stack found for publishing.")
         if statics:
             static_ids = statics .split(',')
             for pk in static_ids:
@@ -1107,10 +1107,9 @@ class PageAdmin(PlaceholderAdminMixin, ModelAdmin):
             # if request comes from tree..
             return admin_utils.render_admin_menu_item(request, page)
 
-        referer = request.META.get('HTTP_REFERER', '')
-        path = '../../'
-        if admin_reverse('index') not in referer:
-            path = '%s?%s' % (referer.split('?')[0], get_cms_setting('CMS_TOOLBAR_URL__EDIT_OFF'))
+        # TODO: This should never fail, but it may be a POF
+        path = page.get_absolute_url(language=language)
+        path = '%s?%s' % (path, get_cms_setting('CMS_TOOLBAR_URL__EDIT_OFF'))
         return HttpResponseRedirect(path)
 
     @create_revision()
