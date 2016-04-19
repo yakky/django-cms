@@ -16,6 +16,7 @@ class CopyLangCommand(BaseCommand):
     def handle(self, *args, **kwargs):
         verbose = 'verbose' in args
         only_empty = 'force-copy' not in args
+        skip_content = 'skip-content' in args
         site = [arg.split("=")[1] for arg in args if arg.startswith("site")]
         if site:
             site = site.pop()
@@ -54,23 +55,25 @@ class CopyLangCommand(BaseCommand):
                     title.language = to_lang
                     title.save()
                 # copy plugins using API
-                if verbose:
-                    self.stdout.write('copying plugins for %s from %s\n' % (page.get_page_title(from_lang), from_lang))
-                copy_plugins_to_language(page, from_lang, to_lang, only_empty)
+                if not skip_content:
+                    if verbose:
+                        self.stdout.write('copying plugins for %s from %s\n' % (page.get_page_title(from_lang), from_lang))
+                    copy_plugins_to_language(page, from_lang, to_lang, only_empty)
             else:
                 if verbose:
                     self.stdout.write('Skipping page %s, language %s not defined\n' % (page, from_lang))
 
-        for static_placeholder in StaticPlaceholder.objects.all():
-            plugin_list = []
-            for plugin in static_placeholder.draft.get_plugins():
-                if plugin.language == from_lang:
-                    plugin_list.append(plugin)
+        if not skip_content:
+            for static_placeholder in StaticPlaceholder.objects.all():
+                plugin_list = []
+                for plugin in static_placeholder.draft.get_plugins():
+                    if plugin.language == from_lang:
+                        plugin_list.append(plugin)
 
-            if plugin_list:
-                if verbose:
-                    self.stdout.write("copying plugins from static_placeholder '%s' in '%s' to '%s'\n" % (static_placeholder.name, from_lang,
-                                                                                             to_lang))
-                copy_plugins_to(plugin_list, static_placeholder.draft, to_lang)
+                if plugin_list:
+                    if verbose:
+                        self.stdout.write("copying plugins from static_placeholder '%s' in '%s' to '%s'\n" % (static_placeholder.name, from_lang,
+                                                                                                 to_lang))
+                    copy_plugins_to(plugin_list, static_placeholder.draft, to_lang)
 
         self.stdout.write(u"all done")
