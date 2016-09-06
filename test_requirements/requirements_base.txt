@@ -1,4 +1,5 @@
 coverage==4.2
+pip>=8.1.2
 python-coveralls==2.5.0
 unittest-xml-reporting==1.11.0
 Pillow==3.3
@@ -6,8 +7,8 @@ https://github.com/fladi/django-treebeard/archive/django-1.10.zip
 argparse
 dj-database-url
 djangocms-admin-style>=1.0
-django-sekizai>=0.9
-django-classy-tags>=0.7.2
+django-sekizai>=0.10
+django-classy-tags>=0.8
 https://github.com/divio/djangocms-text-ckeditor/archive/master.zip
 -e git+git://github.com/divio/djangocms-column.git#egg=djangocms-column
 -e git+git://github.com/divio/djangocms-style.git#egg=djangocms-style
@@ -18,8 +19,8 @@ https://github.com/divio/djangocms-text-ckeditor/archive/master.zip
 -e git+git://github.com/divio/djangocms-teaser.git#egg=djangocms-teaser
 djangocms-video==1.1.0
 -e git+git://github.com/divio/djangocms-link.git#egg=djangocms-link
-https://github.com/ojii/django-better-test/archive/8aa2407d097fe3789b74682f0e6bd7d15d449416.zip#egg=django-better-test
-https://github.com/ojii/django-app-manage/archive/65da18ef234a4e985710c2c0ec760023695b40fe.zip#egg=django-app-manage
+https://github.com/ojii/django-better-test/archive/dj-1.10.zip#egg=django-better-test
+https://github.com/ojii/django-app-manage/archive/master.zip#egg=django-app-manage
 iptools
 sphinx==1.4.5
 sphinxcontrib-spelling

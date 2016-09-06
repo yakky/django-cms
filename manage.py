@@ -81,6 +81,7 @@ if __name__ == '__main__':
         'cms',
         'menus',
         'sekizai',
+        'better_test',
         'hvad',
     ] + PLUGIN_APPS
 
